@@ -72,6 +72,14 @@ section[id] { scroll-margin-top: 20px; }
 }
 .boton--contorno:hover { background: var(--naranja); color: #fff; }
 
+.boton--naranja {
+  background: var(--naranja);
+  color: #fff;
+  min-width: 140px;
+  padding: .9rem 2rem;
+}
+.boton--naranja:hover { background: var(--naranja-osc); }
+
 .boton--bloque { width: 100%; }
 
 /* ============================================================
@@ -94,10 +102,16 @@ section[id] { scroll-margin-top: 20px; }
     rgba(0,0,0,.05) 60%,
     rgba(0,0,0,0) 75%);
 }
+
+/* Contenedor del hero sin centrado — arranca a la izquierda con margen */
 .hero .contenedor {
-  width: min(100% - 3rem, 1400px);
-  padding-left: clamp(1.5rem, 3vw, 3rem);
+  width: 100%;
+  max-width: 1400px;
+  margin: 0;
+  padding-left: clamp(2rem, 6vw, 7rem);
+  padding-right: 2rem;
 }
+
 .hero__contenido {
   position: relative;
   z-index: 1;
@@ -178,16 +192,22 @@ section[id] { scroll-margin-top: 20px; }
   letter-spacing: .35em;
   margin-bottom: 1rem;
 }
+.historia__texto .seccion__texto {
+  font-size: .92rem;
+  text-align: justify;
+  line-height: 1.75;
+  hyphens: auto;
+}
 
 /* ============================================================
    PRODUCTOS
    ============================================================ */
 .grid-productos {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2rem;
   width: 100%;
-  max-width: 1150px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
@@ -258,6 +278,11 @@ section[id] { scroll-margin-top: 20px; }
   gap: 3rem;
   align-items: center;
 }
+.como-adquirir__texto {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
 .como-adquirir__texto .seccion__titulo { margin-bottom: 2rem; }
 
 .pasos { display: grid; gap: 1.5rem; }
@@ -277,15 +302,20 @@ section[id] { scroll-margin-top: 20px; }
 }
 .paso p { font-size: .9rem; color: var(--gris-700); }
 
+/* Imagen del móvil alineada en altura con el texto */
 .como-adquirir__media {
   display: flex;
   align-items: center;
   justify-content: center;
+  height: 100%;
 }
 .como-adquirir__media img {
-  width: 100%;
-  max-width: 420px;
+  width: auto;
+  max-width: 100%;
+  max-height: 520px;
+  height: auto;
   object-fit: contain;
+  display: block;
 }
 
 /* ============================================================
@@ -319,10 +349,12 @@ section[id] { scroll-margin-top: 20px; }
   aspect-ratio: 16 / 9;
   display: grid;
   place-items: center;
-  padding: 1.2rem;
+  padding: .75rem;
 }
 .certificado__logo img {
-  max-height: 65px;
+  width: 100%;
+  height: 100%;
+  max-height: none;
   object-fit: contain;
 }
 .certificado p {
@@ -361,63 +393,86 @@ section[id] { scroll-margin-top: 20px; }
   padding-bottom: .9rem;
   border-bottom: 1px solid var(--gris-200);
 }
+.faq-item p a {
+  color: var(--azul);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.faq-item p a:hover { color: var(--naranja); }
 
 /* ============================================================
-   CONTACTO
+   FORMULARIO DE REGISTRO
    ============================================================ */
-.contacto {
-  display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  gap: 4rem;
-  align-items: start;
-  max-width: 1050px;
+.formulario--registro {
+  max-width: 720px;
   margin-inline: auto;
-}
-.contacto__info {
-  display: grid;
-  gap: 1.4rem;
-  padding-top: .5rem;
-}
-.info-item__label {
-  font-family: var(--fuente-tit);
-  font-size: .72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .1em;
-  color: var(--gris-900);
-  margin-bottom: .3rem;
-}
-.info-item p { font-size: .9rem; color: var(--gris-700); }
-.info-item a:hover { color: var(--azul); text-decoration: underline; }
-
-.formulario {
   background: #fff;
   border: 1px solid var(--gris-200);
-  padding: 2rem;
+  padding: 2.5rem;
   display: grid;
-  gap: 1rem;
+  gap: 1.2rem;
 }
-.campo { display: grid; gap: .4rem; }
-.campo-fila { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-.campo label {
-  font-size: .8rem;
+
+.formulario--registro .campo label,
+.formulario--registro .campo__label {
+  display: block;
+  font-size: .9rem;
   font-weight: 600;
-  color: var(--gris-700);
+  color: var(--gris-900);
+  margin-bottom: .35rem;
 }
-.campo input,
-.campo textarea {
-  font-family: inherit;
+
+.formulario--registro input[type="text"],
+.formulario--registro input[type="tel"],
+.formulario--registro input[type="email"],
+.formulario--registro textarea {
+  width: 100%;
   padding: .75rem 1rem;
-  font-size: .88rem;
+  font-size: .9rem;
+  font-family: inherit;
   border: 1px solid var(--gris-200);
   background: #fff;
   color: var(--gris-900);
   transition: border-color .2s;
-  width: 100%;
 }
-.campo input:focus,
-.campo textarea:focus { outline: none; border-color: var(--azul); }
-.campo textarea { resize: vertical; }
+.formulario--registro input:focus,
+.formulario--registro textarea:focus {
+  outline: none;
+  border-color: var(--azul);
+}
+.formulario--registro textarea { resize: vertical; }
+
+.campo--radios { display: grid; gap: .6rem; }
+.radios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+}
+.radio {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  font-size: .9rem;
+  color: var(--gris-700);
+  cursor: pointer;
+}
+.radio input[type="radio"] {
+  accent-color: var(--azul);
+  width: 16px;
+  height: 16px;
+}
+
+.formulario__nota {
+  font-size: .85rem;
+  color: var(--gris-700);
+  line-height: 1.6;
+  margin-top: .5rem;
+}
+
+.formulario--registro .boton--naranja {
+  justify-self: start;
+}
 
 /* ============================================================
    FOOTER
@@ -472,6 +527,130 @@ section[id] { scroll-margin-top: 20px; }
 }
 
 /* ============================================================
+   CATÁLOGO (para catalogo.html)
+   ============================================================ */
+.banner-pagina {
+  background: linear-gradient(135deg, #fdf4ec 0%, #fbe8d4 100%);
+  padding: 3.5rem 0;
+  border-bottom: 1px solid var(--gris-200);
+}
+.banner-pagina__titulo {
+  font-family: var(--fuente-tit);
+  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+  font-weight: 800;
+  color: var(--gris-900);
+  letter-spacing: -.02em;
+  margin-bottom: .4rem;
+}
+.migas {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .88rem;
+  color: var(--gris-700);
+}
+.migas a { color: var(--gris-900); font-weight: 600; }
+.migas a:hover { color: var(--azul); }
+.migas span:last-child { color: var(--naranja); font-weight: 600; }
+
+.catalogo__grupo {
+  font-family: var(--fuente-tit);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--gris-900);
+  margin: 3rem 0 1.2rem;
+  padding-bottom: .6rem;
+  border-bottom: 2px solid var(--azul);
+  display: inline-block;
+}
+.catalogo__grupo:first-of-type { margin-top: 0; }
+
+.grid-catalogo {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 1.5rem;
+}
+
+.catalogo-producto {
+  background: #fff;
+  border: 1px solid var(--gris-200);
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow .3s ease, transform .3s ease;
+}
+.catalogo-producto:hover {
+  box-shadow: 0 10px 26px rgba(0,0,0,.08);
+  transform: translateY(-4px);
+}
+.catalogo-producto__media {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  padding: 1.2rem;
+}
+.catalogo-producto__media img {
+  max-height: 100%;
+  object-fit: contain;
+  transition: transform .4s ease;
+}
+.catalogo-producto:hover .catalogo-producto__media img { transform: scale(1.05); }
+
+.catalogo-producto__badge {
+  position: absolute;
+  top: .8rem; left: .8rem;
+  background: var(--azul);
+  color: #fff;
+  font-size: .65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  padding: .3rem .6rem;
+}
+.catalogo-producto__cuerpo {
+  padding: 1.1rem 1.2rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  flex: 1;
+}
+.catalogo-producto__titulo {
+  font-family: var(--fuente-tit);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gris-900);
+}
+.catalogo-producto__desc {
+  font-size: .85rem;
+  color: var(--gris-700);
+  line-height: 1.55;
+}
+.catalogo-producto__meta {
+  font-size: .78rem;
+  color: var(--gris-400);
+  margin-top: auto;
+  padding-top: .5rem;
+  border-top: 1px solid var(--gris-200);
+}
+.catalogo-producto__meta strong { color: var(--gris-700); }
+
+.catalogo__cta {
+  margin-top: 3rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+.catalogo__cta p {
+  font-size: 1.05rem;
+  color: var(--gris-700);
+  font-weight: 600;
+}
+
+/* ============================================================
    RESPONSIVE
    ============================================================ */
 @media (max-width: 1024px) {
@@ -484,7 +663,6 @@ section[id] { scroll-margin-top: 20px; }
   .historia__media { order: -1; }
   .como-adquirir { grid-template-columns: 1fr; gap: 2.5rem; }
   .como-adquirir__media { order: -1; }
-  .contacto      { grid-template-columns: 1fr; gap: 2rem; }
   .faq-grid      { grid-template-columns: 1fr; gap: 1.5rem; }
   .footer__inner { grid-template-columns: 1fr 1fr; }
 }
@@ -495,7 +673,6 @@ section[id] { scroll-margin-top: 20px; }
   .hero__etiqueta { font-size: .68rem; letter-spacing: .22em; }
   .grid-productos { grid-template-columns: 1fr; }
   .grid-certificados { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .campo-fila { grid-template-columns: 1fr; }
   .footer__inner { grid-template-columns: 1fr; gap: 2rem; }
-  .formulario { padding: 1.5rem; }
+  .formulario--registro { padding: 1.5rem; }
 }
