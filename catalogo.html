@@ -4,8 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Catálogo · Optiline</title>
-  <meta name="description" content="Catálogo de lentes de contacto formulados y cosméticos de Optiline. Consulta fórmulas y presentaciones disponibles.">
+  <meta name="description" content="Catálogo de lentes de contacto formulados y cosméticos de Optiline.">
   <link rel="icon" type="image/png" href="img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -13,7 +16,6 @@
 <!-- ================= HEADER ================= -->
 <header class="header">
   <div class="contenedor header__inner">
-
     <a href="index.html" class="logo">
       <img src="img/logo.png" alt="Optiline" class="logo__img">
     </a>
@@ -23,157 +25,215 @@
       <span></span><span></span><span></span>
     </label>
 
-
-    
+    <nav class="nav">
+      <ul class="nav__lista">
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="index.html#productos">Productos</a></li>
+        <li><a href="catalogo.html" class="activo">Catálogo</a></li>
+        <li><a href="index.html#como-adquirir">Cómo adquirir</a></li>
+        <li><a href="index.html#nosotros">Nosotros</a></li>
+        <li><a href="index.html#certificados">Certificados</a></li>
+        <li><a href="index.html#faq">FAQ</a></li>
+        <li><a href="index.html#registro">Registra tu óptica</a></li>
+      </ul>
+    </nav>
   </div>
 </header>
 
-<!-- ================= BANNER CATÁLOGO ================= -->
+<!-- ================= BANNER ================= -->
 <section class="banner-pagina">
   <div class="contenedor">
     <h1 class="banner-pagina__titulo">Catálogo</h1>
     <nav class="migas">
       <a href="index.html">Inicio</a>
       <span>›</span>
-      <span>Catálogo</span>
+      <a href="catalogo.html">Catálogo</a>
+      <span>›</span>
+      <span id="miga-actual">Categorías</span>
     </nav>
   </div>
 </section>
 
-<!-- ================= CATÁLOGO ================= -->
-<section class="seccion" id="catalogo">
+<!-- ================= VISTA 1: CATEGORÍAS ================= -->
+<section class="seccion view active" id="view-categorias">
   <div class="contenedor">
 
-    <!-- ---------- CATEGORÍA: FORMULADOS ---------- -->
-    <h2 class="catalogo__grupo">Lentes de contacto formulados</h2>
-    <div class="grid-catalogo">
+    <header class="seccion__cabecera seccion__cabecera--centrada">
+      <h2 class="seccion__titulo">Productos para cada necesidad</h2>
+    </header>
 
-      <article class="producto">
-        <div class="producto__media">
-          <img src="img/prod-mensuales.jpg" alt="Lentes de contacto mensuales">
-          <span class="producto__badge">Mensual</span>
+    <div class="grid-productos">
+
+      <article class="producto-card">
+        <div class="producto-card__media">
+          <img src="img/lentes-contacto-formulados.jpg" alt="Lentes de contacto formulados">
         </div>
-        <div class="producto__cuerpo">
-          <h4 class="producto__titulo">Lentes mensuales</h4>
-          <p class="producto__desc">Hidrogel de silicona de alta oxigenación. Uso diario con recambio mensual.</p>
-          <p class="producto__meta"><strong>Fórmulas:</strong> -0.50 a -6.00</p>
+        <div class="producto-card__cuerpo">
+          <h3 class="producto-card__titulo">Lentes de contacto<br>formulados</h3>
+          <p class="producto-card__desc">Lentes de contacto formulados con y sin corrección.</p>
+          <button type="button" class="boton boton--primario" onclick="showView('formulados')">Ver catálogo</button>
         </div>
       </article>
 
-      <article class="producto">
-        <div class="producto__media">
-          <img src="img/prod-diarios.jpg" alt="Lentes de contacto diarios">
-          <span class="producto__badge">Diario</span>
+      <article class="producto-card">
+        <div class="producto-card__media">
+          <img src="img/lentes-contacto-cosmeticos.jpg" alt="Lentes de contacto cosméticos">
         </div>
-        <div class="producto__cuerpo">
-          <h4 class="producto__titulo">Lentes diarios</h4>
-          <p class="producto__desc">Desechables de un solo uso. Máxima comodidad, sin mantenimiento.</p>
-          <p class="producto__meta"><strong>Fórmulas:</strong> -0.50 a -6.00</p>
-        </div>
-      </article>
-
-      <article class="producto">
-        <div class="producto__media">
-          <img src="img/prod-quincenales.jpg" alt="Lentes de contacto quincenales">
-          <span class="producto__badge">Quincenal</span>
-        </div>
-        <div class="producto__cuerpo">
-          <h4 class="producto__titulo">Lentes quincenales</h4>
-          <p class="producto__desc">Recambio cada 15 días. Equilibrio entre comodidad y rendimiento.</p>
-          <p class="producto__meta"><strong>Fórmulas:</strong> -1.00 a -5.50</p>
-        </div>
-      </article>
-
-      <article class="producto">
-        <div class="producto__media">
-          <img src="img/prod-toricos.jpg" alt="Lentes de contacto tóricos">
-          <span class="producto__badge">Astigmatismo</span>
-        </div>
-        <div class="producto__cuerpo">
-          <h4 class="producto__titulo">Lentes tóricos</h4>
-          <p class="producto__desc">Diseñados para corregir astigmatismo. Estabilización y visión nítida.</p>
-          <p class="producto__meta"><strong>Fórmulas:</strong> cilindros -0.75 a -2.25</p>
-        </div>
-      </article>
-
-      <article class="producto">
-        <div class="producto__media">
-          <img src="img/prod-multifocales.jpg" alt="Lentes de contacto multifocales">
-          <span class="producto__badge">Presbicia</span>
-        </div>
-        <div class="producto__cuerpo">
-          <h4 class="producto__titulo">Lentes multifocales</h4>
-          <p class="producto__desc">Visión cercana, intermedia y lejana en un solo lente.</p>
-          <p class="producto__meta"><strong>ADD:</strong> +1.00 a +2.50</p>
+        <div class="producto-card__cuerpo">
+          <h3 class="producto-card__titulo">Lentes de contacto<br>cosméticos</h3>
+          <p class="producto-card__desc">Diseños estéticos con y sin corrección para realzar la mirada.</p>
+          <button type="button" class="boton boton--primario" onclick="showView('cosmeticos')">Ver catálogo</button>
         </div>
       </article>
 
     </div>
+  </div>
+</section>
 
-    <!-- ---------- CATEGORÍA: COSMÉTICOS ---------- -->
-    <h2 class="catalogo__grupo">Lentes de contacto cosméticos</h2>
-    <div class="grid-catalogo">
+<!-- ================= VISTA 2: FORMULADOS ================= -->
+<section class="seccion view" id="view-formulados">
+  <div class="contenedor">
 
-      <article class="producto">
-        <div class="producto__media">
-          <img src="img/prod-color-azul.jpg" alt="Lentes cosméticos azul">
-          <span class="producto__badge">Color</span>
+    <button type="button" class="btn-volver" onclick="showView('categorias')">
+      ← Volver a categorías
+    </button>
+
+    <div class="catalogo-toolbar">
+      <div class="catalogo-toolbar__left">
+        <select class="catalogo-select">
+          <option>Orden predeterminado</option>
+          <option>Precio: menor a mayor</option>
+          <option>Precio: mayor a menor</option>
+          <option>Nombre: A - Z</option>
+        </select>
+      </div>
+      <div class="catalogo-toolbar__right">
+        Mostrando los 5 resultados
+      </div>
+    </div>
+
+    <div class="grid-catalogo-productos">
+
+      <article class="catalogo-producto">
+        <div class="catalogo-producto__media">
+          <img src="img/freedom-380.jpg" alt="Freedom 380 Blue Block">
         </div>
-        <div class="producto__cuerpo">
-          <h4 class="producto__titulo">Cosméticos azul</h4>
-          <p class="producto__desc">Realce estético con corrección disponible.</p>
-          <p class="producto__meta"><strong>Fórmulas:</strong> -0.00 a -3.00</p>
+        <div class="catalogo-producto__cuerpo">
+          <h3 class="catalogo-producto__titulo">Freedom 380 Blue Block</h3>
+          <p class="catalogo-producto__precio-desc">Precio por caja de 6 unidades.</p>
+          <p class="catalogo-producto__precio">Bs. 16.050,00</p>
         </div>
       </article>
 
-      <article class="producto">
-        <div class="producto__media">
-          <img src="img/prod-color-verde.jpg" alt="Lentes cosméticos verde">
-          <span class="producto__badge">Color</span>
+      <article class="catalogo-producto">
+        <div class="catalogo-producto__media">
+          <img src="img/morning-q.jpg" alt="Lente de contacto">
         </div>
-        <div class="producto__cuerpo">
-          <h4 class="producto__titulo">Cosméticos verde</h4>
-          <p class="producto__desc">Realce estético con corrección disponible.</p>
-          <p class="producto__meta"><strong>Fórmulas:</strong> -0.00 a -3.00</p>
-        </div>
-      </article>
-
-      <article class="producto">
-        <div class="producto__media">
-          <img src="img/prod-color-gris.jpg" alt="Lentes cosméticos gris">
-          <span class="producto__badge">Color</span>
-        </div>
-        <div class="producto__cuerpo">
-          <h4 class="producto__titulo">Cosméticos gris</h4>
-          <p class="producto__desc">Realce estético con corrección disponible.</p>
-          <p class="producto__meta"><strong>Fórmulas:</strong> -0.00 a -3.00</p>
+        <div class="catalogo-producto__cuerpo">
+          <h3 class="catalogo-producto__titulo">Lente de contacto</h3>
+          <p class="catalogo-producto__precio-desc">Precio por unidad</p>
+          <p class="catalogo-producto__precio">Bs. 5.082,50</p>
         </div>
       </article>
 
-      <article class="producto">
-        <div class="producto__media">
-          <img src="img/prod-color-miel.jpg" alt="Lentes cosméticos miel">
-          <span class="producto__badge">Color</span>
+      <article class="catalogo-producto">
+        <div class="catalogo-producto__media">
+          <img src="img/morning-q-festival.jpg" alt="Lentes de colores">
         </div>
-        <div class="producto__cuerpo">
-          <h4 class="producto__titulo">Cosméticos miel</h4>
-          <p class="producto__desc">Realce estético con corrección disponible.</p>
-          <p class="producto__meta"><strong>Fórmulas:</strong> -0.00 a -3.00</p>
+        <div class="catalogo-producto__cuerpo">
+          <h3 class="catalogo-producto__titulo">Lentes de colores</h3>
+          <p class="catalogo-producto__precio-desc">Precio por caja de 2 unidades.</p>
+          <p class="catalogo-producto__precio">Bs. 15.515,00</p>
         </div>
+      </article>
+
+      <article class="catalogo-producto">
+        <div class="catalogo-producto__media">
+          <img src="img/morning-q55.jpg" alt="Lentes de contacto Morning Q55">
+        </div>
+        <div class="catalogo-producto__cuerpo">
+          <h3 class="catalogo-producto__titulo">Lentes de contacto</h3>
+          <p class="catalogo-producto__precio-desc">Precio por caja de 6 unidades.</p>
+          <p class="catalogo-producto__precio">Bs. 16.050,00</p>
+        </div>
+        <button type="button" class="catalogo-producto__opciones">Seleccionar opciones</button>
+      </article>
+
+      <article class="catalogo-producto">
+        <div class="catalogo-producto__media">
+          <img src="img/hdx-2.jpg" alt="Multifocales HDX-2">
+        </div>
+        <div class="catalogo-producto__cuerpo">
+          <h3 class="catalogo-producto__titulo">Multifocales HDX-2</h3>
+          <p class="catalogo-producto__precio-desc">Precio por caja de 6 unidades.</p>
+          <p class="catalogo-producto__precio">Bs. 16.050,00</p>
+        </div>
+        <button type="button" class="catalogo-producto__opciones">Seleccionar opciones</button>
       </article>
 
     </div>
+  </div>
+</section>
 
-    <div class="catalogo__cta">
-      <p>¿No encuentras la fórmula que buscas?</p>
-      <a href="index.html#contacto" class="boton boton--primario">Contáctanos</a>
+<!-- ================= VISTA 3: COSMÉTICOS ================= -->
+<section class="seccion view" id="view-cosmeticos">
+  <div class="contenedor">
+
+    <button type="button" class="btn-volver" onclick="showView('categorias')">
+      ← Volver a categorías
+    </button>
+
+    <div class="catalogo-toolbar">
+      <div class="catalogo-toolbar__left">
+        <select class="catalogo-select">
+          <option>Orden predeterminado</option>
+          <option>Precio: menor a mayor</option>
+          <option>Precio: mayor a menor</option>
+          <option>Nombre: A - Z</option>
+        </select>
+      </div>
+      <div class="catalogo-toolbar__right">
+        Mostrando los 2 resultados
+      </div>
     </div>
 
+    <div class="grid-catalogo-productos grid-catalogo-productos--2col">
+
+      <article class="catalogo-producto">
+        <div class="catalogo-producto__media">
+          <img src="img/morning-q-festival.jpg" alt="Lentes Crazy">
+        </div>
+        <div class="catalogo-producto__cuerpo">
+          <h3 class="catalogo-producto__titulo">Lentes Crazy</h3>
+          <p class="catalogo-producto__precio-desc">Precio por caja de 2 unidades.</p>
+          <p class="catalogo-producto__precio">Bs. 46,00</p>
+        </div>
+        <button type="button" class="catalogo-producto__opciones catalogo-producto__opciones--destacado">
+          Seleccionar opciones
+        </button>
+      </article>
+
+      <article class="catalogo-producto">
+        <div class="catalogo-producto__media">
+          <img src="img/morning-q-festival.jpg" alt="Lentes de colores">
+        </div>
+        <div class="catalogo-producto__cuerpo">
+          <h3 class="catalogo-producto__titulo">Lentes de colores</h3>
+          <p class="catalogo-producto__precio-desc">Precio por caja de 2 unidades.</p>
+          <p class="catalogo-producto__precio">Bs. 15.515,00</p>
+        </div>
+        <button type="button" class="catalogo-producto__opciones">
+          Seleccionar opciones
+        </button>
+      </article>
+
+    </div>
   </div>
 </section>
 
 <!-- ================= FOOTER ================= -->
 <footer class="footer">
+  <div class="footer__bg"></div>
   <div class="contenedor footer__inner">
     <div class="footer__col">
       <a href="index.html" class="logo logo--claro">
@@ -192,6 +252,7 @@
         <li><a href="index.html#nosotros">Nosotros</a></li>
         <li><a href="index.html#certificados">Certificados</a></li>
         <li><a href="index.html#faq">Preguntas frecuentes</a></li>
+        <li><a href="index.html#registro">Registra tu óptica</a></li>
       </ul>
     </div>
 
@@ -206,9 +267,32 @@
   </div>
 
   <div class="contenedor footer__bottom">
-    <p>© 2025 Optiline. Todos los derechos reservados.</p>
+    <p>Copyright © 2026 Optiline | Productos para Ópticas</p>
   </div>
 </footer>
+
+<!-- ================= SCRIPT DE VISTAS ================= -->
+<script>
+  function showView(view) {
+    // Ocultar todas las vistas
+    document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+
+    // Mostrar la vista seleccionada
+    if (view === 'categorias') {
+      document.getElementById('view-categorias').classList.add('active');
+      document.getElementById('miga-actual').textContent = 'Categorías';
+    } else if (view === 'formulados') {
+      document.getElementById('view-formulados').classList.add('active');
+      document.getElementById('miga-actual').textContent = 'Formulados';
+    } else if (view === 'cosmeticos') {
+      document.getElementById('view-cosmeticos').classList.add('active');
+      document.getElementById('miga-actual').textContent = 'Cosméticos';
+    }
+
+    // Subir al tope suavemente
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
 
 </body>
 </html>
