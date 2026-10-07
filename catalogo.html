@@ -19,12 +19,10 @@
     <a href="index.html" class="logo">
       <img src="img/logo.png" alt="Optiline" class="logo__img">
     </a>
-
     <input type="checkbox" id="menu-toggle" class="menu-toggle" hidden>
     <label for="menu-toggle" class="menu-icono" aria-label="Abrir menú">
       <span></span><span></span><span></span>
     </label>
-
     <nav class="nav">
       <ul class="nav__lista">
         <li><a href="index.html">Inicio</a></li>
@@ -57,164 +55,22 @@
 <!-- ================= VISTA 1: CATEGORÍAS ================= -->
 <section class="seccion view active" id="view-categorias">
   <div class="contenedor">
-
     <header class="seccion__cabecera seccion__cabecera--centrada">
       <h2 class="seccion__titulo">Productos para cada necesidad</h2>
     </header>
-
-    <div class="grid-productos">
-
-      <article class="producto-card">
-        <div class="producto-card__media">
-          <img src="img/lentes-contacto-formulados.jpg" alt="Lentes de contacto formulados">
-        </div>
-        <div class="producto-card__cuerpo">
-          <h3 class="producto-card__titulo">Lentes de contacto<br>formulados</h3>
-          <p class="producto-card__desc">Lentes de contacto formulados con y sin corrección.</p>
-          <button type="button" class="boton boton--primario" onclick="showView('formulados')">Ver catálogo</button>
-        </div>
-      </article>
-
-      <article class="producto-card">
-        <div class="producto-card__media">
-          <img src="img/lentes-contacto-cosmeticos.jpg" alt="Lentes de contacto cosméticos">
-        </div>
-        <div class="producto-card__cuerpo">
-          <h3 class="producto-card__titulo">Lentes de contacto<br>cosméticos</h3>
-          <p class="producto-card__desc">Diseños estéticos con y sin corrección para realzar la mirada.</p>
-          <button type="button" class="boton boton--primario" onclick="showView('cosmeticos')">Ver catálogo</button>
-        </div>
-      </article>
-
+    <div class="grid-productos" id="grid-categorias">
+      <!-- Se llena desde Supabase -->
     </div>
   </div>
 </section>
 
-<!-- ================= VISTA 2: FORMULADOS ================= -->
-<section class="seccion view" id="view-formulados">
+<!-- ================= VISTA 2: PRODUCTOS POR CATEGORÍA ================= -->
+<section class="seccion view" id="view-productos">
   <div class="contenedor">
-
     <button type="button" class="btn-volver" onclick="showView('categorias')">← Volver a categorías</button>
-
-    <div class="catalogo-toolbar">
-      <div class="catalogo-toolbar__left">
-        <select class="catalogo-select">
-          <option>Orden predeterminado</option>
-          <option>Precio: menor a mayor</option>
-          <option>Precio: mayor a menor</option>
-          <option>Nombre: A - Z</option>
-        </select>
-      </div>
-      <div class="catalogo-toolbar__right">Mostrando los 5 resultados</div>
-    </div>
-
-    <div class="grid-catalogo-productos">
-
-      <article class="catalogo-producto">
-        <div class="catalogo-producto__media">
-          <img src="img/freedom-380.jpg" alt="Freedom 380 Blue Block">
-        </div>
-        <div class="catalogo-producto__cuerpo">
-          <h3 class="catalogo-producto__titulo">Freedom 380 Blue Block</h3>
-          <p class="catalogo-producto__precio-desc">Precio por caja de 6 unidades.</p>
-          <p class="catalogo-producto__precio">Bs. 16.050,00</p>
-        </div>
-      </article>
-
-      <article class="catalogo-producto">
-        <div class="catalogo-producto__media">
-          <img src="img/morning-q.jpg" alt="Lente de contacto">
-        </div>
-        <div class="catalogo-producto__cuerpo">
-          <h3 class="catalogo-producto__titulo">Lente de contacto</h3>
-          <p class="catalogo-producto__precio-desc">Precio por unidad</p>
-          <p class="catalogo-producto__precio">Bs. 5.082,50</p>
-        </div>
-      </article>
-
-      <article class="catalogo-producto">
-        <div class="catalogo-producto__media">
-          <img src="img/morning-q-festival.jpg" alt="Lentes de colores">
-        </div>
-        <div class="catalogo-producto__cuerpo">
-          <h3 class="catalogo-producto__titulo">Lentes de colores</h3>
-          <p class="catalogo-producto__precio-desc">Precio por caja de 2 unidades.</p>
-          <p class="catalogo-producto__precio">Bs. 15.515,00</p>
-        </div>
-      </article>
-
-      <article class="catalogo-producto">
-        <div class="catalogo-producto__media">
-          <img src="img/morning-q55.jpg" alt="Lentes de contacto Morning Q55">
-        </div>
-        <div class="catalogo-producto__cuerpo">
-          <h3 class="catalogo-producto__titulo">Lentes de contacto</h3>
-          <p class="catalogo-producto__precio-desc">Precio por caja de 6 unidades.</p>
-          <p class="catalogo-producto__precio">Bs. 16.050,00</p>
-        </div>
-        <button type="button" class="catalogo-producto__opciones">Seleccionar opciones</button>
-      </article>
-
-      <article class="catalogo-producto">
-        <div class="catalogo-producto__media">
-          <img src="img/hdx-2.jpg" alt="Multifocales HDX-2">
-        </div>
-        <div class="catalogo-producto__cuerpo">
-          <h3 class="catalogo-producto__titulo">Multifocales HDX-2</h3>
-          <p class="catalogo-producto__precio-desc">Precio por caja de 6 unidades.</p>
-          <p class="catalogo-producto__precio">Bs. 16.050,00</p>
-        </div>
-        <button type="button" class="catalogo-producto__opciones">Seleccionar opciones</button>
-      </article>
-
-    </div>
-  </div>
-</section>
-
-<!-- ================= VISTA 3: COSMÉTICOS ================= -->
-<section class="seccion view" id="view-cosmeticos">
-  <div class="contenedor">
-
-    <button type="button" class="btn-volver" onclick="showView('categorias')">← Volver a categorías</button>
-
-    <div class="catalogo-toolbar">
-      <div class="catalogo-toolbar__left">
-        <select class="catalogo-select">
-          <option>Orden predeterminado</option>
-          <option>Precio: menor a mayor</option>
-          <option>Precio: mayor a menor</option>
-          <option>Nombre: A - Z</option>
-        </select>
-      </div>
-      <div class="catalogo-toolbar__right">Mostrando los 2 resultados</div>
-    </div>
-
-    <div class="grid-catalogo-productos grid-catalogo-productos--2col">
-
-      <article class="catalogo-producto">
-        <div class="catalogo-producto__media">
-          <img src="img/morning-q-festival.jpg" alt="Lentes Crazy">
-        </div>
-        <div class="catalogo-producto__cuerpo">
-          <h3 class="catalogo-producto__titulo">Lentes Crazy</h3>
-          <p class="catalogo-producto__precio-desc">Precio por caja de 2 unidades.</p>
-          <p class="catalogo-producto__precio">Bs. 46,00</p>
-        </div>
-        <button type="button" class="catalogo-producto__opciones catalogo-producto__opciones--destacado">Seleccionar opciones</button>
-      </article>
-
-      <article class="catalogo-producto">
-        <div class="catalogo-producto__media">
-          <img src="img/morning-q-festival.jpg" alt="Lentes de colores">
-        </div>
-        <div class="catalogo-producto__cuerpo">
-          <h3 class="catalogo-producto__titulo">Lentes de colores</h3>
-          <p class="catalogo-producto__precio-desc">Precio por caja de 2 unidades.</p>
-          <p class="catalogo-producto__precio">Bs. 15.515,00</p>
-        </div>
-        <button type="button" class="catalogo-producto__opciones">Seleccionar opciones</button>
-      </article>
-
+    <h2 class="seccion__titulo" id="titulo-categoria" style="margin-bottom:2rem;"></h2>
+    <div class="grid-catalogo-productos" id="grid-productos">
+      <!-- Se llena desde Supabase -->
     </div>
   </div>
 </section>
@@ -229,7 +85,6 @@
       </a>
       <p class="footer__texto">Distribución al mayor de lentes de contacto, monturas y cristales en Venezuela.</p>
     </div>
-
     <div class="footer__col">
       <h4>Navegación</h4>
       <ul>
@@ -243,7 +98,6 @@
         <li><a href="index.html#registro">Registra tu óptica</a></li>
       </ul>
     </div>
-
     <div class="footer__col">
       <h4>Contacto</h4>
       <ul>
@@ -253,30 +107,106 @@
       </ul>
     </div>
   </div>
-
   <div class="contenedor footer__bottom">
     <p>Copyright © 2026 Optiline | Productos para Ópticas</p>
   </div>
 </footer>
 
-<!-- ================= SCRIPT DE VISTAS ================= -->
-<script>
-  function showView(view) {
-    document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+<!-- ================= SUPABASE ================= -->
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-    if (view === 'categorias') {
-      document.getElementById('view-categorias').classList.add('active');
-      document.getElementById('miga-actual').textContent = 'Categorías';
-    } else if (view === 'formulados') {
-      document.getElementById('view-formulados').classList.add('active');
-      document.getElementById('miga-actual').textContent = 'Formulados';
-    } else if (view === 'cosmeticos') {
-      document.getElementById('view-cosmeticos').classList.add('active');
-      document.getElementById('miga-actual').textContent = 'Cosméticos';
+  // ⚠️ REEMPLAZA con tus credenciales de Supabase
+  const SUPABASE_URL = 'TU_SUPABASE_URL'
+  const SUPABASE_ANON_KEY = 'TU_SUPABASE_ANON_KEY'
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+  let categorias = []
+
+  // Cargar categorías y renderizar
+  async function cargarCategorias() {
+    const { data, error } = await supabase
+      .from('categorias')
+      .select('*')
+      .order('id')
+
+    if (error) { console.error(error); return }
+
+    categorias = data
+    const contenedor = document.getElementById('grid-categorias')
+
+    contenedor.innerHTML = data.map(cat => `
+      <article class="producto-card">
+        <div class="producto-card__media">
+          <img src="${cat.slug === 'formulados' ? 'img/lentes-contacto-formulados.jpg' : 'img/lentes-contacto-cosmeticos.jpg'}" alt="${cat.nombre}">
+        </div>
+        <div class="producto-card__cuerpo">
+          <h3 class="producto-card__titulo">${cat.nombre}</h3>
+          <p class="producto-card__desc">Descubre todos los productos disponibles en esta categoría.</p>
+          <button type="button" class="boton boton--primario" onclick="showView('productos', ${cat.id}, '${cat.nombre}')">Ver catálogo</button>
+        </div>
+      </article>
+    `).join('')
+  }
+
+  // Cargar productos de una categoría
+  async function cargarProductos(categoriaId, nombreCategoria) {
+    document.getElementById('titulo-categoria').textContent = nombreCategoria
+    document.getElementById('miga-actual').textContent = nombreCategoria
+
+    const { data, error } = await supabase
+      .from('productos')
+      .select(`
+        id, nombre, descripcion, imagen_url,
+        variantes ( id, nombre, lotes ( stock ) )
+      `)
+      .eq('categoria_id', categoriaId)
+
+    if (error) { console.error(error); return }
+
+    const contenedor = document.getElementById('grid-productos')
+
+    if (!data.length) {
+      contenedor.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#8a8a8a;">No hay productos en esta categoría.</p>'
+      return
     }
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    contenedor.innerHTML = data.map(prod => {
+      const stockTotal = prod.variantes?.reduce((acc, v) =>
+        acc + (v.lotes?.reduce((s, l) => s + l.stock, 0) || 0), 0) || 0
+
+      return `
+        <article class="catalogo-producto">
+          <div class="catalogo-producto__media">
+            <img src="${prod.imagen_url || 'img/placeholder.jpg'}" alt="${prod.nombre}">
+          </div>
+          <div class="catalogo-producto__cuerpo">
+            <h3 class="catalogo-producto__titulo">${prod.nombre}</h3>
+            <p class="catalogo-producto__precio-desc">${prod.descripcion || ''}</p>
+            <p class="catalogo-producto__precio">Stock: ${stockTotal} unidades</p>
+          </div>
+          <button type="button" class="catalogo-producto__opciones">Seleccionar opciones</button>
+        </article>
+      `
+    }).join('')
   }
+
+  // Mostrar vista
+  window.showView = function(view, categoriaId = null, nombreCategoria = '') {
+    document.querySelectorAll('.view').forEach(el => el.classList.remove('active'))
+
+    if (view === 'categorias') {
+      document.getElementById('view-categorias').classList.add('active')
+      document.getElementById('miga-actual').textContent = 'Categorías'
+    } else if (view === 'productos' && categoriaId) {
+      cargarProductos(categoriaId, nombreCategoria)
+      document.getElementById('view-productos').classList.add('active')
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  // Inicializar
+  cargarCategorias()
 </script>
 
 </body>
