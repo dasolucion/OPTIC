@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin · Optiline</title>
+  <link rel="icon" type="image/png" href="img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { background: #f7f7f7; min-height: 100vh; }
+    .admin-login {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .admin-login__box {
+      background: #fff;
+      border: 1px solid #d9d9d9;
+      padding: 3rem 2.5rem;
+      width: 100%;
+      max-width: 420px;
+    }
+    .admin-login__box h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #3a3a3a;
+      margin-bottom: .5rem;
+    }
+    .admin-login__box p {
+      font-size: .9rem;
+      color: #5a5a5a;
+      margin-bottom: 2rem;
+    }
+    .admin-login__box input {
+      width: 100%;
+      padding: .8rem 1rem;
+      margin-bottom: 1rem;
+      border: 1px solid #d9d9d9;
+      font-family: inherit;
+      font-size: .9rem;
+    }
+    .admin-login__box input:focus { outline: none; border-color: #0b4d8c; }
+    .admin-login__box .boton { width: 100%; }
+    .admin-login__error {
+      color: #d32f2f;
+      font-size: .85rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+    .admin-panel { display: none; padding: 3rem 0; }
+    .admin-panel.activo { display: block; }
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2.5rem;
+    }
+    .admin-header h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #3a3a3a;
+    }
+    .admin-tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid #d9d9d9;
+    }
+    .admin-tab {
+      padding: .8rem 1.2rem;
+      background: transparent;
+      border: none;
+      font-family: 'Montserrat', sans-serif;
+      font-size: .85rem;
+      font-weight: 600;
+      color: #5a5a5a;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+    }
+    .admin-tab.activo { color: #0b4d8c; border-bottom-color: #0b4d8c; }
+    .admin-tab-content { display: none; }
+    .admin-tab-content.activo { display: block; }
+    .admin-card {
+      background: #fff;
+      border: 1px solid #d9d9d9;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .admin-card h3 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #3a3a3a;
+      margin-bottom: .5rem;
+    }
+    .admin-card p { font-size: .85rem; color: #5a5a5a; }
+    .admin-form { background: #fff; border: 1px solid #d9d9d9; padding: 1.5rem; margin-bottom: 2rem; }
+    .admin-form h3 { font-family: 'Montserrat', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 1rem; }
+    .admin-form input, .admin-form select, .admin-form textarea {
+      width: 100%;
+      padding: .7rem 1rem;
+      margin-bottom: .8rem;
+      border: 1px solid #d9d9d9;
+      font-family: inherit;
+      font-size: .9rem;
+    }
+    .admin-form input:focus, .admin-form select:focus { outline: none; border-color: #0b4d8c; }
+    .admin-form__row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 640px) { .admin-form__row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<div class="admin-login" id="login-view">
+  <div class="admin-login__box">
+    <h1>Panel de Administración</h1>
+    <p>Inicia sesión con tu cuenta de administrador.</p>
+    <div class="admin-login__error" id="login-error"></div>
+    <input type="email" id="login-email" placeholder="Correo electrónico">
+    <input type="password" id="login-password" placeholder="Contraseña">
+    <button type="button" class="boton boton--primario" onclick="iniciarSesion()">Iniciar sesión</button>
+  </div>
+</div>
+
+<!-- ================= PANEL ================= -->
+<div class="admin-panel" id="panel-view">
+  <div class="contenedor">
+    <div class="admin-header">
+      <h1>Panel de Administración</h1>
+      <button type="button" class="boton boton--naranja" onclick="cerrarSesion()">Cerrar sesión</button>
+    </div>
+
+    <div class="admin-tabs">
+      <button class="admin-tab activo" onclick="cambiarTab('productos')">Productos</button>
+      <button class="admin-tab" onclick="cambiarTab('lotes')">Lotes e Inventario</button>
+    </div>
+
+    <!-- TAB PRODUCTOS -->
+    <div class="admin-tab-content activo" id="tab-productos">
+      <div class="admin-form">
+        <h3>Agregar producto</h3>
+        <input type="text" id="prod-nombre" placeholder="Nombre del producto">
+        <select id="prod-categoria"></select>
+        <textarea id="prod-desc" placeholder="Descripción" rows="2"></textarea>
+        <input type="text" id="prod-imagen" placeholder="URL de la imagen (opcional)">
+        <button type="button" class="boton boton--primario" onclick="crearProducto()">Guardar producto</button>
+      </div>
+      <div id="lista-productos"></div>
+    </div>
+
+    <!-- TAB LOTES -->
+    <div class="admin-tab-content" id="tab-lotes">
+      <div class="admin-form">
+        <h3>Agregar lote</h3>
+        <select id="lote-variante"></select>
+        <div class="admin-form__row">
+          <input type="text" id="lote-codigo" placeholder="Código de lote">
+          <input type="date" id="lote-vencimiento">
+        </div>
+        <input type="number" id="lote-stock" placeholder="Stock" min="0">
+        <button type="button" class="boton boton--primario" onclick="crearLote()">Guardar lote</button>
+      </div>
+      <div id="lista-lotes"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= SUPABASE ================= -->
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+  const SUPABASE_URL = 'TU_SUPABASE_URL'
+  const SUPABASE_ANON_KEY = 'TU_SUPABASE_ANON_KEY'
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+  let categoriasCache = []
+  let variantesCache = []
+
+  // ================= LOGIN =================
+  window.iniciarSesion = async function() {
+    const email = document.getElementById('login-email').value
+    const password = document.getElementById('login-password').value
+    const errorEl = document.getElementById('login-error')
+    errorEl.style.display = 'none'
+
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+
+    if (error) {
+      errorEl.textContent = 'Credenciales incorrectas. Intenta de nuevo.'
+      errorEl.style.display = 'block'
+      return
+    }
+
+    mostrarPanel()
+  }
+
+  window.cerrarSesion = async function() {
+    await supabase.auth.signOut()
+    document.getElementById('panel-view').classList.remove('activo')
+    document.getElementById('login-view').style.display = 'flex'
+  }
+
+  function mostrarPanel() {
+    document.getElementById('login-view').style.display = 'none'
+    document.getElementById('panel-view').classList.add('activo')
+    cargarCategorias()
+    cargarProductos()
+    cargarLotes()
+  }
+
+  // Verificar sesión activa al cargar
+  supabase.auth.getSession().then(({ data }) => {
+    if (data.session) mostrarPanel()
+  })
+
+  // ================= TABS =================
+  window.cambiarTab = function(tab) {
+    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('activo'))
+    document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('activo'))
+    document.querySelector(`.admin-tab[onclick="cambiarTab('${tab}')"]`).classList.add('activo')
+    document.getElementById(`tab-${tab}`).classList.add('activo')
+  }
+
+  // ================= CATEGORÍAS =================
+  async function cargarCategorias() {
+    const { data } = await supabase.from('categorias').select('*').order('id')
+    if (!data) return
+    categoriasCache = data
+
+    const select = document.getElementById('prod-categoria')
+    select.innerHTML = '<option value="">Selecciona categoría</option>' +
+      data.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('')
+  }
+
+  // ================= PRODUCTOS =================
+  async function cargarProductos() {
+    const { data } = await supabase
+      .from('productos')
+      .select('id, nombre, descripcion, imagen_url, categorias(nombre)')
+      .order('id', { ascending: false })
+
+    if (!data) return
+
+    document.getElementById('lista-productos').innerHTML = data.map(p => `
+      <div class="admin-card">
+        <h3>${p.nombre}</h3>
+        <p>${p.descripcion || 'Sin descripción'}</p>
+        <p style="margin-top:.5rem;font-size:.78rem;color:#8a8a8a;">Categoría: ${p.categorias?.nombre || '—'}</p>
+      </div>
+    `).join('') || '<p style="color:#8a8a8a;">No hay productos registrados.</p>'
+  }
+
+  window.crearProducto = async function() {
+    const nombre = document.getElementById('prod-nombre').value.trim()
+    const categoria_id = document.getElementById('prod-categoria').value
+    const descripcion = document.getElementById('prod-desc').value.trim()
+    const imagen_url = document.getElementById('prod-imagen').value.trim()
+
+    if (!nombre || !categoria_id) return alert('Nombre y categoría son obligatorios.')
+
+    const { error } = await supabase.from('productos').insert({
+      nombre, categoria_id, descripcion: descripcion || null, imagen_url: imagen_url || null
+    })
+
+    if (error) return alert('Error: ' + error.message)
+
+    document.getElementById('prod-nombre').value = ''
+    document.getElementById('prod-desc').value = ''
+    document.getElementById('prod-imagen').value = ''
+    cargarProductos()
+    cargarVariantesSelect()
+  }
+
+  // ================= VARIANTES (para el select de lotes) =================
+  async function cargarVariantesSelect() {
+    const { data } = await supabase
+      .from('variantes')
+      .select('id, nombre, productos(nombre)')
+      .order('id', { ascending: false })
+
+    if (!data) return
+    variantesCache = data
+
+    const select = document.getElementById('lote-variante')
+    select.innerHTML = '<option value="">Selecciona variante</option>' +
+      data.map(v => `<option value="${v.id}">${v.productos?.nombre} — ${v.nombre}</option>`).join('')
+  }
+
+  // ================= LOTES =================
+  async function cargarLotes() {
+    cargarVariantesSelect()
+
+    const { data } = await supabase
+      .from('lotes')
+      .select('id, codigo_lote, fecha_vencimiento, stock, variantes(nombre, productos(nombre))')
+      .order('id', { ascending: false })
+
+    if (!data) return
+
+    document.getElementById('lista-lotes').innerHTML = data.map(l => `
+      <div class="admin-card">
+        <h3>${l.variantes?.productos?.nombre || '—'} — ${l.variantes?.nombre || '—'}</h3>
+        <p>Lote: <strong>${l.codigo_lote}</strong></p>
+        <p>Vence: ${l.fecha_vencimiento}</p>
+        <p>Stock: <strong>${l.stock}</strong></p>
+      </div>
+    `).join('') || '<p style="color:#8a8a8a;">No hay lotes registrados.</p>'
+  }
+
+  window.crearLote = async function() {
+    const variante_id = document.getElementById('lote-variante').value
+    const codigo_lote = document.getElementById('lote-codigo').value.trim()
+    const fecha_vencimiento = document.getElementById('lote-vencimiento').value
+    const stock = parseInt(document.getElementById('lote-stock').value)
+
+    if (!variante_id || !codigo_lote || !fecha_vencimiento) return alert('Completa todos los campos.')
+
+    const { error } = await supabase.from('lotes').insert({
+      variante_id, codigo_lote, fecha_vencimiento, stock: stock || 0
+    })
+
+    if (error) return alert('Error: ' + error.message)
+
+    document.getElementById('lote-codigo').value = ''
+    document.getElementById('lote-vencimiento').value = ''
+    document.getElementById('lote-stock').value = ''
+    cargarLotes()
+  }
+</script>
+
+</body>
+</html>
