@@ -11,6 +11,8 @@
   <link rel="stylesheet" href="css/style.css">
   <style>
     body { background: #f7f7f7; min-height: 100vh; }
+
+    /* ============ LOGIN ============ */
     .admin-login {
       min-height: 100vh;
       display: flex;
@@ -21,156 +23,397 @@
     .admin-login__box {
       background: #fff;
       border: 1px solid #d9d9d9;
-      padding: 3rem 2.5rem;
+      padding: 2.5rem 2rem;
       width: 100%;
       max-width: 420px;
     }
     .admin-login__box h1 {
       font-family: 'Montserrat', sans-serif;
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       font-weight: 800;
       color: #3a3a3a;
-      margin-bottom: .5rem;
+      margin-bottom: .4rem;
     }
     .admin-login__box p {
-      font-size: .9rem;
+      font-size: .88rem;
       color: #5a5a5a;
-      margin-bottom: 2rem;
+      margin-bottom: 1.8rem;
     }
     .admin-login__box input {
       width: 100%;
       padding: .8rem 1rem;
-      margin-bottom: 1rem;
+      margin-bottom: .9rem;
       border: 1px solid #d9d9d9;
       font-family: inherit;
       font-size: .9rem;
     }
     .admin-login__box input:focus { outline: none; border-color: #0b4d8c; }
     .admin-login__box .boton { width: 100%; }
-    .admin-login__error {
-      color: #d32f2f;
+    .msg {
+      padding: .7rem 1rem;
       font-size: .85rem;
       margin-bottom: 1rem;
       display: none;
     }
-    .admin-panel { display: none; padding: 3rem 0; }
+    .msg--error { background: #fdecea; color: #b3261e; border: 1px solid #f5c6c4; }
+    .msg--ok    { background: #e8f5e9; color: #1b5e20; border: 1px solid #c8e6c9; }
+    .msg.visible { display: block; }
+
+    /* ============ PANEL ============ */
+    .admin-panel { display: none; padding: 2.5rem 0; }
     .admin-panel.activo { display: block; }
+
     .admin-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 2.5rem;
+      margin-bottom: 2rem;
+      gap: 1rem;
+      flex-wrap: wrap;
     }
     .admin-header h1 {
       font-family: 'Montserrat', sans-serif;
-      font-size: 1.8rem;
+      font-size: 1.6rem;
       font-weight: 800;
       color: #3a3a3a;
     }
+    .admin-header small { display: block; color: #8a8a8a; font-size: .8rem; font-weight: 400; }
+
     .admin-tabs {
       display: flex;
-      gap: 1rem;
+      gap: .3rem;
       margin-bottom: 2rem;
       border-bottom: 1px solid #d9d9d9;
+      flex-wrap: wrap;
     }
     .admin-tab {
       padding: .8rem 1.2rem;
       background: transparent;
       border: none;
       font-family: 'Montserrat', sans-serif;
-      font-size: .85rem;
+      font-size: .82rem;
       font-weight: 600;
       color: #5a5a5a;
       cursor: pointer;
       border-bottom: 2px solid transparent;
       margin-bottom: -1px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
     }
     .admin-tab.activo { color: #0b4d8c; border-bottom-color: #0b4d8c; }
     .admin-tab-content { display: none; }
     .admin-tab-content.activo { display: block; }
-    .admin-card {
+
+    /* Grid de dos columnas: formulario + listado */
+    .admin-grid {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+    @media (max-width: 1000px) { .admin-grid { grid-template-columns: 1fr; } }
+
+    .admin-form {
       background: #fff;
       border: 1px solid #d9d9d9;
       padding: 1.5rem;
-      margin-bottom: 1rem;
+      position: sticky;
+      top: 1rem;
     }
-    .admin-card h3 {
+    .admin-form h3 {
       font-family: 'Montserrat', sans-serif;
       font-size: 1rem;
       font-weight: 700;
       color: #3a3a3a;
-      margin-bottom: .5rem;
+      margin-bottom: 1rem;
+      padding-bottom: .6rem;
+      border-bottom: 1px solid #eee;
     }
-    .admin-card p { font-size: .85rem; color: #5a5a5a; }
-    .admin-form { background: #fff; border: 1px solid #d9d9d9; padding: 1.5rem; margin-bottom: 2rem; }
-    .admin-form h3 { font-family: 'Montserrat', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 1rem; }
-    .admin-form input, .admin-form select, .admin-form textarea {
+    .admin-form label {
+      display: block;
+      font-size: .8rem;
+      font-weight: 600;
+      color: #3a3a3a;
+      margin-bottom: .3rem;
+    }
+    .admin-form input[type="text"],
+    .admin-form input[type="number"],
+    .admin-form input[type="email"],
+    .admin-form input[type="password"],
+    .admin-form input[type="date"],
+    .admin-form select,
+    .admin-form textarea {
       width: 100%;
-      padding: .7rem 1rem;
-      margin-bottom: .8rem;
+      padding: .7rem .9rem;
+      margin-bottom: .9rem;
       border: 1px solid #d9d9d9;
       font-family: inherit;
-      font-size: .9rem;
+      font-size: .88rem;
+      background: #fff;
     }
-    .admin-form input:focus, .admin-form select:focus { outline: none; border-color: #0b4d8c; }
-    .admin-form__row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    @media (max-width: 640px) { .admin-form__row { grid-template-columns: 1fr; } }
+    .admin-form input:focus,
+    .admin-form select:focus,
+    .admin-form textarea:focus { outline: none; border-color: #0b4d8c; }
+    .admin-form textarea { resize: vertical; min-height: 70px; }
+
+    .admin-form__row { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+    .admin-form__row > * { margin-bottom: 0; }
+    .admin-form__row { margin-bottom: .9rem; }
+
+    .admin-form__file {
+      border: 2px dashed #d9d9d9;
+      padding: 1rem;
+      text-align: center;
+      cursor: pointer;
+      margin-bottom: .9rem;
+      transition: border-color .2s, background .2s;
+      font-size: .85rem;
+      color: #5a5a5a;
+    }
+    .admin-form__file:hover { border-color: #0b4d8c; background: #f8fbff; }
+    .admin-form__file input { display: none; }
+    .admin-form__preview {
+      width: 100%;
+      aspect-ratio: 1/1;
+      background: #f7f7f7;
+      border: 1px solid #eee;
+      display: grid;
+      place-items: center;
+      margin-bottom: .9rem;
+      overflow: hidden;
+    }
+    .admin-form__preview img { width: 100%; height: 100%; object-fit: contain; }
+    .admin-form__preview span { color: #aaa; font-size: .8rem; }
+
+    /* Listado */
+    .admin-list { display: grid; gap: 1rem; }
+    .admin-card {
+      background: #fff;
+      border: 1px solid #d9d9d9;
+      padding: 1rem 1.2rem;
+      display: grid;
+      grid-template-columns: 70px 1fr auto;
+      gap: 1rem;
+      align-items: center;
+    }
+    @media (max-width: 640px) { .admin-card { grid-template-columns: 60px 1fr; } .admin-card__actions { grid-column: 1 / -1; } }
+    .admin-card__thumb {
+      width: 70px; height: 70px;
+      background: #f7f7f7;
+      border: 1px solid #eee;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+    .admin-card__thumb img { width: 100%; height: 100%; object-fit: contain; }
+    .admin-card h3 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: .95rem;
+      font-weight: 700;
+      color: #3a3a3a;
+      margin-bottom: .2rem;
+    }
+    .admin-card p { font-size: .82rem; color: #5a5a5a; margin: 0; }
+    .admin-card__actions { display: flex; gap: .4rem; }
+    .btn-sm {
+      padding: .45rem .8rem;
+      font-size: .72rem;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      border: none;
+      cursor: pointer;
+      transition: opacity .2s;
+    }
+    .btn-sm:hover { opacity: .85; }
+    .btn-sm--danger { background: #fdecea; color: #b3261e; }
+    .btn-sm--naranja { background: #f39200; color: #fff; }
+
+    .admin-empty {
+      text-align: center;
+      color: #8a8a8a;
+      font-size: .9rem;
+      padding: 2rem;
+      background: #fff;
+      border: 1px dashed #d9d9d9;
+    }
+
+    /* Estado de carga */
+    .loading {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      vertical-align: middle;
+      margin-right: .4rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Aviso de configuración */
+    .config-warning {
+      background: #fff3cd;
+      border: 1px solid #ffe69c;
+      color: #7a5c00;
+      padding: 1rem 1.2rem;
+      font-size: .88rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+    .config-warning.visible { display: block; }
   </style>
 </head>
 <body>
+
+<!-- ================= AVISO CONFIG ================= -->
+<div class="config-warning" id="config-warning">
+  <strong>⚠️ Falta configurar Supabase.</strong><br>
+  Abre este archivo en un editor y reemplaza <code>TU_SUPABASE_URL</code> y <code>TU_SUPABASE_ANON_KEY</code> por las credenciales reales de tu proyecto (Settings → API).
+</div>
 
 <!-- ================= LOGIN ================= -->
 <div class="admin-login" id="login-view">
   <div class="admin-login__box">
     <h1>Panel de Administración</h1>
     <p>Inicia sesión con tu cuenta de administrador.</p>
-    <div class="admin-login__error" id="login-error"></div>
-    <input type="email" id="login-email" placeholder="Correo electrónico">
-    <input type="password" id="login-password" placeholder="Contraseña">
-    <button type="button" class="boton boton--primario" onclick="iniciarSesion()">Iniciar sesión</button>
+    <div class="msg msg--error" id="login-error"></div>
+    <form id="login-form">
+      <input type="email" id="login-email" placeholder="Correo electrónico" autocomplete="email" required>
+      <input type="password" id="login-password" placeholder="Contraseña" autocomplete="current-password" required>
+      <button type="submit" class="boton boton--primario" id="login-btn">Iniciar sesión</button>
+    </form>
   </div>
 </div>
 
 <!-- ================= PANEL ================= -->
 <div class="admin-panel" id="panel-view">
   <div class="contenedor">
+
     <div class="admin-header">
-      <h1>Panel de Administración</h1>
-      <button type="button" class="boton boton--naranja" onclick="cerrarSesion()">Cerrar sesión</button>
+      <div>
+        <h1>Panel de Administración</h1>
+        <small id="user-email"></small>
+      </div>
+      <button type="button" class="boton boton--naranja" id="logout-btn">Cerrar sesión</button>
     </div>
 
     <div class="admin-tabs">
-      <button class="admin-tab activo" onclick="cambiarTab('productos')">Productos</button>
-      <button class="admin-tab" onclick="cambiarTab('lotes')">Lotes e Inventario</button>
+      <button class="admin-tab activo" data-tab="productos">Productos</button>
+      <button class="admin-tab" data-tab="variantes">Variantes</button>
+      <button class="admin-tab" data-tab="lotes">Lotes</button>
+      <button class="admin-tab" data-tab="categorias">Categorías</button>
     </div>
 
-    <!-- TAB PRODUCTOS -->
-    <div class="admin-tab-content activo" id="tab-productos">
-      <div class="admin-form">
-        <h3>Agregar producto</h3>
-        <input type="text" id="prod-nombre" placeholder="Nombre del producto">
-        <select id="prod-categoria"></select>
-        <textarea id="prod-desc" placeholder="Descripción" rows="2"></textarea>
-        <input type="text" id="prod-imagen" placeholder="URL de la imagen (opcional)">
-        <button type="button" class="boton boton--primario" onclick="crearProducto()">Guardar producto</button>
+    <!-- ========= TAB PRODUCTOS ========= -->
+    <div class="admin-tab-content activo" data-content="productos">
+      <div class="admin-grid">
+
+        <form class="admin-form" id="form-producto">
+          <h3>Nuevo producto</h3>
+
+          <div class="msg msg--ok" id="prod-msg"></div>
+
+          <label for="prod-nombre">Nombre *</label>
+          <input type="text" id="prod-nombre" required>
+
+          <label for="prod-categoria">Categoría *</label>
+          <select id="prod-categoria" required></select>
+
+          <label for="prod-desc">Descripción</label>
+          <textarea id="prod-desc" rows="3"></textarea>
+
+          <label>Imagen</label>
+          <div class="admin-form__preview" id="prod-preview">
+            <span>Sin imagen</span>
+          </div>
+          <label class="admin-form__file" for="prod-imagen">
+            📷 Seleccionar imagen
+            <input type="file" id="prod-imagen" accept="image/*">
+          </label>
+
+          <button type="submit" class="boton boton--primario boton--bloque" id="prod-btn">Guardar producto</button>
+        </form>
+
+        <div class="admin-list" id="lista-productos"></div>
       </div>
-      <div id="lista-productos"></div>
     </div>
 
-    <!-- TAB LOTES -->
-    <div class="admin-tab-content" id="tab-lotes">
-      <div class="admin-form">
-        <h3>Agregar lote</h3>
-        <select id="lote-variante"></select>
-        <div class="admin-form__row">
-          <input type="text" id="lote-codigo" placeholder="Código de lote">
-          <input type="date" id="lote-vencimiento">
-        </div>
-        <input type="number" id="lote-stock" placeholder="Stock" min="0">
-        <button type="button" class="boton boton--primario" onclick="crearLote()">Guardar lote</button>
+    <!-- ========= TAB VARIANTES ========= -->
+    <div class="admin-tab-content" data-content="variantes">
+      <div class="admin-grid">
+
+        <form class="admin-form" id="form-variante">
+          <h3>Nueva variante</h3>
+          <div class="msg msg--ok" id="var-msg"></div>
+
+          <label for="var-producto">Producto *</label>
+          <select id="var-producto" required></select>
+
+          <label for="var-nombre">Fórmula / nombre *</label>
+          <input type="text" id="var-nombre" placeholder="Ej: -1.00 / -0.75 x 90" required>
+
+          <button type="submit" class="boton boton--primario boton--bloque">Guardar variante</button>
+        </form>
+
+        <div class="admin-list" id="lista-variantes"></div>
       </div>
-      <div id="lista-lotes"></div>
     </div>
+
+    <!-- ========= TAB LOTES ========= -->
+    <div class="admin-tab-content" data-content="lotes">
+      <div class="admin-grid">
+
+        <form class="admin-form" id="form-lote">
+          <h3>Nuevo lote</h3>
+          <div class="msg msg--ok" id="lote-msg"></div>
+
+          <label for="lote-variante">Variante *</label>
+          <select id="lote-variante" required></select>
+
+          <label for="lote-codigo">Código de lote *</label>
+          <input type="text" id="lote-codigo" placeholder="Ej: OPT-2401-A" required>
+
+          <div class="admin-form__row">
+            <div>
+              <label for="lote-vencimiento">Vencimiento *</label>
+              <input type="date" id="lote-vencimiento" required>
+            </div>
+            <div>
+              <label for="lote-stock">Stock *</label>
+              <input type="number" id="lote-stock" min="0" value="0" required>
+            </div>
+          </div>
+
+          <button type="submit" class="boton boton--primario boton--bloque">Guardar lote</button>
+        </form>
+
+        <div class="admin-list" id="lista-lotes"></div>
+      </div>
+    </div>
+
+    <!-- ========= TAB CATEGORÍAS ========= -->
+    <div class="admin-tab-content" data-content="categorias">
+      <div class="admin-grid">
+
+        <form class="admin-form" id="form-categoria">
+          <h3>Nueva categoría</h3>
+          <div class="msg msg--ok" id="cat-msg"></div>
+
+          <label for="cat-nombre">Nombre *</label>
+          <input type="text" id="cat-nombre" required>
+
+          <label for="cat-slug">Slug * (sin espacios, en minúsculas)</label>
+          <input type="text" id="cat-slug" placeholder="ej: formulados" required>
+
+          <button type="submit" class="boton boton--primario boton--bloque">Guardar categoría</button>
+        </form>
+
+        <div class="admin-list" id="lista-categorias"></div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -178,162 +421,417 @@
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-  const SUPABASE_URL = 'https://fdkdzyjrrtuaotiumbym.supabase.co'
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZka2R6eWpycnR1YW90aXVtYnltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0MDc1MzAsImV4cCI6MjEwNjk4MzUzMH0.RC_ueLB8le0c95RMemtkQf4Yj-bFTrfYLaAcbdRDbXs'
+  // ⚠️ REEMPLAZA ESTAS DOS LÍNEAS CON TUS CREDENCIALES REALES
+  const SUPABASE_URL = 'TU_SUPABASE_URL'
+  const SUPABASE_ANON_KEY = 'TU_SUPABASE_ANON_KEY'
+
+  // Aviso si no se reemplazaron
+  if (SUPABASE_URL === 'TU_SUPABASE_URL' || SUPABASE_ANON_KEY === 'TU_SUPABASE_ANON_KEY') {
+    document.getElementById('config-warning').classList.add('visible')
+  }
+
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
-  let categoriasCache = []
-  let variantesCache = []
+  // ============================================================
+  // HELPERS
+  // ============================================================
+  const $ = (sel) => document.querySelector(sel)
 
-  // ================= LOGIN =================
-  window.iniciarSesion = async function() {
-    const email = document.getElementById('login-email').value
-    const password = document.getElementById('login-password').value
-    const errorEl = document.getElementById('login-error')
-    errorEl.style.display = 'none'
+  function showMsg(id, text, type = 'ok') {
+    const el = document.getElementById(id)
+    if (!el) return
+    el.textContent = text
+    el.className = `msg msg--${type} visible`
+    setTimeout(() => el.classList.remove('visible'), 4000)
+  }
+
+  function setLoading(btn, loading, textDefault = 'Guardar') {
+    if (loading) {
+      btn.dataset.text = btn.textContent
+      btn.disabled = true
+      btn.innerHTML = '<span class="loading"></span>Guardando...'
+    } else {
+      btn.disabled = false
+      btn.textContent = btn.dataset.text || textDefault
+    }
+  }
+
+  // ============================================================
+  // LOGIN
+  // ============================================================
+  const loginForm = document.getElementById('login-form')
+  const loginError = document.getElementById('login-error')
+  const loginBtn = document.getElementById('login-btn')
+
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    loginError.classList.remove('visible')
+    loginBtn.disabled = true
+    loginBtn.innerHTML = '<span class="loading"></span>Entrando...'
+
+    const email = $('#login-email').value.trim()
+    const password = $('#login-password').value
 
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
+    loginBtn.disabled = false
+    loginBtn.textContent = 'Iniciar sesión'
+
     if (error) {
-      errorEl.textContent = 'Credenciales incorrectas. Intenta de nuevo.'
-      errorEl.style.display = 'block'
+      console.error('Login error:', error)
+      loginError.textContent = `Error: ${error.message}`
+      loginError.classList.add('visible')
       return
     }
 
-    mostrarPanel()
-  }
-
-  window.cerrarSesion = async function() {
-    await supabase.auth.signOut()
-    document.getElementById('panel-view').classList.remove('activo')
-    document.getElementById('login-view').style.display = 'flex'
-  }
-
-  function mostrarPanel() {
-    document.getElementById('login-view').style.display = 'none'
-    document.getElementById('panel-view').classList.add('activo')
-    cargarCategorias()
-    cargarProductos()
-    cargarLotes()
-  }
-
-  // Verificar sesión activa al cargar
-  supabase.auth.getSession().then(({ data }) => {
-    if (data.session) mostrarPanel()
+    console.log('Login ok:', data.user.email)
+    mostrarPanel(data.user)
   })
 
-  // ================= TABS =================
-  window.cambiarTab = function(tab) {
-    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('activo'))
-    document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('activo'))
-    document.querySelector(`.admin-tab[onclick="cambiarTab('${tab}')"]`).classList.add('activo')
-    document.getElementById(`tab-${tab}`).classList.add('activo')
+  document.getElementById('logout-btn').addEventListener('click', async () => {
+    await supabase.auth.signOut()
+    location.reload()
+  })
+
+  // Verificar sesión activa al cargar la página
+  const { data: { session } } = await supabase.auth.getSession()
+  if (session) {
+    mostrarPanel(session.user)
   }
 
-  // ================= CATEGORÍAS =================
+  // ============================================================
+  // MOSTRAR PANEL
+  // ============================================================
+  function mostrarPanel(user) {
+    document.getElementById('login-view').style.display = 'none'
+    document.getElementById('panel-view').classList.add('activo')
+    document.getElementById('user-email').textContent = user.email
+    cargarTodo()
+  }
+
+  // ============================================================
+  // TABS
+  // ============================================================
+  document.querySelectorAll('.admin-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('activo'))
+      document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('activo'))
+      tab.classList.add('activo')
+      document.querySelector(`.admin-tab-content[data-content="${tab.dataset.tab}"]`).classList.add('activo')
+    })
+  })
+
+  // ============================================================
+  // PREVIEW IMAGEN
+  // ============================================================
+  let imagenFileSeleccionada = null
+
+  document.getElementById('prod-imagen').addEventListener('change', (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    imagenFileSeleccionada = file
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      $('#prod-preview').innerHTML = `<img src="${ev.target.result}" alt="Preview">`
+    }
+    reader.readAsDataURL(file)
+  })
+
+  // ============================================================
+  // SUBIR IMAGEN A STORAGE
+  // ============================================================
+  async function subirImagen(file) {
+    const ext = file.name.split('.').pop()
+    const fileName = `prod-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`
+
+    const { data, error } = await supabase.storage
+      .from('productos')
+      .upload(fileName, file, { cacheControl: '3600', upsert: false })
+
+    if (error) throw error
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('productos')
+      .getPublicUrl(data.path)
+
+    return publicUrl
+  }
+
+  // ============================================================
+  // CATEGORÍAS
+  // ============================================================
+  let categoriasCache = []
+
   async function cargarCategorias() {
-    const { data } = await supabase.from('categorias').select('*').order('id')
-    if (!data) return
-    categoriasCache = data
+    const { data, error } = await supabase.from('categorias').select('*').order('id')
+    if (error) { console.error(error); return }
+    categoriasCache = data || []
 
-    const select = document.getElementById('prod-categoria')
-    select.innerHTML = '<option value="">Selecciona categoría</option>' +
-      data.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('')
+    // Select del form de productos
+    $('#prod-categoria').innerHTML = '<option value="">Selecciona categoría</option>' +
+      categoriasCache.map(c => `<option value="${c.id}">${c.nombre}</option>`).join('')
+
+    // Listado
+    $('#lista-categorias').innerHTML = categoriasCache.length
+      ? categoriasCache.map(c => `
+        <div class="admin-card" style="grid-template-columns:1fr auto;">
+          <div>
+            <h3>${c.nombre}</h3>
+            <p>Slug: ${c.slug}</p>
+          </div>
+          <div class="admin-card__actions">
+            <button class="btn-sm btn-sm--danger" data-del-cat="${c.id}">Eliminar</button>
+          </div>
+        </div>
+      `).join('')
+      : '<div class="admin-empty">No hay categorías registradas.</div>'
+
+    document.querySelectorAll('[data-del-cat]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('¿Eliminar esta categoría? Se borrarán sus productos.')) return
+        const { error } = await supabase.from('categorias').delete().eq('id', btn.dataset.delCat)
+        if (error) return alert(error.message)
+        cargarCategorias()
+      })
+    })
   }
 
-  // ================= PRODUCTOS =================
+  $('#form-categoria').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const nombre = $('#cat-nombre').value.trim()
+    const slug = $('#cat-slug').value.trim().toLowerCase()
+    if (!nombre || !slug) return
+
+    const { error } = await supabase.from('categorias').insert({ nombre, slug })
+    if (error) return showMsg('cat-msg', 'Error: ' + error.message, 'error')
+
+    $('#cat-nombre').value = ''
+    $('#cat-slug').value = ''
+    showMsg('cat-msg', '✓ Categoría creada')
+    cargarCategorias()
+  })
+
+  // ============================================================
+  // PRODUCTOS
+  // ============================================================
   async function cargarProductos() {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('productos')
       .select('id, nombre, descripcion, imagen_url, categorias(nombre)')
       .order('id', { ascending: false })
 
-    if (!data) return
+    if (error) { console.error(error); return }
 
-    document.getElementById('lista-productos').innerHTML = data.map(p => `
-      <div class="admin-card">
-        <h3>${p.nombre}</h3>
-        <p>${p.descripcion || 'Sin descripción'}</p>
-        <p style="margin-top:.5rem;font-size:.78rem;color:#8a8a8a;">Categoría: ${p.categorias?.nombre || '—'}</p>
-      </div>
-    `).join('') || '<p style="color:#8a8a8a;">No hay productos registrados.</p>'
-  }
+    $('#lista-productos').innerHTML = data && data.length
+      ? data.map(p => `
+        <div class="admin-card">
+          <div class="admin-card__thumb">
+            ${p.imagen_url ? `<img src="${p.imagen_url}" alt="">` : '<span style="font-size:.7rem;color:#aaa;">Sin img</span>'}
+          </div>
+          <div>
+            <h3>${p.nombre}</h3>
+            <p>${p.descripcion || 'Sin descripción'}</p>
+            <p style="font-size:.75rem;color:#8a8a8a;margin-top:.3rem;">Categoría: ${p.categorias?.nombre || '—'}</p>
+          </div>
+          <div class="admin-card__actions">
+            <button class="btn-sm btn-sm--danger" data-del-prod="${p.id}">Eliminar</button>
+          </div>
+        </div>
+      `).join('')
+      : '<div class="admin-empty">No hay productos registrados.</div>'
 
-  window.crearProducto = async function() {
-    const nombre = document.getElementById('prod-nombre').value.trim()
-    const categoria_id = document.getElementById('prod-categoria').value
-    const descripcion = document.getElementById('prod-desc').value.trim()
-    const imagen_url = document.getElementById('prod-imagen').value.trim()
-
-    if (!nombre || !categoria_id) return alert('Nombre y categoría son obligatorios.')
-
-    const { error } = await supabase.from('productos').insert({
-      nombre, categoria_id, descripcion: descripcion || null, imagen_url: imagen_url || null
+    document.querySelectorAll('[data-del-prod]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('¿Eliminar este producto? Se borrarán sus variantes y lotes.')) return
+        const { error } = await supabase.from('productos').delete().eq('id', btn.dataset.delProd)
+        if (error) return alert(error.message)
+        cargarTodo()
+      })
     })
-
-    if (error) return alert('Error: ' + error.message)
-
-    document.getElementById('prod-nombre').value = ''
-    document.getElementById('prod-desc').value = ''
-    document.getElementById('prod-imagen').value = ''
-    cargarProductos()
-    cargarVariantesSelect()
   }
 
-  // ================= VARIANTES (para el select de lotes) =================
-  async function cargarVariantesSelect() {
-    const { data } = await supabase
+  $('#form-producto').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const btn = $('#prod-btn')
+    const nombre = $('#prod-nombre').value.trim()
+    const categoria_id = $('#prod-categoria').value
+    const descripcion = $('#prod-desc').value.trim()
+
+    if (!nombre || !categoria_id) {
+      showMsg('prod-msg', 'Nombre y categoría son obligatorios', 'error')
+      return
+    }
+
+    setLoading(btn, true)
+
+    try {
+      let imagen_url = null
+      if (imagenFileSeleccionada) {
+        imagen_url = await subirImagen(imagenFileSeleccionada)
+      }
+
+      const { error } = await supabase.from('productos').insert({
+        nombre,
+        categoria_id: parseInt(categoria_id),
+        descripcion: descripcion || null,
+        imagen_url
+      })
+
+      if (error) throw error
+
+      // Reset form
+      $('#prod-nombre').value = ''
+      $('#prod-desc').value = ''
+      $('#prod-imagen').value = ''
+      imagenFileSeleccionada = null
+      $('#prod-preview').innerHTML = '<span>Sin imagen</span>'
+
+      showMsg('prod-msg', '✓ Producto creado')
+      cargarTodo()
+    } catch (err) {
+      console.error(err)
+      showMsg('prod-msg', 'Error: ' + err.message, 'error')
+    } finally {
+      setLoading(btn, false, 'Guardar producto')
+    }
+  })
+
+  // ============================================================
+  // VARIANTES
+  // ============================================================
+  async function cargarVariantes() {
+    const { data, error } = await supabase
       .from('variantes')
-      .select('id, nombre, productos(nombre)')
+      .select('id, nombre, productos(id, nombre)')
       .order('id', { ascending: false })
 
-    if (!data) return
-    variantesCache = data
+    if (error) { console.error(error); return }
 
-    const select = document.getElementById('lote-variante')
-    select.innerHTML = '<option value="">Selecciona variante</option>' +
-      data.map(v => `<option value="${v.id}">${v.productos?.nombre} — ${v.nombre}</option>`).join('')
+    // Select del form de lotes
+    $('#lote-variante').innerHTML = '<option value="">Selecciona variante</option>' +
+      (data || []).map(v => `<option value="${v.id}">${v.productos?.nombre || '—'} — ${v.nombre}</option>`).join('')
+
+    $('#lista-variantes').innerHTML = data && data.length
+      ? data.map(v => `
+        <div class="admin-card" style="grid-template-columns:1fr auto;">
+          <div>
+            <h3>${v.nombre}</h3>
+            <p>Producto: ${v.productos?.nombre || '—'}</p>
+          </div>
+          <div class="admin-card__actions">
+            <button class="btn-sm btn-sm--danger" data-del-var="${v.id}">Eliminar</button>
+          </div>
+        </div>
+      `).join('')
+      : '<div class="admin-empty">No hay variantes registradas.</div>'
+
+    document.querySelectorAll('[data-del-var]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('¿Eliminar esta variante? Se borrarán sus lotes.')) return
+        const { error } = await supabase.from('variantes').delete().eq('id', btn.dataset.delVar)
+        if (error) return alert(error.message)
+        cargarTodo()
+      })
+    })
   }
 
-  // ================= LOTES =================
-  async function cargarLotes() {
-    cargarVariantesSelect()
+  // Select del form de variantes (productos)
+  async function cargarProductosSelect() {
+    const { data } = await supabase.from('productos').select('id, nombre').order('nombre')
+    $('#var-producto').innerHTML = '<option value="">Selecciona producto</option>' +
+      (data || []).map(p => `<option value="${p.id}">${p.nombre}</option>`).join('')
+  }
 
-    const { data } = await supabase
+  $('#form-variante').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const producto_id = $('#var-producto').value
+    const nombre = $('#var-nombre').value.trim()
+    if (!producto_id || !nombre) return
+
+    const { error } = await supabase.from('variantes').insert({
+      producto_id: parseInt(producto_id),
+      nombre
+    })
+
+    if (error) return showMsg('var-msg', 'Error: ' + error.message, 'error')
+
+    $('#var-nombre').value = ''
+    showMsg('var-msg', '✓ Variante creada')
+    cargarTodo()
+  })
+
+  // ============================================================
+  // LOTES
+  // ============================================================
+  async function cargarLotes() {
+    const { data, error } = await supabase
       .from('lotes')
       .select('id, codigo_lote, fecha_vencimiento, stock, variantes(nombre, productos(nombre))')
-      .order('id', { ascending: false })
+      .order('fecha_vencimiento', { ascending: true })
 
-    if (!data) return
+    if (error) { console.error(error); return }
 
-    document.getElementById('lista-lotes').innerHTML = data.map(l => `
-      <div class="admin-card">
-        <h3>${l.variantes?.productos?.nombre || '—'} — ${l.variantes?.nombre || '—'}</h3>
-        <p>Lote: <strong>${l.codigo_lote}</strong></p>
-        <p>Vence: ${l.fecha_vencimiento}</p>
-        <p>Stock: <strong>${l.stock}</strong></p>
-      </div>
-    `).join('') || '<p style="color:#8a8a8a;">No hay lotes registrados.</p>'
+    $('#lista-lotes').innerHTML = data && data.length
+      ? data.map(l => `
+        <div class="admin-card" style="grid-template-columns:1fr auto;">
+          <div>
+            <h3>${l.variantes?.productos?.nombre || '—'} — ${l.variantes?.nombre || '—'}</h3>
+            <p>Lote: <strong>${l.codigo_lote}</strong> · Vence: ${l.fecha_vencimiento} · Stock: <strong>${l.stock}</strong></p>
+          </div>
+          <div class="admin-card__actions">
+            <button class="btn-sm btn-sm--danger" data-del-lote="${l.id}">Eliminar</button>
+          </div>
+        </div>
+      `).join('')
+      : '<div class="admin-empty">No hay lotes registrados.</div>'
+
+    document.querySelectorAll('[data-del-lote]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('¿Eliminar este lote?')) return
+        const { error } = await supabase.from('lotes').delete().eq('id', btn.dataset.delLote)
+        if (error) return alert(error.message)
+        cargarLotes()
+      })
+    })
   }
 
-  window.crearLote = async function() {
-    const variante_id = document.getElementById('lote-variante').value
-    const codigo_lote = document.getElementById('lote-codigo').value.trim()
-    const fecha_vencimiento = document.getElementById('lote-vencimiento').value
-    const stock = parseInt(document.getElementById('lote-stock').value)
+  $('#form-lote').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const variante_id = $('#lote-variante').value
+    const codigo_lote = $('#lote-codigo').value.trim()
+    const fecha_vencimiento = $('#lote-vencimiento').value
+    const stock = parseInt($('#lote-stock').value) || 0
 
-    if (!variante_id || !codigo_lote || !fecha_vencimiento) return alert('Completa todos los campos.')
+    if (!variante_id || !codigo_lote || !fecha_vencimiento) {
+      showMsg('lote-msg', 'Completa todos los campos obligatorios', 'error')
+      return
+    }
 
     const { error } = await supabase.from('lotes').insert({
-      variante_id, codigo_lote, fecha_vencimiento, stock: stock || 0
+      variante_id: parseInt(variante_id),
+      codigo_lote,
+      fecha_vencimiento,
+      stock
     })
 
-    if (error) return alert('Error: ' + error.message)
+    if (error) return showMsg('lote-msg', 'Error: ' + error.message, 'error')
 
-    document.getElementById('lote-codigo').value = ''
-    document.getElementById('lote-vencimiento').value = ''
-    document.getElementById('lote-stock').value = ''
+    $('#lote-codigo').value = ''
+    $('#lote-vencimiento').value = ''
+    $('#lote-stock').value = '0'
+    showMsg('lote-msg', '✓ Lote creado')
     cargarLotes()
+  })
+
+  // ============================================================
+  // INICIALIZACIÓN
+  // ============================================================
+  async function cargarTodo() {
+    await cargarCategorias()
+    await cargarProductosSelect()
+    await cargarProductos()
+    await cargarVariantes()
+    await cargarLotes()
   }
 </script>
 
