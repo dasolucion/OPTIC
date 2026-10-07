@@ -94,9 +94,7 @@
 <section class="seccion view" id="view-formulados">
   <div class="contenedor">
 
-    <button type="button" class="btn-volver" onclick="showView('categorias')">
-      ← Volver a categorías
-    </button>
+    <button type="button" class="btn-volver" onclick="showView('categorias')">← Volver a categorías</button>
 
     <div class="catalogo-toolbar">
       <div class="catalogo-toolbar__left">
@@ -107,9 +105,7 @@
           <option>Nombre: A - Z</option>
         </select>
       </div>
-      <div class="catalogo-toolbar__right">
-        Mostrando los 5 resultados
-      </div>
+      <div class="catalogo-toolbar__right">Mostrando los 5 resultados</div>
     </div>
 
     <div class="grid-catalogo-productos">
@@ -179,9 +175,7 @@
 <section class="seccion view" id="view-cosmeticos">
   <div class="contenedor">
 
-    <button type="button" class="btn-volver" onclick="showView('categorias')">
-      ← Volver a categorías
-    </button>
+    <button type="button" class="btn-volver" onclick="showView('categorias')">← Volver a categorías</button>
 
     <div class="catalogo-toolbar">
       <div class="catalogo-toolbar__left">
@@ -192,9 +186,7 @@
           <option>Nombre: A - Z</option>
         </select>
       </div>
-      <div class="catalogo-toolbar__right">
-        Mostrando los 2 resultados
-      </div>
+      <div class="catalogo-toolbar__right">Mostrando los 2 resultados</div>
     </div>
 
     <div class="grid-catalogo-productos grid-catalogo-productos--2col">
@@ -208,9 +200,7 @@
           <p class="catalogo-producto__precio-desc">Precio por caja de 2 unidades.</p>
           <p class="catalogo-producto__precio">Bs. 46,00</p>
         </div>
-        <button type="button" class="catalogo-producto__opciones catalogo-producto__opciones--destacado">
-          Seleccionar opciones
-        </button>
+        <button type="button" class="catalogo-producto__opciones catalogo-producto__opciones--destacado">Seleccionar opciones</button>
       </article>
 
       <article class="catalogo-producto">
@@ -222,9 +212,7 @@
           <p class="catalogo-producto__precio-desc">Precio por caja de 2 unidades.</p>
           <p class="catalogo-producto__precio">Bs. 15.515,00</p>
         </div>
-        <button type="button" class="catalogo-producto__opciones">
-          Seleccionar opciones
-        </button>
+        <button type="button" class="catalogo-producto__opciones">Seleccionar opciones</button>
       </article>
 
     </div>
@@ -274,10 +262,8 @@
 <!-- ================= SCRIPT DE VISTAS ================= -->
 <script>
   function showView(view) {
-    // Ocultar todas las vistas
     document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
 
-    // Mostrar la vista seleccionada
     if (view === 'categorias') {
       document.getElementById('view-categorias').classList.add('active');
       document.getElementById('miga-actual').textContent = 'Categorías';
@@ -289,7 +275,6 @@
       document.getElementById('miga-actual').textContent = 'Cosméticos';
     }
 
-    // Subir al tope suavemente
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 </script>
