@@ -62,44 +62,22 @@
 
       <article class="producto-card">
         <div class="producto-card__media">
-          <img src="img/lentes-contacto.jpg" alt="Lentes de contacto">
+          <img src="img/lentes-contacto-formulados.jpg" alt="Lentes de contacto formulados">
         </div>
         <div class="producto-card__cuerpo">
-          <h3 class="producto-card__titulo">Lentes de contacto</h3>
-          <p class="producto-card__desc">Lentes de contacto formulados y cosméticos.</p>
+          <h3 class="producto-card__titulo">Lentes de contacto<br>formulados</h3>
+          <p class="producto-card__desc">Lentes de contacto formulados con y sin corrección.</p>
           <a href="catalogo.html" class="boton boton--primario">Ver catálogo</a>
         </div>
       </article>
 
       <article class="producto-card">
         <div class="producto-card__media">
-          <img src="img/monturas.jpg" alt="Monturas">
+          <img src="img/lentes-contacto-cosmeticos.jpg" alt="Lentes de contacto cosméticos">
         </div>
         <div class="producto-card__cuerpo">
-          <h3 class="producto-card__titulo">Monturas</h3>
-          <p class="producto-card__desc">Gran variedad de modelos y estilos.</p>
-          <a href="catalogo.html" class="boton boton--primario">Ver catálogo</a>
-        </div>
-      </article>
-
-      <article class="producto-card">
-        <div class="producto-card__media">
-          <img src="img/cristales.jpg" alt="Cristales Blue Block/Cut">
-        </div>
-        <div class="producto-card__cuerpo">
-          <h3 class="producto-card__titulo">Cristales Blue<br>Block/Cut</h3>
-          <p class="producto-card__desc">Protección contra la luz azul que emiten los dispositivos.</p>
-          <a href="catalogo.html" class="boton boton--primario">Ver catálogo</a>
-        </div>
-      </article>
-
-      <article class="producto-card">
-        <div class="producto-card__media">
-          <img src="img/equipos.jpg" alt="Equipos">
-        </div>
-        <div class="producto-card__cuerpo">
-          <h3 class="producto-card__titulo">Equipos</h3>
-          <p class="producto-card__desc">Obtén lo último en tecnología en equipos para la salud visual.</p>
+          <h3 class="producto-card__titulo">Lentes de contacto<br>cosméticos</h3>
+          <p class="producto-card__desc">Diseños estéticos con y sin corrección para realzar la mirada.</p>
           <a href="catalogo.html" class="boton boton--primario">Ver catálogo</a>
         </div>
       </article>
@@ -217,11 +195,11 @@
       <div class="faq-col">
         <article class="faq-item">
           <h3>¿Quiénes Pueden Hacer Pedidos?</h3>
-          <p>Solo pueden realizar pedidos profesionales en el ramo de la Salud Visual, previamente registrando sus datos y siendo verificados por nosotros.</p>
+          <p>Solo pueden realizar pedidos profesionales en el ramo de la Salud Visual, <a href="#registro">previamente registrando sus datos</a> y siendo verificados por nosotros.</p>
         </article>
         <article class="faq-item">
           <h3>¿Cómo Es El Proceso De Registro?</h3>
-          <p>Solo debes completar el formulario de registro y luego de validar tu información recibirás tu usuario y contraseña para poder acceder a nuestra tienda.</p>
+          <p>Solo debes completar el <a href="#registro">formulario de registro</a> y luego de validar tu información recibirás tu usuario y contraseña para poder acceder a nuestra tienda.</p>
         </article>
         <article class="faq-item">
           <h3>¿Cómo Realizo Un Pedido?</h3>
@@ -236,7 +214,7 @@
         </article>
         <article class="faq-item">
           <h3>¿Dónde Veo Los Precios De Los Productos?</h3>
-          <p>Solo los usuarios registrados tienen acceso a los precios de nuestro catálogo.</p>
+          <p>Solo los <a href="#registro">usuarios registrados</a> tienen acceso a los precios de nuestro catálogo.</p>
         </article>
         <article class="faq-item">
           <h3>¿Cuánto Tiempo Demora En Llegar Mi Pedido?</h3>
@@ -248,61 +226,71 @@
   </div>
 </section>
 
-<!-- ================= CONTACTO ================= -->
-<section class="seccion" id="contacto">
+<!-- ================= REGISTRA TU ÓPTICA ================= -->
+<section class="seccion" id="registro">
   <div class="contenedor">
 
     <header class="seccion__cabecera seccion__cabecera--centrada">
-      <h2 class="seccion__titulo">Contáctanos</h2>
-      <p class="seccion__texto">Escríbenos y te enviaremos disponibilidad, precios y lotes actualizados.</p>
+      <h2 class="seccion__titulo">Registra tu óptica</h2>
+      <p class="seccion__texto">
+        Completa el formulario para formar parte de nuestros clientes.
+        Una vez verificados tus datos, recibirás por correo tu usuario y contraseña
+        para acceder a nuestra tienda y realizar pedidos.
+      </p>
     </header>
 
-    <div class="contacto">
-      <div class="contacto__info">
-        <div class="info-item">
-          <span class="info-item__label">Dirección</span>
-          <p>Caracas, Miranda · Venezuela</p>
-        </div>
-        <div class="info-item">
-          <span class="info-item__label">Teléfono</span>
-          <p><a href="tel:02125322754">0212-5322754</a></p>
-        </div>
-        <div class="info-item">
-          <span class="info-item__label">Horario</span>
-          <p>Lunes a jueves · 8:00 – 17:00<br>Viernes · 8:00 – 16:00</p>
-        </div>
-        <div class="info-item">
-          <span class="info-item__label">Correo</span>
-          <p><a href="mailto:ventas@optiline.com.ve">ventas@optiline.com.ve</a></p>
+    <form class="formulario--registro" novalidate>
+
+      <div class="campo">
+        <label for="nombre">Nombre y Apellido:</label>
+        <input type="text" id="nombre" name="nombre">
+      </div>
+
+      <div class="campo">
+        <label for="empresa">Empresa:</label>
+        <input type="text" id="empresa" name="empresa">
+      </div>
+
+      <div class="campo">
+        <label for="rif">RIF:</label>
+        <input type="text" id="rif" name="rif">
+      </div>
+
+      <div class="campo">
+        <label for="telefono">Teléfono:</label>
+        <input type="tel" id="telefono" name="telefono">
+      </div>
+
+      <div class="campo">
+        <label for="direccion">Dirección fiscal:</label>
+        <textarea id="direccion" name="direccion" rows="4"></textarea>
+      </div>
+
+      <div class="campo">
+        <label for="correo">Correo:</label>
+        <input type="email" id="correo" name="correo">
+      </div>
+
+      <div class="campo--radios">
+        <span class="campo__label">¿Cómo nos conoció?</span>
+        <div class="radios">
+          <label class="radio"><input type="radio" name="conocio" value="google"> Google</label>
+          <label class="radio"><input type="radio" name="conocio" value="instagram"> Instagram</label>
+          <label class="radio"><input type="radio" name="conocio" value="facebook"> Facebook</label>
+          <label class="radio"><input type="radio" name="conocio" value="referido"> Referido</label>
+          <label class="radio"><input type="radio" name="conocio" value="vendedor"> Vendedor Optiline</label>
         </div>
       </div>
 
-      <form class="formulario" novalidate>
-        <div class="campo">
-          <label for="nombre">Nombre</label>
-          <input type="text" id="nombre" name="nombre" placeholder="Tu nombre completo">
-        </div>
-        <div class="campo">
-          <label for="empresa">Empresa u óptica</label>
-          <input type="text" id="empresa" name="empresa" placeholder="Nombre de la empresa">
-        </div>
-        <div class="campo-fila">
-          <div class="campo">
-            <label for="telefono">Teléfono</label>
-            <input type="tel" id="telefono" name="telefono" placeholder="0414-0000000">
-          </div>
-          <div class="campo">
-            <label for="email">Correo</label>
-            <input type="email" id="email" name="email" placeholder="correo@ejemplo.com">
-          </div>
-        </div>
-        <div class="campo">
-          <label for="mensaje">Mensaje</label>
-          <textarea id="mensaje" name="mensaje" rows="4" placeholder="¿Qué producto o fórmula necesitas?"></textarea>
-        </div>
-        <button type="submit" class="boton boton--primario boton--bloque">Enviar mensaje</button>
-      </form>
-    </div>
+      <p class="formulario__nota">
+        Luego de confirmar sus datos le enviaremos a su correo un usuario y contraseña
+        para poder acceder a nuestra tienda y poder realizar pedidos.
+      </p>
+
+      <button type="submit" class="boton boton--naranja">Enviar</button>
+
+    </form>
+
   </div>
 </section>
 
@@ -327,6 +315,7 @@
         <li><a href="#nosotros">Nosotros</a></li>
         <li><a href="#certificados">Certificados</a></li>
         <li><a href="#faq">Preguntas frecuentes</a></li>
+        <li><a href="#registro">Registra tu óptica</a></li>
       </ul>
     </div>
 
