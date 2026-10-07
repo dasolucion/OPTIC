@@ -59,9 +59,13 @@ section[id] { scroll-margin-top: 80px; }
 
 .boton--contorno {
   background: transparent;
-  color: #fff;
+  color: var(--naranja);
   border: 2px solid var(--naranja);
   padding: .85rem 2rem;
+}
+.boton--contorno:hover {
+  background: var(--naranja);
+  color: #fff;
 }
 .boton--contorno:hover { background: var(--naranja); color: #fff; }
 
@@ -195,23 +199,22 @@ section[id] { scroll-margin-top: 80px; }
    PRODUCTOS / CATEGORÍAS
    ============================================================ */
 #productos .contenedor {
-  /* Un poco más ancho que el contenedor estándar, pero no full-width */
   width: min(100% - 3rem, 1320px);
 }
 
 .grid-categorias {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-  gap: 2.5rem;
-  max-width: 1100px;   /* antes 860px: ahora las tarjetas son más grandes */
+  gap: 2rem;
+  max-width: 1100px;
   margin-inline: auto;
 }
 
 .categoria {
   background: #fff;
-  /* border: 1px solid var(--gris-200); */   /* opcional: quitar borde */
   display: flex;
   flex-direction: column;
+  border: 1px solid var(--gris-200);
   transition: box-shadow .3s ease, transform .3s ease;
 }
 .categoria:hover {
@@ -219,44 +222,61 @@ section[id] { scroll-margin-top: 80px; }
   transform: translateY(-4px);
 }
 
+/* Imagen sin tanto aire interno */
 .categoria__media {
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 10;        /* antes 4/3 → ahora más ancho, menos alto */
   overflow: hidden;
-  background: #ffffff;     /* antes: var(--gris-100) */
+  background: #ffffff;
   display: grid;
   place-items: center;
-  padding: 2rem;
+  padding: .75rem;              /* antes 2rem → casi pegado al borde */
 }
 .categoria__media img {
   max-height: 100%;
+  max-width: 100%;
   object-fit: contain;
   transition: transform .4s ease;
 }
 .categoria:hover .categoria__media img { transform: scale(1.05); }
 
+/* Cuerpo con menos espacio y sin centrado excesivo */
 .categoria__cuerpo {
-  padding: 2rem 1.8rem 2.2rem;   /* caja más amplia */
+  padding: 1.2rem 1.4rem 1.4rem;
   text-align: center;
   display: flex;
   flex-direction: column;
-  gap: .9rem;
+  gap: .5rem;
   flex: 1;
 }
 .categoria__titulo {
-  font-size: 1.35rem;            /* un poco más grande */
+  font-size: 1.2rem;
   font-weight: 800;
   color: var(--gris-900);
   letter-spacing: -.01em;
 }
 .categoria__desc {
-  font-size: 1rem;
+  font-size: .95rem;
   color: var(--gris-700);
-  margin-bottom: 1rem;
+  margin-bottom: .8rem;
 }
+
+/* Botón "Tienda" — ahora es naranja sólido y más visible */
 .categoria__cuerpo .boton {
   margin-top: auto;
   align-self: center;
-  padding: 1rem 2.4rem;          /* botón más generoso */
+  padding: .85rem 2.2rem;
+  background: var(--naranja);
+  color: #fff;
+  font-weight: 700;
+  font-size: .85rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  border: none;
+  transition: background .25s ease, transform .25s ease;
+}
+.categoria__cuerpo .boton:hover {
+  background: #d97f00;
+  transform: translateY(-2px);
 }
 
 /* ============================================================
@@ -264,7 +284,7 @@ section[id] { scroll-margin-top: 80px; }
    ============================================================ */
 .como-adquirir {
   display: grid;
-  grid-template-columns: 1.1fr .9fr;
+  grid-template-columns: 1fr 1fr;   /* antes 1.1fr .9fr → columnas iguales */
   gap: 4rem;
   align-items: center;
 }
@@ -286,10 +306,19 @@ section[id] { scroll-margin-top: 80px; }
 }
 .paso p { font-size: .95rem; color: var(--gris-700); }
 
-.como-adquirir__media { text-align: center; }
+/* Imagen del móvil más grande y alineada */
+.como-adquirir__media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
 .como-adquirir__media img {
-  max-width: 340px;
-  margin-inline: auto;
+  max-width: 100%;
+  width: 100%;
+  max-height: 720px;           /* tope para que no se descontrole */
+  object-fit: contain;
+  display: block;
 }
 
 /* ============================================================
