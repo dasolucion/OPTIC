@@ -1,6 +1,6 @@
 /* ==========================================================================
    OPTILINE - TIENDA PÚBLICA (INDEX Y CATÁLOGO)
-   Archivo: css/style.css
+   Archivo: css/style.css (VERSIÓN CONSOLIDADA Y CORREGIDA)
    ========================================================================== */
 
 :root {
@@ -250,12 +250,10 @@ section[id] {
   display: none;
 }
 
-/* ==========================================================================
-   HERO (VERSIÓN NÍTIDA ORIGINAL - ALINEACIÓN IZQUIERDA Y SIN FILTROS)
-   ========================================================================== */
+/* ================= HERO ================= */
 .hero {
   position: relative;
-  min-height: clamp(520px, 84vh, 840px);
+  min-height: clamp(520px, 75vh, 780px);
   display: flex;
   align-items: center;
   background-image: url('../img/portada.jpg');
@@ -267,12 +265,10 @@ section[id] {
   overflow: hidden;
 }
 
-/* Remoción total del filtro/velo azul para conservar nitidez fotográfica */
 .hero__overlay {
   display: none !important;
 }
 
-/* Contenedor asimétrico alineado a la izquierda */
 .hero .contenedor {
   width: 100%;
   max-width: 1440px;
@@ -290,13 +286,12 @@ section[id] {
 
 .hero__titulo {
   font-family: var(--fuente-titulos);
-  font-size: clamp(2.3rem, 2.4vw, 3.6rem);
+  font-size: clamp(2.3rem, 4.4vw, 3.6rem);
   font-weight: 900;
   line-height: 1.06;
   letter-spacing: -0.02em;
   color: var(--blanco);
   margin-bottom: 0.75rem;
-  /* Sombra de texto directa para contraste sobre el paisaje */
   text-shadow: 0 3px 12px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
@@ -318,7 +313,6 @@ section[id] {
   justify-content: flex-start;
 }
 
-/* Botón contorno naranja idéntico a la imagen de referencia */
 .hero .boton--contorno {
   background-color: transparent;
   border: 2px solid var(--naranja);
@@ -338,31 +332,7 @@ section[id] {
   box-shadow: 0 6px 16px rgba(243, 146, 0, 0.35);
 }
 
-/* Ajuste Mobile */
-@media (max-width: 640px) {
-  .hero {
-    min-height: 420px;
-    padding: 3rem 0;
-  }
-
-  .hero .contenedor {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
-
-  .hero__titulo {
-    font-size: 2.1rem;
-  }
-
-  .hero__etiqueta {
-    font-size: 0.68rem;
-    letter-spacing: 0.2em;
-  }
-}
-
-/* ==========================================================================
-   1. HISTORIA (IMAGEN FLOTANTE, SIN TARJETA Y CENTRADA)
-   ========================================================================== */
+/* ================= HISTORIA ================= */
 .historia {
   display: grid;
   grid-template-columns: 1fr;
@@ -385,7 +355,6 @@ section[id] {
   max-width: 540px;
   height: auto;
   object-fit: contain;
-  /* Elimina cualquier apariencia de tarjeta */
   border-radius: 0;
   border: none;
   box-shadow: none;
@@ -402,9 +371,8 @@ section[id] {
   text-align: justify;
   line-height: 1.75;
 }
-/* ==========================================================================
-   2. PRODUCTOS (ELIMINACIÓN DE ESPACIO VACÍO SUPERIOR/INFERIOR)
-   ========================================================================== */
+
+/* ================= PRODUCTOS ================= */
 .grid-productos {
   display: grid;
   grid-template-columns: 1fr;
@@ -430,7 +398,6 @@ section[id] {
 }
 
 .producto-card__media {
-  /* Se retira aspect-ratio cuadrado y se compacta el alto */
   aspect-ratio: auto;
   height: 180px;
   display: flex;
@@ -454,7 +421,7 @@ section[id] {
 }
 
 .producto-card__cuerpo {
-  padding: 0.75rem 1.5rem 1.75rem; /* Margen superior reducido hacia la imagen */
+  padding: 0.75rem 1.5rem 1.75rem;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -481,14 +448,64 @@ section[id] {
   align-self: center;
 }
 
-/* ==========================================================================
-   3. CÓMO ADQUIRIR (MOCKUP DEL CELULAR EXPANDIDO)
-   ========================================================================== */
+/* ================= CÓMO ADQUIRIR (RESTAURADO) ================= */
 .como-adquirir {
   display: grid;
   grid-template-columns: 1fr;
   gap: 3.5rem;
   align-items: center;
+}
+
+.como-adquirir__texto {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.como-adquirir__texto .seccion__titulo {
+  margin-bottom: 1.5rem;
+}
+
+.pasos {
+  display: grid;
+  gap: 1.75rem;
+  margin-top: 1rem;
+}
+
+.paso {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+}
+
+.paso__icono {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  background-color: rgba(11, 77, 140, 0.08);
+  color: var(--azul);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.paso__icono svg {
+  width: 22px;
+  height: 22px;
+}
+
+.paso h3 {
+  font-family: var(--fuente-titulos);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--gris-900);
+  margin-bottom: 0.25rem;
+}
+
+.paso p {
+  font-size: 0.92rem;
+  color: var(--gris-700);
 }
 
 .como-adquirir__media {
@@ -501,17 +518,27 @@ section[id] {
 .como-adquirir__media img {
   width: auto;
   max-width: 100%;
-  max-height: 580px; /* Igualado a la escala vertical del bloque de texto */
+  max-height: 580px;
   object-fit: contain;
   filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.12));
 }
 
-/* ==========================================================================
-   4. CERTIFICADOS (LOGOS Y CONTENEDORES MÁS GRANDES)
-   ========================================================================== */
+/* ================= CERTIFICADOS ================= */
+.certificados__grupo {
+  font-family: var(--fuente-titulos);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--gris-900);
+  margin: 2.5rem 0 1rem;
+}
+
+.certificados__grupo:first-of-type {
+  margin-top: 0;
+}
+
 .grid-certificados {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* Mayor ancho por tarjeta */
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 1.25rem;
   margin-bottom: 2rem;
 }
@@ -533,7 +560,7 @@ section[id] {
 }
 
 .certificado__logo {
-  height: 85px; /* Altura optimizada para resaltar logos */
+  height: 85px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -542,7 +569,7 @@ section[id] {
 }
 
 .certificado__logo img {
-  max-height: 52px; /* Logo más visible y nítido */
+  max-height: 52px;
   max-width: 90%;
   object-fit: contain;
 }
@@ -558,9 +585,44 @@ section[id] {
   margin-top: auto;
 }
 
-/* ==========================================================================
-   5. PREGUNTAS FRECUENTES (ENLACES EN NARANJA CORPORATIVO)
-   ========================================================================== */
+/* ================= FAQ (RESTAURADO) ================= */
+.faq-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  max-width: 1100px;
+  margin-inline: auto;
+}
+
+.faq-col {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.faq-item {
+  background: var(--blanco);
+  border: 1px solid var(--gris-200);
+  border-radius: var(--radio-borde);
+  padding: 1.5rem;
+  box-shadow: var(--sombra-sm);
+}
+
+.faq-item h3 {
+  font-family: var(--fuente-titulos);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gris-900);
+  margin-bottom: 0.6rem;
+  border-bottom: 1px solid var(--gris-200);
+  padding-bottom: 0.5rem;
+}
+
+.faq-item p {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--gris-700);
+}
+
 .faq-item a {
   color: var(--naranja) !important;
   font-weight: 700;
@@ -572,7 +634,6 @@ section[id] {
 .faq-item a:hover {
   color: var(--naranja-osc) !important;
 }
-
 
 /* ================= FORMULARIO REGISTRO ================= */
 .formulario--registro {
@@ -688,7 +749,6 @@ section[id] {
   font-weight: 600;
 }
 
-/* Manejo de vistas interactivas del Catálogo */
 .view {
   display: none;
 }
@@ -933,9 +993,7 @@ section[id] {
   text-align: center;
 }
 
-/* ==========================================================================
-   MEDIA QUERIES (DESKTOP BALANCEADO)
-   ========================================================================== */
+/* ================= RESPONSIVE Y MEDIA QUERIES ================= */
 @media (min-width: 768px) {
   .historia {
     grid-template-columns: 1.15fr 1fr;
@@ -949,5 +1007,98 @@ section[id] {
   .como-adquirir {
     grid-template-columns: 1.1fr 0.9fr;
     gap: 3rem;
+  }
+
+  .faq-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .footer__inner {
+    grid-template-columns: 1.6fr 1fr 1fr;
+  }
+}
+
+@media (max-width: 960px) {
+  .menu-icono {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    padding: 0.5rem;
+  }
+
+  .menu-icono span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--gris-900);
+    transition: var(--transicion);
+  }
+
+  .nav {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--blanco);
+    border-bottom: 1px solid var(--gris-200);
+    box-shadow: var(--sombra-md);
+    padding: 1rem 1.5rem;
+  }
+
+  .menu-toggle:checked ~ .nav {
+    display: block;
+  }
+
+  .nav__lista {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .nav__lista li {
+    border-bottom: 1px solid var(--gris-200);
+  }
+
+  .nav__lista li:last-child {
+    border-bottom: none;
+  }
+
+  .nav__lista a {
+    display: block;
+    padding: 0.85rem 0;
+  }
+
+  .nav__lista a.activo::after {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero {
+    min-height: 420px;
+    padding: 3rem 0;
+  }
+
+  .hero .contenedor {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .hero__titulo {
+    font-size: 2.1rem;
+  }
+
+  .hero__etiqueta {
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+  }
+
+  .grid-productos {
+    grid-template-columns: 1fr;
+  }
+
+  .formulario--registro {
+    padding: 1.5rem;
   }
 }
