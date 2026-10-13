@@ -94,7 +94,7 @@
       overflow-x: auto;
     }
     .admin-tab {
-      padding: .8rem 1.4rem;
+      padding: .8rem 1.3rem;
       background: transparent;
       border: none;
       font-family: 'Montserrat', sans-serif;
@@ -152,6 +152,8 @@
     }
     .admin-form input[type="text"],
     .admin-form input[type="number"],
+    .admin-form input[type="email"],
+    .admin-form input[type="password"],
     .admin-form input[type="date"],
     .admin-form select,
     .admin-form textarea {
@@ -203,7 +205,7 @@
     .admin-form__preview img { width: 100%; height: 100%; object-fit: contain; }
     .admin-form__preview span { color: #94a3b8; font-size: .8rem; }
 
-    /* Botones de acción */
+    /* Botones */
     .btn-group { display: flex; gap: .5rem; }
     .btn-cancelar {
       display: none;
@@ -264,6 +266,7 @@
     .btn-sm:hover { opacity: .85; }
     .btn-sm--danger  { background: #fee2e2; color: #991b1b; }
     .btn-sm--edit    { background: #e0f2fe; color: #0369a1; }
+    .btn-sm--success { background: #def7ec; color: #03543f; }
 
     .admin-empty {
       text-align: center;
@@ -275,7 +278,7 @@
       border-radius: 8px;
     }
 
-    /* ============ SECCIÓN DATA TABLE & EXCEL ============ */
+    /* Data Table & Zonas Excel */
     .admin-panel-box {
       background: #fff;
       border: 1px solid #e5e7eb;
@@ -306,7 +309,6 @@
     .excel-zone__texto p { font-size: .82rem; color: #4b5563; }
     .excel-zone__actions { display: flex; gap: .8rem; align-items: center; }
 
-    /* Barra de Filtros */
     .filtros-bar {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -323,14 +325,13 @@
       background: #fff;
     }
 
-    /* Tabla */
     .table-responsive { width: 100%; overflow-x: auto; border: 1px solid #e5e7eb; border-radius: 6px; }
     .data-table {
       width: 100%;
       border-collapse: collapse;
       font-size: .85rem;
       text-align: left;
-      min-width: 750px;
+      min-width: 800px;
     }
     .data-table th {
       background: #f9fafb;
@@ -348,16 +349,19 @@
       color: #4b5563;
     }
     .data-table tr:hover td { background: #f8fafc; }
-    .badge-stock {
+    
+    /* Badges */
+    .badge-status {
       display: inline-block;
       padding: .2rem .55rem;
       border-radius: 4px;
       font-weight: 700;
       font-size: .75rem;
+      text-transform: uppercase;
     }
-    .badge-stock--alto  { background: #def7ec; color: #03543f; }
-    .badge-stock--medio { background: #fef08a; color: #713f12; }
-    .badge-stock--cero  { background: #fee2e2; color: #991b1b; }
+    .badge-status--verificando { background: #fef08a; color: #713f12; }
+    .badge-status--aprobado    { background: #def7ec; color: #03543f; }
+    .badge-status--rechazado   { background: #fee2e2; color: #991b1b; }
 
     .loading {
       display: inline-block;
@@ -388,13 +392,13 @@
   </div>
 </div>
 
-<!-- ================= PANEL ================= -->
+<!-- ================= PANEL PRINCIPAL ================= -->
 <div class="admin-panel" id="panel-view">
   <div class="contenedor">
 
     <div class="admin-header">
       <div>
-        <h1>Gestión de Catálogo e Inventario</h1>
+        <h1>Gestión Comercial y Operativa</h1>
         <small id="user-email"></small>
       </div>
       <button type="button" class="boton boton--naranja" id="logout-btn">Cerrar sesión</button>
@@ -402,23 +406,23 @@
 
     <!-- Pestañas de Navegación -->
     <div class="admin-tabs">
-      <button class="admin-tab activo" data-tab="variantes">Variantes e Inventario</button>
+      <button class="admin-tab activo" data-tab="variantes">Inventario y Fórmulas</button>
+      <button class="admin-tab" data-tab="pagos">Conciliación de Pagos</button>
+      <button class="admin-tab" data-tab="clientes">Ópticas / Clientes</button>
       <button class="admin-tab" data-tab="productos">Productos</button>
       <button class="admin-tab" data-tab="lotes">Lotes</button>
       <button class="admin-tab" data-tab="categorias">Categorías</button>
     </div>
 
-    <!-- ========= TAB VARIANTES E INVENTARIO (CON EXCEL Y DATA TABLE) ========= -->
+    <!-- ========= TAB 1: VARIANTES E INVENTARIO ========= -->
     <div class="admin-tab-content activo" data-content="variantes">
-      
-      <!-- Bloque Carga Masiva Excel -->
       <div class="excel-zone">
         <div class="excel-zone__texto">
           <h4>Carga Masiva de Inventario (Excel / CSV)</h4>
-          <p>Sube tu archivo con las columnas: <strong>sku_producto | variable | lote | cantidad</strong></p>
+          <p>Columnas requeridas: <strong>sku_producto | variable | lote | cantidad</strong></p>
         </div>
         <div class="excel-zone__actions">
-          <button type="button" class="btn-sm btn-sm--edit" id="btn-descargar-plantilla">📥 Descargar Plantilla</button>
+          <button type="button" class="btn-sm btn-sm--edit" id="btn-descargar-plantilla">📥 Plantilla Inventario</button>
           <label class="boton boton--primario" style="margin:0; cursor:pointer;">
             📤 Cargar Excel
             <input type="file" id="input-excel-file" accept=".xlsx, .xls, .csv" style="display:none;">
@@ -427,7 +431,6 @@
       </div>
       <div class="msg msg--ok" id="excel-msg"></div>
 
-      <!-- Cuadro Data Table con Filtros -->
       <div class="admin-panel-box">
         <div class="filtros-bar">
           <input type="text" id="filtro-busqueda" placeholder="🔍 Buscar por SKU, producto o fórmula...">
@@ -455,17 +458,125 @@
           </table>
         </div>
       </div>
-
     </div>
 
-    <!-- ========= TAB PRODUCTOS ========= -->
+    <!-- ========= TAB 2: CONCILIACIÓN DE PAGOS (NOTIFICACIONES) ========= -->
+    <div class="admin-tab-content" data-content="pagos">
+      <div class="admin-panel-box">
+        <div class="filtros-bar">
+          <input type="text" id="filtro-pagos-busqueda" placeholder="🔍 Buscar por orden, referencia o cliente...">
+          <select id="filtro-pagos-estado">
+            <option value="">Todos los estados</option>
+            <option value="En verificación">En verificación</option>
+            <option value="Aprobado">Aprobado</option>
+            <option value="Rechazado">Rechazado</option>
+          </select>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Orden</th>
+                <th>Óptica / Cliente</th>
+                <th>Monto ($)</th>
+                <th>Tipo</th>
+                <th>Método</th>
+                <th>Referencia</th>
+                <th>Comprobante</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-pagos"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========= TAB 3: ÓPTICAS / CLIENTES (CRUD Y EXCEL WOOCOMMERCE) ========= -->
+    <div class="admin-tab-content" data-content="clientes">
+      
+      <!-- Carga Masiva de Clientes -->
+      <div class="excel-zone">
+        <div class="excel-zone__texto">
+          <h4>Importar Clientes de WooCommerce (Excel / CSV)</h4>
+          <p>Columnas: <strong>codigo_usuario | email | empresa | rif | password | telefono | direccion_fiscal | direccion_envio</strong></p>
+        </div>
+        <div class="excel-zone__actions">
+          <button type="button" class="btn-sm btn-sm--edit" id="btn-descargar-plantilla-clientes">📥 Plantilla Clientes</button>
+          <label class="boton boton--primario" style="margin:0; cursor:pointer;">
+            📤 Cargar Clientes
+            <input type="file" id="input-excel-clientes" accept=".xlsx, .xls, .csv" style="display:none;">
+          </label>
+        </div>
+      </div>
+      <div class="msg msg--ok" id="clientes-excel-msg"></div>
+
+      <div class="admin-grid">
+        <!-- Formulario Crear/Editar Cliente -->
+        <form class="admin-form" id="form-cliente">
+          <h3 id="cliente-form-title">Nueva Óptica</h3>
+          <input type="hidden" id="cliente-id" value="">
+          <div class="msg msg--ok" id="cliente-msg"></div>
+
+          <div class="admin-form__row">
+            <div>
+              <label for="cliente-codigo">Código Usuario *</label>
+              <input type="text" id="cliente-codigo" placeholder="Ej: OPT-001" required>
+            </div>
+            <div>
+              <label for="cliente-rif">RIF *</label>
+              <input type="text" id="cliente-rif" placeholder="J-30200326-1" required>
+            </div>
+          </div>
+
+          <label for="cliente-empresa">Nombre / Razón Social *</label>
+          <input type="text" id="cliente-empresa" placeholder="Ej: Óptica Santa Lucía, C.A." required>
+
+          <label for="cliente-email">Correo Electrónico *</label>
+          <input type="email" id="cliente-email" required>
+
+          <div class="admin-form__row">
+            <div>
+              <label for="cliente-password">Contraseña (Woo) *</label>
+              <input type="text" id="cliente-password" placeholder="Clave de acceso" required>
+            </div>
+            <div>
+              <label for="cliente-telefono">Teléfono</label>
+              <input type="text" id="cliente-telefono" placeholder="0414-0000000">
+            </div>
+          </div>
+
+          <label for="cliente-fiscal">Dirección Fiscal</label>
+          <textarea id="cliente-fiscal" rows="2"></textarea>
+
+          <label for="cliente-envio">Dirección de Despacho</label>
+          <textarea id="cliente-envio" rows="2"></textarea>
+
+          <div class="btn-group">
+            <button type="submit" class="boton boton--primario boton--bloque" id="cliente-btn">Guardar óptica</button>
+            <button type="button" class="boton btn-cancelar" id="cliente-btn-cancelar">Cancelar</button>
+          </div>
+        </form>
+
+        <!-- Listado y Buscador de Clientes -->
+        <div>
+          <div class="admin-panel-box" style="padding:1rem; margin-bottom:1rem;">
+            <input type="text" id="filtro-clientes-busqueda" placeholder="🔍 Buscar óptica por RIF, código, empresa o correo..." style="width:100%; padding:.65rem; border:1px solid #d1d5db; border-radius:6px;">
+          </div>
+          <div class="admin-list" id="lista-clientes"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========= TAB 4: PRODUCTOS ========= -->
     <div class="admin-tab-content" data-content="productos">
       <div class="admin-grid">
-
         <form class="admin-form" id="form-producto">
           <h3 id="prod-form-title">Nuevo producto</h3>
           <input type="hidden" id="prod-id" value="">
-
           <div class="msg msg--ok" id="prod-msg"></div>
 
           <div class="admin-form__row">
@@ -489,9 +600,7 @@
           <textarea id="prod-desc" rows="3"></textarea>
 
           <label>Imagen del Producto</label>
-          <div class="admin-form__preview" id="prod-preview">
-            <span>Sin imagen</span>
-          </div>
+          <div class="admin-form__preview" id="prod-preview"><span>Sin imagen</span></div>
           <label class="admin-form__file" for="prod-imagen">
             📷 Seleccionar imagen
             <input type="file" id="prod-imagen" accept="image/*">
@@ -507,14 +616,12 @@
       </div>
     </div>
 
-    <!-- ========= TAB LOTES ========= -->
+    <!-- ========= TAB 5: LOTES ========= -->
     <div class="admin-tab-content" data-content="lotes">
       <div class="admin-grid">
-
         <form class="admin-form" id="form-lote">
           <h3 id="lote-form-title">Nuevo lote</h3>
           <input type="hidden" id="lote-id" value="">
-
           <div class="msg msg--ok" id="lote-msg"></div>
 
           <label for="lote-codigo">Número de Lote *</label>
@@ -533,14 +640,12 @@
       </div>
     </div>
 
-    <!-- ========= TAB CATEGORÍAS ========= -->
+    <!-- ========= TAB 6: CATEGORÍAS ========= -->
     <div class="admin-tab-content" data-content="categorias">
       <div class="admin-grid">
-
         <form class="admin-form" id="form-categoria">
           <h3 id="cat-form-title">Nueva categoría</h3>
           <input type="hidden" id="cat-id" value="">
-
           <div class="msg msg--ok" id="cat-msg"></div>
 
           <label for="cat-sku">Prefijo / SKU *</label>
@@ -553,9 +658,7 @@
           <input type="text" id="cat-slug" placeholder="ej: formulados" required>
 
           <label>Imagen de Categoría</label>
-          <div class="admin-form__preview" id="cat-preview">
-            <span>Sin imagen</span>
-          </div>
+          <div class="admin-form__preview" id="cat-preview"><span>Sin imagen</span></div>
           <label class="admin-form__file" for="cat-imagen">
             📷 Seleccionar imagen
             <input type="file" id="cat-imagen" accept="image/*">
@@ -580,11 +683,9 @@
 
   const SUPABASE_URL = 'https://fdkdzyjrrtuaotiumbym.supabase.co'
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZka2R6eWpycnR1YW90aXVtYnltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0MDc1MzAsImV4cCI6MjEwNjk4MzUzMH0.RC_ueLB8le0c95RMemtkQf4Yj-bFTrfYLaAcbdRDbXs'
-
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   const $ = (s) => document.querySelector(s)
 
-  // Mensajería y Loader
   function showMsg(id, text, type = 'ok') {
     const el = document.getElementById(id)
     if (!el) return
@@ -604,7 +705,6 @@
     }
   }
 
-  // ================= STORAGE DE IMÁGENES =================
   async function subirImagen(file, folder = 'productos') {
     const ext = file.name.split('.').pop()
     const fileName = `${folder}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${ext}`
@@ -647,7 +747,7 @@
     cargarTodo()
   }
 
-  // ================= TABS =================
+  // Pestañas
   document.querySelectorAll('.admin-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('activo'))
@@ -657,321 +757,283 @@
     })
   })
 
-  // ================= 1. CATEGORÍAS (CRUD COMPLETO) =================
-  let catFile = null
-  let catImgActual = null
+  // ================= 1. GESTIÓN DE CLIENTES / ÓPTICAS (CRUD Y EXCEL) =================
+  let clientesCache = []
 
-  $('#cat-imagen').addEventListener('change', (e) => {
-    const file = e.target.files[0]
-    if (!file) return
-    catFile = file
-    const reader = new FileReader()
-    reader.onload = (ev) => $('#cat-preview').innerHTML = `<img src="${ev.target.result}" alt="Preview">`
-    reader.readAsDataURL(file)
-  })
-
-  function resetCatForm() {
-    $('#cat-id').value = ''
-    $('#cat-sku').value = ''
-    $('#cat-nombre').value = ''
-    $('#cat-slug').value = ''
-    $('#cat-imagen').value = ''
-    catFile = null
-    catImgActual = null
-    $('#cat-preview').innerHTML = '<span>Sin imagen</span>'
-    $('#cat-form-title').textContent = 'Nueva categoría'
-    $('#cat-btn').textContent = 'Guardar categoría'
-    $('#cat-btn-cancelar').style.display = 'none'
+  function resetClienteForm() {
+    $('#cliente-id').value = ''
+    $('#cliente-codigo').value = ''
+    $('#cliente-rif').value = ''
+    $('#cliente-empresa').value = ''
+    $('#cliente-email').value = ''
+    $('#cliente-password').value = ''
+    $('#cliente-telefono').value = ''
+    $('#cliente-fiscal').value = ''
+    $('#cliente-envio').value = ''
+    $('#cliente-form-title').textContent = 'Nueva Óptica'
+    $('#cliente-btn').textContent = 'Guardar óptica'
+    $('#cliente-btn-cancelar').style.display = 'none'
   }
-  $('#cat-btn-cancelar').addEventListener('click', resetCatForm)
+  $('#cliente-btn-cancelar').addEventListener('click', resetClienteForm)
 
-  async function cargarCategorias() {
-    const { data, error } = await supabase.from('categorias').select('*').order('id')
+  async function cargarClientes() {
+    const { data, error } = await supabase.from('clientes').select('*').order('id', { ascending: false })
     if (error) return console.error(error)
+    clientesCache = data || []
+    renderClientes()
+  }
 
-    $('#prod-categoria').innerHTML = '<option value="">Selecciona categoría</option>' +
-      (data || []).map(c => `<option value="${c.id}">${c.nombre}</option>`).join('')
-    
-    $('#filtro-categoria').innerHTML = '<option value="">Todas las categorías</option>' +
-      (data || []).map(c => `<option value="${c.id}">${c.nombre}</option>`).join('')
-
-    $('#lista-categorias').innerHTML = (data && data.length)
-      ? data.map(c => `
-        <div class="admin-card">
-          <div class="admin-card__thumb">
-            ${c.imagen_url ? `<img src="${c.imagen_url}">` : '<span style="font-size:.7rem;color:#94a3b8;">Sin img</span>'}
-          </div>
-          <div>
-            <h3>${c.nombre}</h3>
-            <p><strong>SKU:</strong> ${c.sku_prefijo || '—'} · <strong>Slug:</strong> ${c.slug}</p>
-          </div>
-          <div class="admin-card__actions">
-            <button class="btn-sm btn-sm--edit" data-edit-cat='${JSON.stringify(c)}'>Editar</button>
-            <button class="btn-sm btn-sm--danger" data-del-cat="${c.id}">Eliminar</button>
-          </div>
-        </div>
-      `).join('')
-      : '<div class="admin-empty">No hay categorías registradas.</div>'
-
-    document.querySelectorAll('[data-edit-cat]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const c = JSON.parse(btn.dataset.editCat)
-        $('#cat-id').value = c.id
-        $('#cat-sku').value = c.sku_prefijo || ''
-        $('#cat-nombre').value = c.nombre
-        $('#cat-slug').value = c.slug
-        catImgActual = c.imagen_url
-        $('#cat-preview').innerHTML = c.imagen_url ? `<img src="${c.imagen_url}">` : '<span>Sin imagen</span>'
-        $('#cat-form-title').textContent = 'Editar categoría'
-        $('#cat-btn').textContent = 'Actualizar categoría'
-        $('#cat-btn-cancelar').style.display = 'block'
-      })
+  function renderClientes() {
+    const busqueda = $('#filtro-clientes-busqueda').value.trim().toLowerCase()
+    const filtrados = clientesCache.filter(c => {
+      if (!busqueda) return true
+      const blob = `${c.codigo_usuario} ${c.rif} ${c.empresa} ${c.email}`.toLowerCase()
+      return blob.includes(busqueda)
     })
 
-    document.querySelectorAll('[data-del-cat]').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        if (!confirm('¿Eliminar esta categoría? Se desvincularán sus productos.')) return
-        const { error } = await supabase.from('categorias').delete().eq('id', btn.dataset.delCat)
-        if (error) return alert(error.message)
-        cargarCategorias()
-        cargarProductos()
-      })
-    })
-  }
-
-  $('#form-categoria').addEventListener('submit', async (e) => {
-    e.preventDefault()
-    const id = $('#cat-id').value
-    const sku_prefijo = $('#cat-sku').value.trim()
-    const nombre = $('#cat-nombre').value.trim()
-    const slug = $('#cat-slug').value.trim().toLowerCase()
-    const btn = $('#cat-btn')
-    setLoading(btn, true)
-
-    try {
-      let imagen_url = catImgActual
-      if (catFile) imagen_url = await subirImagen(catFile, 'categorias')
-
-      const payload = { sku_prefijo, nombre, slug, imagen_url }
-      const { error } = id
-        ? await supabase.from('categorias').update(payload).eq('id', id)
-        : await supabase.from('categorias').insert(payload)
-
-      if (error) throw error
-      showMsg('cat-msg', id ? '✓ Categoría actualizada' : '✓ Categoría creada')
-      resetCatForm()
-      cargarCategorias()
-    } catch (err) {
-      showMsg('cat-msg', 'Error: ' + err.message, 'error')
-    } finally {
-      setLoading(btn, false, id ? 'Actualizar categoría' : 'Guardar categoría')
-    }
-  })
-
-  // ================= 2. LOTES (CRUD COMPLETO) =================
-  function resetLoteForm() {
-    $('#lote-id').value = ''
-    $('#lote-codigo').value = ''
-    $('#lote-vencimiento').value = ''
-    $('#lote-form-title').textContent = 'Nuevo lote'
-    $('#lote-btn').textContent = 'Guardar lote'
-    $('#lote-btn-cancelar').style.display = 'none'
-  }
-  $('#lote-btn-cancelar').addEventListener('click', resetLoteForm)
-
-  async function cargarLotes() {
-    const { data, error } = await supabase.from('lotes').select('*').order('fecha_vencimiento', { ascending: true })
-    if (error) return console.error(error)
-
-    $('#filtro-lote').innerHTML = '<option value="">Todos los lotes</option>' +
-      (data || []).map(l => `<option value="${l.id}">${l.codigo_lote}</option>`).join('')
-
-    $('#lista-lotes').innerHTML = (data && data.length)
-      ? data.map(l => `
+    $('#lista-clientes').innerHTML = filtrados.length
+      ? filtrados.map(c => `
         <div class="admin-card" style="grid-template-columns: 1fr auto;">
           <div>
-            <h3>Lote: ${l.codigo_lote}</h3>
-            <p><strong>Vencimiento:</strong> ${l.fecha_vencimiento}</p>
+            <h3>${c.empresa} (${c.codigo_usuario})</h3>
+            <p><strong>RIF:</strong> ${c.rif} · <strong>Email:</strong> ${c.email}</p>
+            <p style="font-size:0.75rem; color:#6b7280; margin-top:2px;">Clave: <code>${c.password_hash || '—'}</code> · Telf: ${c.telefono || '—'}</p>
           </div>
           <div class="admin-card__actions">
-            <button class="btn-sm btn-sm--edit" data-edit-lote='${JSON.stringify(l)}'>Editar</button>
-            <button class="btn-sm btn-sm--danger" data-del-lote="${l.id}">Eliminar</button>
+            <button class="btn-sm btn-sm--edit" data-edit-cliente='${JSON.stringify(c)}'>Editar</button>
+            <button class="btn-sm btn-sm--danger" data-del-cliente="${c.id}">Eliminar</button>
           </div>
         </div>
       `).join('')
-      : '<div class="admin-empty">No hay lotes registrados.</div>'
+      : '<div class="admin-empty">No se encontraron ópticas con esos criterios.</div>'
 
-    document.querySelectorAll('[data-edit-lote]').forEach(btn => {
+    document.querySelectorAll('[data-edit-cliente]').forEach(btn => {
       btn.addEventListener('click', () => {
-        const l = JSON.parse(btn.dataset.editLote)
-        $('#lote-id').value = l.id
-        $('#lote-codigo').value = l.codigo_lote
-        $('#lote-vencimiento').value = l.fecha_vencimiento
-        $('#lote-form-title').textContent = 'Editar lote'
-        $('#lote-btn').textContent = 'Actualizar lote'
-        $('#lote-btn-cancelar').style.display = 'block'
+        const c = JSON.parse(btn.dataset.editCliente)
+        $('#cliente-id').value = c.id
+        $('#cliente-codigo').value = c.codigo_usuario
+        $('#cliente-rif').value = c.rif
+        $('#cliente-empresa').value = c.empresa
+        $('#cliente-email').value = c.email
+        $('#cliente-password').value = c.password_hash || ''
+        $('#cliente-telefono').value = c.telefono || ''
+        $('#cliente-fiscal').value = c.direccion_fiscal || ''
+        $('#cliente-envio').value = c.direccion_envio || ''
+        $('#cliente-form-title').textContent = 'Editar Óptica'
+        $('#cliente-btn').textContent = 'Actualizar óptica'
+        $('#cliente-btn-cancelar').style.display = 'block'
       })
     })
 
-    document.querySelectorAll('[data-del-lote]').forEach(btn => {
+    document.querySelectorAll('[data-del-cliente]').forEach(btn => {
       btn.addEventListener('click', async () => {
-        if (!confirm('¿Eliminar este lote? Se eliminará el inventario asociado.')) return
-        const { error } = await supabase.from('lotes').delete().eq('id', btn.dataset.delLote)
+        if (!confirm('¿Eliminar esta óptica? Se desvincularán sus pedidos.')) return
+        const { error } = await supabase.from('clientes').delete().eq('id', btn.dataset.delCliente)
         if (error) return alert(error.message)
-        cargarLotes()
-        cargarInventarioDataTable()
+        cargarClientes()
       })
     })
   }
 
-  $('#form-lote').addEventListener('submit', async (e) => {
+  $('#filtro-clientes-busqueda').addEventListener('input', renderClientes)
+
+  $('#form-cliente').addEventListener('submit', async (e) => {
     e.preventDefault()
-    const id = $('#lote-id').value
-    const codigo_lote = $('#lote-codigo').value.trim()
-    const fecha_vencimiento = $('#lote-vencimiento').value
-    const btn = $('#lote-btn')
+    const id = $('#cliente-id').value
+    const payload = {
+      codigo_usuario: $('#cliente-codigo').value.trim(),
+      rif: $('#cliente-rif').value.trim(),
+      empresa: $('#cliente-empresa').value.trim(),
+      email: $('#cliente-email').value.trim(),
+      password_hash: $('#cliente-password').value.trim(),
+      telefono: $('#cliente-telefono').value.trim() || null,
+      direccion_fiscal: $('#cliente-fiscal').value.trim() || null,
+      direccion_envio: $('#cliente-envio').value.trim() || null
+    }
+
+    const btn = $('#cliente-btn')
     setLoading(btn, true)
 
     try {
-      const payload = { codigo_lote, fecha_vencimiento }
       const { error } = id
-        ? await supabase.from('lotes').update(payload).eq('id', id)
-        : await supabase.from('lotes').insert(payload)
+        ? await supabase.from('clientes').update(payload).eq('id', id)
+        : await supabase.from('clientes').insert(payload)
 
       if (error) throw error
-      showMsg('lote-msg', id ? '✓ Lote actualizado' : '✓ Lote creado')
-      resetLoteForm()
-      cargarLotes()
-      cargarInventarioDataTable()
+      showMsg('cliente-msg', id ? '✓ Óptica actualizada' : '✓ Óptica creada')
+      resetClienteForm()
+      cargarClientes()
     } catch (err) {
-      showMsg('lote-msg', 'Error: ' + err.message, 'error')
+      showMsg('cliente-msg', 'Error: ' + err.message, 'error')
     } finally {
-      setLoading(btn, false, id ? 'Actualizar lote' : 'Guardar lote')
+      setLoading(btn, false, id ? 'Actualizar óptica' : 'Guardar óptica')
     }
   })
 
-  // ================= 3. PRODUCTOS (CRUD COMPLETO CON PRECIO Y SKU) =================
-  let prodFile = null
-  let prodImgActual = null
-
-  $('#prod-imagen').addEventListener('change', (e) => {
-    const file = e.target.files[0]
-    if (!file) return
-    prodFile = file
-    const reader = new FileReader()
-    reader.onload = (ev) => $('#prod-preview').innerHTML = `<img src="${ev.target.result}" alt="Preview">`
-    reader.readAsDataURL(file)
+  // Descargar Plantilla Excel Clientes
+  $('#btn-descargar-plantilla-clientes').addEventListener('click', () => {
+    const ws_data = [
+      ["codigo_usuario", "email", "empresa", "rif", "password", "telefono", "direccion_fiscal", "direccion_envio"],
+      ["OPT-101", "ventas@opticasantalucia.com", "Óptica Santa Lucía", "J-12345678-0", "clave123", "0412-1234567", "Caracas, Av. Francisco de Miranda", "Caracas, CC Líder"],
+      ["OPT-102", "compras@visiontotal.com", "Visión Total, C.A.", "J-87654321-9", "pass456", "0212-9876543", "Valencia, Carabobo", "Valencia, CC Sambil"]
+    ]
+    const wb = XLSX.utils.book_new()
+    const ws = XLSX.utils.aoa_to_sheet(ws_data)
+    XLSX.utils.book_append_sheet(wb, ws, "Clientes")
+    XLSX.writeFile(wb, "plantilla_clientes_optiline.xlsx")
   })
 
-  function resetProdForm() {
-    $('#prod-id').value = ''
-    $('#prod-sku').value = ''
-    $('#prod-precio').value = ''
-    $('#prod-nombre').value = ''
-    $('#prod-categoria').value = ''
-    $('#prod-desc').value = ''
-    $('#prod-imagen').value = ''
-    prodFile = null
-    prodImgActual = null
-    $('#prod-preview').innerHTML = '<span>Sin imagen</span>'
-    $('#prod-form-title').textContent = 'Nuevo producto'
-    $('#prod-btn').textContent = 'Guardar producto'
-    $('#prod-btn-cancelar').style.display = 'none'
-  }
-  $('#prod-btn-cancelar').addEventListener('click', resetProdForm)
+  // Carga Masiva Clientes Excel
+  $('#input-excel-clientes').addEventListener('change', async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
 
-  async function cargarProductos() {
+    const reader = new FileReader()
+    reader.onload = async (evt) => {
+      try {
+        const data = new Uint8Array(evt.target.result)
+        const workbook = XLSX.read(data, { type: 'array' })
+        const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]])
+        if (!json.length) throw new Error('El archivo Excel está vacío.')
+
+        showMsg('clientes-excel-msg', `Importando ${json.length} ópticas...`, 'ok')
+        let procesados = 0
+
+        for (const fila of json) {
+          const codigo = String(fila.codigo_usuario || fila.CODIGO || '').trim()
+          const email = String(fila.email || fila.EMAIL || '').trim().toLowerCase()
+          const empresa = String(fila.empresa || fila.EMPRESA || '').trim()
+          const rif = String(fila.rif || fila.RIF || '').trim()
+
+          if (!codigo || !email || !empresa) continue
+
+          const payload = {
+            codigo_usuario: codigo,
+            email,
+            empresa,
+            rif: rif || 'J-00000000-0',
+            password_hash: String(fila.password || 'optiline2026').trim(),
+            telefono: String(fila.telefono || '').trim() || null,
+            direccion_fiscal: String(fila.direccion_fiscal || '').trim() || null,
+            direccion_envio: String(fila.direccion_envio || '').trim() || null
+          }
+
+          const { error } = await supabase.from('clientes').upsert(payload, { onConflict: 'codigo_usuario' })
+          if (!error) procesados++
+        }
+
+        showMsg('clientes-excel-msg', `✓ Se importaron ${procesados} ópticas exitosamente.`, 'ok')
+        cargarClientes()
+      } catch (err) {
+        showMsg('clientes-excel-msg', 'Error al procesar: ' + err.message, 'error')
+      } finally {
+        e.target.value = ''
+      }
+    }
+    reader.readAsArrayBuffer(file)
+  })
+
+  // ================= 2. CONCILIACIÓN DE PAGOS =================
+  let pagosCache = []
+
+  async function cargarPagos() {
     const { data, error } = await supabase
-      .from('productos')
-      .select('id, sku, nombre, descripcion, precio, imagen_url, categoria_id, categorias(nombre)')
+      .from('pagos')
+      .select(`
+        *,
+        pedidos (codigo_pedido, total, monto_pagado, saldo_pendiente),
+        clientes (empresa, rif, codigo_usuario)
+      `)
       .order('id', { ascending: false })
 
     if (error) return console.error(error)
+    pagosCache = data || []
+    renderPagos()
+  }
 
-    $('#filtro-producto').innerHTML = '<option value="">Todos los productos</option>' +
-      (data || []).map(p => `<option value="${p.id}">${p.nombre} (${p.sku || 'Sin SKU'})</option>`).join('')
+  function renderPagos() {
+    const busqueda = $('#filtro-pagos-busqueda').value.trim().toLowerCase()
+    const estado = $('#filtro-pagos-estado').value
 
-    $('#lista-productos').innerHTML = (data && data.length)
-      ? data.map(p => `
-        <div class="admin-card">
-          <div class="admin-card__thumb">
-            ${p.imagen_url ? `<img src="${p.imagen_url}">` : '<span style="font-size:.7rem;color:#94a3b8;">Sin img</span>'}
-          </div>
-          <div>
-            <h3>${p.nombre}</h3>
-            <p><strong>SKU:</strong> ${p.sku || '—'} · <strong>Precio:</strong> $${Number(p.precio).toFixed(2)}</p>
-            <p style="font-size:.75rem;color:#6b7280;">Categoría: ${p.categorias?.nombre || '—'}</p>
-          </div>
-          <div class="admin-card__actions">
-            <button class="btn-sm btn-sm--edit" data-edit-prod='${JSON.stringify(p)}'>Editar</button>
-            <button class="btn-sm btn-sm--danger" data-del-prod="${p.id}">Eliminar</button>
-          </div>
-        </div>
-      `).join('')
-      : '<div class="admin-empty">No hay productos registrados.</div>'
+    const filtrados = pagosCache.filter(p => {
+      if (estado && p.estado_conciliacion !== estado) return false
+      if (busqueda) {
+        const blob = `${p.pedidos?.codigo_pedido} ${p.referencia} ${p.clientes?.empresa} ${p.clientes?.rif}`.toLowerCase()
+        if (!blob.includes(busqueda)) return false
+      }
+      return true
+    })
 
-    document.querySelectorAll('[data-edit-prod]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const p = JSON.parse(btn.dataset.editProd)
-        $('#prod-id').value = p.id
-        $('#prod-sku').value = p.sku || ''
-        $('#prod-precio').value = p.precio || '0.00'
-        $('#prod-nombre').value = p.nombre
-        $('#prod-categoria').value = p.categoria_id || ''
-        $('#prod-desc').value = p.descripcion || ''
-        prodImgActual = p.imagen_url
-        $('#prod-preview').innerHTML = p.imagen_url ? `<img src="${p.imagen_url}">` : '<span>Sin imagen</span>'
-        $('#prod-form-title').textContent = 'Editar producto'
-        $('#prod-btn').textContent = 'Actualizar producto'
-        $('#prod-btn-cancelar').style.display = 'block'
+    $('#tbody-pagos').innerHTML = filtrados.length
+      ? filtrados.map(p => {
+          let badgeClass = 'badge-status--verificando'
+          if (p.estado_conciliacion === 'Aprobado') badgeClass = 'badge-status--aprobado'
+          if (p.estado_conciliacion === 'Rechazado') badgeClass = 'badge-status--rechazado'
+
+          return `
+            <tr>
+              <td>${p.fecha_pago}</td>
+              <td><strong>#${p.pedidos?.codigo_pedido || '—'}</strong></td>
+              <td>${p.clientes?.empresa || '—'}<br><small style="color:#6b7280;">${p.clientes?.rif || ''}</small></td>
+              <td><strong>$${Number(p.monto).toFixed(2)}</strong></td>
+              <td>${p.tipo_pago}</td>
+              <td>${p.metodo_pago}</td>
+              <td><code>${p.referencia}</code></td>
+              <td>
+                ${p.comprobante_url ? `<a href="${p.comprobante_url}" target="_blank" style="color:#0b4d8c;font-weight:700;text-decoration:underline;">Ver Voucher</a>` : 'Sin archivo'}
+              </td>
+              <td><span class="badge-status ${badgeClass}">${p.estado_conciliacion}</span></td>
+              <td>
+                ${p.estado_conciliacion === 'En verificación' ? `
+                  <div style="display:flex;gap:4px;">
+                    <button class="btn-sm btn-sm--success" data-aprobar-pago="${p.id}">Aprobar</button>
+                    <button class="btn-sm btn-sm--danger" data-rechazar-pago="${p.id}" data-pedido="${p.pedido_id}" data-monto="${p.monto}">Rechazar</button>
+                  </div>
+                ` : `<span style="font-size:0.75rem;color:#9ca3af;">Conciliado</span>`}
+              </td>
+            </tr>
+          `
+        }).join('')
+      : '<tr><td colspan="10" style="text-align:center;padding:2rem;color:#9ca3af;">No hay reportes de pago registrados.</td></tr>'
+
+    // Aprobar Pago
+    document.querySelectorAll('[data-aprobar-pago]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('¿Aprobar y conciliar este pago?')) return
+        const { error } = await supabase.from('pagos').update({ estado_conciliacion: 'Aprobado' }).eq('id', btn.dataset.aprobarPago)
+        if (error) return alert(error.message)
+        cargarPagos()
       })
     })
 
-    document.querySelectorAll('[data-del-prod]').forEach(btn => {
+    // Rechazar Pago (Ajusta el saldo del pedido)
+    document.querySelectorAll('[data-rechazar-pago]').forEach(btn => {
       btn.addEventListener('click', async () => {
-        if (!confirm('¿Eliminar este producto? Se eliminarán todas sus variantes e inventario.')) return
-        const { error } = await supabase.from('productos').delete().eq('id', btn.dataset.delProd)
-        if (error) return alert(error.message)
-        cargarProductos()
-        cargarInventarioDataTable()
+        if (!confirm('¿Rechazar comprobante? El monto se restará del abono del pedido.')) return
+        const pagoId = btn.dataset.rechazarPago
+        const pedidoId = btn.dataset.pedido
+        const montoRechazado = parseFloat(btn.dataset.monto)
+
+        // 1. Cambiar estado a rechazado
+        await supabase.from('pagos').update({ estado_conciliacion: 'Rechazado' }).eq('id', pagoId)
+
+        // 2. Revertir saldo del pedido
+        const { data: ped } = await supabase.from('pedidos').select('total, monto_pagado').eq('id', pedidoId).single()
+        if (ped) {
+          const nuevoPagado = Math.max(0, parseFloat(ped.monto_pagado || 0) - montoRechazado)
+          const nuevoEstado = nuevoPagado > 0 ? 'Abonado' : 'Pendiente'
+          await supabase.from('pedidos').update({ monto_pagado: nuevoPagado, estado_pago: nuevoEstado }).eq('id', pedidoId)
+        }
+
+        cargarPagos()
       })
     })
   }
 
-  $('#form-producto').addEventListener('submit', async (e) => {
-    e.preventDefault()
-    const id = $('#prod-id').value
-    const sku = $('#prod-sku').value.trim()
-    const precio = parseFloat($('#prod-precio').value) || 0.00
-    const nombre = $('#prod-nombre').value.trim()
-    const categoria_id = parseInt($('#prod-categoria').value)
-    const descripcion = $('#prod-desc').value.trim()
-    const btn = $('#prod-btn')
+  $('#filtro-pagos-busqueda').addEventListener('input', renderPagos)
+  $('#filtro-pagos-estado').addEventListener('change', renderPagos)
 
-    setLoading(btn, true)
-
-    try {
-      let imagen_url = prodImgActual
-      if (prodFile) imagen_url = await subirImagen(prodFile, 'productos')
-
-      const payload = { sku, precio, nombre, categoria_id, descripcion: descripcion || null, imagen_url }
-      const { error } = id
-        ? await supabase.from('productos').update(payload).eq('id', id)
-        : await supabase.from('productos').insert(payload)
-
-      if (error) throw error
-      showMsg('prod-msg', id ? '✓ Producto actualizado' : '✓ Producto creado')
-      resetProdForm()
-      cargarProductos()
-      cargarInventarioDataTable()
-    } catch (err) {
-      showMsg('prod-msg', 'Error: ' + err.message, 'error')
-    } finally {
-      setLoading(btn, false, id ? 'Actualizar producto' : 'Guardar producto')
-    }
-  })
-
-  // ================= 4. VARIANTES E INVENTARIO (DATA TABLE & CARGA EXCEL) =================
+  // ================= 3. INVENTARIO Y EXCEL =================
   let inventarioCache = []
 
   async function cargarInventarioDataTable() {
@@ -1013,8 +1075,8 @@
       if (loteId && l?.id != loteId) return false
 
       if (busqueda) {
-        const textBlob = `${p?.sku} ${p?.nombre} ${item.variantes?.nombre} ${l?.codigo_lote}`.toLowerCase()
-        if (!textBlob.includes(busqueda)) return false
+        const blob = `${p?.sku} ${p?.nombre} ${item.variantes?.nombre} ${l?.codigo_lote}`.toLowerCase()
+        if (!blob.includes(busqueda)) return false
       }
       return true
     })
@@ -1022,7 +1084,6 @@
     $('#tbody-inventario').innerHTML = filtrados.length
       ? filtrados.map(i => {
           const prod = i.variantes?.productos
-          const stockClass = i.stock > 10 ? 'badge-stock--alto' : (i.stock > 0 ? 'badge-stock--medio' : 'badge-stock--cero')
           return `
             <tr>
               <td><strong>${prod?.sku || '—'}</strong></td>
@@ -1031,7 +1092,7 @@
               <td>${i.variantes?.nombre || '—'}</td>
               <td><strong>${i.lotes?.codigo_lote || '—'}</strong></td>
               <td>${i.lotes?.fecha_vencimiento || '—'}</td>
-              <td><span class="badge-stock ${stockClass}">${i.stock} unids</span></td>
+              <td><strong>${i.stock} unids</strong></td>
               <td>$${Number(prod?.precio || 0).toFixed(2)}</td>
               <td>
                 <button class="btn-sm btn-sm--edit" data-edit-stock="${i.id}" data-current="${i.stock}">Ajustar</button>
@@ -1039,7 +1100,7 @@
             </tr>
           `
         }).join('')
-      : '<tr><td colspan="9" style="text-align:center;padding:2rem;color:#94a3b8;">No hay registros con los filtros seleccionados.</td></tr>'
+      : '<tr><td colspan="9" style="text-align:center;padding:2rem;color:#94a3b8;">Sin registros de inventario.</td></tr>'
 
     document.querySelectorAll('[data-edit-stock]').forEach(btn => {
       btn.addEventListener('click', async () => {
@@ -1052,17 +1113,14 @@
     })
   }
 
-  // Listeners de filtros reactivos
   ['filtro-busqueda', 'filtro-categoria', 'filtro-producto', 'filtro-lote'].forEach(id => {
     $('#' + id).addEventListener('input', renderTablaInventario)
   })
 
-  // Descargar Plantilla Oficial Excel
   $('#btn-descargar-plantilla').addEventListener('click', () => {
     const ws_data = [
       ["sku_producto", "variable", "lote", "cantidad"],
       ["FORM-HDX2", "-1.00 / -0.75 x 90", "OPT-2026-A1", 24],
-      ["FORM-HDX2", "-1.25 / -0.75 x 90", "OPT-2026-A1", 12],
       ["COSM-MQF", "Verde Esmeralda", "OPT-2026-B2", 30]
     ]
     const wb = XLSX.utils.book_new()
@@ -1071,7 +1129,6 @@
     XLSX.writeFile(wb, "plantilla_inventario_optiline.xlsx")
   })
 
-  // Carga Masiva y Procesamiento con SheetJS
   $('#input-excel-file').addEventListener('change', async (e) => {
     const file = e.target.files[0]
     if (!file) return
@@ -1081,14 +1138,10 @@
       try {
         const data = new Uint8Array(evt.target.result)
         const workbook = XLSX.read(data, { type: 'array' })
-        const sheetName = workbook.SheetNames[0]
-        const json = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName])
+        const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]])
+        if (!json.length) throw new Error('El archivo está vacío.')
 
-        if (!json.length) throw new Error('El archivo Excel está vacío.')
-
-        showMsg('excel-msg', `Procesando ${json.length} filas... Por favor espere.`, 'ok')
-
-        // Cachés maestros para optimizar batch
+        showMsg('excel-msg', `Procesando ${json.length} registros...`, 'ok')
         const { data: dbProductos } = await supabase.from('productos').select('id, sku')
         const prodMap = new Map((dbProductos || []).map(p => [p.sku?.trim().toUpperCase(), p.id]))
 
@@ -1096,70 +1149,35 @@
         const loteMap = new Map((dbLotes || []).map(l => [l.codigo_lote?.trim().toUpperCase(), l.id]))
 
         let procesados = 0
-        let errores = []
-
         for (const fila of json) {
           const sku = String(fila.sku_producto || fila.SKU || '').trim().toUpperCase()
-          const variableNombre = String(fila.variable || fila.formula || fila.VARIABLE || '').trim()
-          const loteCodigo = String(fila.lote || fila.codigo_lote || fila.LOTE || '').trim().toUpperCase()
-          const cantidad = parseInt(fila.cantidad || fila.stock || fila.CANTIDAD) || 0
-
-          if (!sku || !variableNombre || !loteCodigo) {
-            errores.push(`Fila incompleta: SKU ${sku || 'vacío'}`)
-            continue
-          }
+          const variable = String(fila.variable || fila.formula || '').trim()
+          const lote = String(fila.lote || fila.codigo_lote || '').trim().toUpperCase()
+          const cantidad = parseInt(fila.cantidad || fila.stock) || 0
 
           const productoId = prodMap.get(sku)
-          if (!productoId) {
-            errores.push(`SKU ${sku} no existe en catálogo.`)
-            continue
-          }
+          if (!productoId || !variable || !lote) continue
 
-          // 1. Obtener o crear Lote
-          let loteId = loteMap.get(loteCodigo)
+          let loteId = loteMap.get(lote)
           if (!loteId) {
-            const { data: nuevoLote, error: errLote } = await supabase
-              .from('lotes')
-              .insert({ codigo_lote: loteCodigo, fecha_vencimiento: '2028-12-31' })
-              .select('id').single()
-            if (errLote) { errores.push(`Error al crear lote ${loteCodigo}`); continue }
-            loteId = nuevoLote.id
-            loteMap.set(loteCodigo, loteId)
+            const { data: nl } = await supabase.from('lotes').insert({ codigo_lote: lote, fecha_vencimiento: '2028-12-31' }).select('id').single()
+            if (nl) { loteId = nl.id; loteMap.set(lote, loteId) }
           }
 
-          // 2. Obtener o crear Variante
-          let { data: varData } = await supabase
-            .from('variantes')
-            .select('id')
-            .eq('producto_id', productoId)
-            .eq('nombre', variableNombre)
-            .maybeSingle()
-
+          let { data: varData } = await supabase.from('variantes').select('id').eq('producto_id', productoId).eq('nombre', variable).maybeSingle()
           let varianteId = varData?.id
           if (!varianteId) {
-            const { data: nuevaVar, error: errVar } = await supabase
-              .from('variantes')
-              .insert({ producto_id: productoId, nombre: variableNombre })
-              .select('id').single()
-            if (errVar) { errores.push(`Error variante ${variableNombre}`); continue }
-            varianteId = nuevaVar.id
+            const { data: nv } = await supabase.from('variantes').insert({ producto_id: productoId, nombre: variable }).select('id').single()
+            if (nv) varianteId = nv.id
           }
 
-          // 3. Upsert en Inventario por Lote
-          const { error: errInv } = await supabase
-            .from('inventario_lotes')
-            .upsert({
-              variante_id: varianteId,
-              lote_id: loteId,
-              stock: cantidad
-            }, { onConflict: 'variante_id,lote_id' })
-
-          if (errInv) errores.push(`Error stock ${sku} / ${variableNombre}`)
-          else procesados++
+          if (varianteId && loteId) {
+            await supabase.from('inventario_lotes').upsert({ variante_id: varianteId, lote_id: loteId, stock: cantidad }, { onConflict: 'variante_id,lote_id' })
+            procesados++
+          }
         }
 
-        const msgReporte = `✓ ${procesados} registros actualizados con éxito.` + (errores.length ? ` (${errores.length} omitidos por error)` : '')
-        showMsg('excel-msg', msgReporte, errores.length ? 'error' : 'ok')
+        showMsg('excel-msg', `✓ Se actualizaron ${procesados} registros de stock.`, 'ok')
         cargarInventarioDataTable()
       } catch (err) {
         showMsg('excel-msg', 'Error al leer Excel: ' + err.message, 'error')
@@ -1170,12 +1188,169 @@
     reader.readAsArrayBuffer(file)
   })
 
-  // ================= INICIALIZACIÓN COMPLETA =================
+  // ================= 4. PRODUCTOS, LOTES Y CATEGORÍAS =================
+  let prodFile = null, prodImgActual = null
+  let catFile = null, catImgActual = null
+
+  $('#prod-imagen').addEventListener('change', (e) => {
+    prodFile = e.target.files[0]
+    if (prodFile) {
+      const reader = new FileReader()
+      reader.onload = (ev) => $('#prod-preview').innerHTML = `<img src="${ev.target.result}">`
+      reader.readAsDataURL(prodFile)
+    }
+  })
+
+  $('#cat-imagen').addEventListener('change', (e) => {
+    catFile = e.target.files[0]
+    if (catFile) {
+      const reader = new FileReader()
+      reader.onload = (ev) => $('#cat-preview').innerHTML = `<img src="${ev.target.result}">`
+      reader.readAsDataURL(catFile)
+    }
+  })
+
+  function resetProdForm() {
+    $('#prod-id').value = ''; $('#prod-sku').value = ''; $('#prod-precio').value = ''; $('#prod-nombre').value = ''; $('#prod-categoria').value = ''; $('#prod-desc').value = ''; $('#prod-imagen').value = ''
+    prodFile = null; prodImgActual = null; $('#prod-preview').innerHTML = '<span>Sin imagen</span>'; $('#prod-form-title').textContent = 'Nuevo producto'; $('#prod-btn').textContent = 'Guardar producto'; $('#prod-btn-cancelar').style.display = 'none'
+  }
+  $('#prod-btn-cancelar').addEventListener('click', resetProdForm)
+
+  function resetLoteForm() {
+    $('#lote-id').value = ''; $('#lote-codigo').value = ''; $('#lote-vencimiento').value = ''; $('#lote-form-title').textContent = 'Nuevo lote'; $('#lote-btn').textContent = 'Guardar lote'; $('#lote-btn-cancelar').style.display = 'none'
+  }
+  $('#lote-btn-cancelar').addEventListener('click', resetLoteForm)
+
+  function resetCatForm() {
+    $('#cat-id').value = ''; $('#cat-sku').value = ''; $('#cat-nombre').value = ''; $('#cat-slug').value = ''; $('#cat-imagen').value = ''
+    catFile = null; catImgActual = null; $('#cat-preview').innerHTML = '<span>Sin imagen</span>'; $('#cat-form-title').textContent = 'Nueva categoría'; $('#cat-btn').textContent = 'Guardar categoría'; $('#cat-btn-cancelar').style.display = 'none'
+  }
+  $('#cat-btn-cancelar').addEventListener('click', resetCatForm)
+
+  async function cargarCategorias() {
+    const { data } = await supabase.from('categorias').select('*').order('id')
+    $('#prod-categoria').innerHTML = '<option value="">Selecciona categoría</option>' + (data || []).map(c => `<option value="${c.id}">${c.nombre}</option>`).join('')
+    $('#filtro-categoria').innerHTML = '<option value="">Todas las categorías</option>' + (data || []).map(c => `<option value="${c.id}">${c.nombre}</option>`).join('')
+
+    $('#lista-categorias').innerHTML = (data && data.length) ? data.map(c => `
+      <div class="admin-card">
+        <div class="admin-card__thumb">${c.imagen_url ? `<img src="${c.imagen_url}">` : '<span>Sin img</span>'}</div>
+        <div><h3>${c.nombre}</h3><p><strong>SKU:</strong> ${c.sku_prefijo || '—'} · <strong>Slug:</strong> ${c.slug}</p></div>
+        <div class="admin-card__actions">
+          <button class="btn-sm btn-sm--edit" data-edit-cat='${JSON.stringify(c)}'>Editar</button>
+          <button class="btn-sm btn-sm--danger" data-del-cat="${c.id}">Eliminar</button>
+        </div>
+      </div>
+    `).join('') : '<div class="admin-empty">Sin categorías registradas.</div>'
+
+    document.querySelectorAll('[data-edit-cat]').forEach(btn => btn.addEventListener('click', () => {
+      const c = JSON.parse(btn.dataset.editCat)
+      $('#cat-id').value = c.id; $('#cat-sku').value = c.sku_prefijo || ''; $('#cat-nombre').value = c.nombre; $('#cat-slug').value = c.slug
+      catImgActual = c.imagen_url; $('#cat-preview').innerHTML = c.imagen_url ? `<img src="${c.imagen_url}">` : '<span>Sin imagen</span>'
+      $('#cat-form-title').textContent = 'Editar categoría'; $('#cat-btn').textContent = 'Actualizar categoría'; $('#cat-btn-cancelar').style.display = 'block'
+    }))
+
+    document.querySelectorAll('[data-del-cat]').forEach(btn => btn.addEventListener('click', async () => {
+      if (confirm('¿Eliminar categoría?')) { await supabase.from('categorias').delete().eq('id', btn.dataset.delCat); cargarCategorias() }
+    }))
+  }
+
+  $('#form-categoria').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const id = $('#cat-id').value
+    setLoading($('#cat-btn'), true)
+    let imagen_url = catImgActual
+    if (catFile) imagen_url = await subirImagen(catFile, 'categorias')
+    await supabase.from('categorias').upsert({ id: id || undefined, sku_prefijo: $('#cat-sku').value.trim(), nombre: $('#cat-nombre').value.trim(), slug: $('#cat-slug').value.trim().toLowerCase(), imagen_url })
+    setLoading($('#cat-btn'), false, 'Guardar categoría')
+    resetCatForm(); cargarCategorias()
+  })
+
+  async function cargarLotes() {
+    const { data } = await supabase.from('lotes').select('*').order('fecha_vencimiento', { ascending: true })
+    $('#filtro-lote').innerHTML = '<option value="">Todos los lotes</option>' + (data || []).map(l => `<option value="${l.id}">${l.codigo_lote}</option>`).join('')
+
+    $('#lista-lotes').innerHTML = (data && data.length) ? data.map(l => `
+      <div class="admin-card" style="grid-template-columns: 1fr auto;">
+        <div><h3>Lote: ${l.codigo_lote}</h3><p>Vence: ${l.fecha_vencimiento}</p></div>
+        <div class="admin-card__actions">
+          <button class="btn-sm btn-sm--edit" data-edit-lote='${JSON.stringify(l)}'>Editar</button>
+          <button class="btn-sm btn-sm--danger" data-del-lote="${l.id}">Eliminar</button>
+        </div>
+      </div>
+    `).join('') : '<div class="admin-empty">Sin lotes registrados.</div>'
+
+    document.querySelectorAll('[data-edit-lote]').forEach(btn => btn.addEventListener('click', () => {
+      const l = JSON.parse(btn.dataset.editLote)
+      $('#lote-id').value = l.id; $('#lote-codigo').value = l.codigo_lote; $('#lote-vencimiento').value = l.fecha_vencimiento
+      $('#lote-form-title').textContent = 'Editar lote'; $('#lote-btn').textContent = 'Actualizar lote'; $('#lote-btn-cancelar').style.display = 'block'
+    }))
+
+    document.querySelectorAll('[data-del-lote]').forEach(btn => btn.addEventListener('click', async () => {
+      if (confirm('¿Eliminar lote?')) { await supabase.from('lotes').delete().eq('id', btn.dataset.delLote); cargarLotes() }
+    }))
+  }
+
+  $('#form-lote').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const id = $('#lote-id').value
+    setLoading($('#lote-btn'), true)
+    await supabase.from('lotes').upsert({ id: id || undefined, codigo_lote: $('#lote-codigo').value.trim(), fecha_vencimiento: $('#lote-vencimiento').value })
+    setLoading($('#lote-btn'), false, 'Guardar lote')
+    resetLoteForm(); cargarLotes()
+  })
+
+  async function cargarProductos() {
+    const { data } = await supabase.from('productos').select('*, categorias(nombre)').order('id', { ascending: false })
+    $('#filtro-producto').innerHTML = '<option value="">Todos los productos</option>' + (data || []).map(p => `<option value="${p.id}">${p.nombre} (${p.sku || 'Sin SKU'})</option>`).join('')
+
+    $('#lista-productos').innerHTML = (data && data.length) ? data.map(p => `
+      <div class="admin-card">
+        <div class="admin-card__thumb">${p.imagen_url ? `<img src="${p.imagen_url}">` : '<span>Sin img</span>'}</div>
+        <div><h3>${p.nombre}</h3><p><strong>SKU:</strong> ${p.sku || '—'} · <strong>Precio:</strong> $${Number(p.precio).toFixed(2)}</p></div>
+        <div class="admin-card__actions">
+          <button class="btn-sm btn-sm--edit" data-edit-prod='${JSON.stringify(p)}'>Editar</button>
+          <button class="btn-sm btn-sm--danger" data-del-prod="${p.id}">Eliminar</button>
+        </div>
+      </div>
+    `).join('') : '<div class="admin-empty">Sin productos registrados.</div>'
+
+    document.querySelectorAll('[data-edit-prod]').forEach(btn => btn.addEventListener('click', () => {
+      const p = JSON.parse(btn.dataset.editProd)
+      $('#prod-id').value = p.id; $('#prod-sku').value = p.sku || ''; $('#prod-precio').value = p.precio || '0.00'; $('#prod-nombre').value = p.nombre
+      $('#prod-categoria').value = p.categoria_id || ''; $('#prod-desc').value = p.descripcion || ''; prodImgActual = p.imagen_url
+      $('#prod-preview').innerHTML = p.imagen_url ? `<img src="${p.imagen_url}">` : '<span>Sin imagen</span>'
+      $('#prod-form-title').textContent = 'Editar producto'; $('#prod-btn').textContent = 'Actualizar producto'; $('#prod-btn-cancelar').style.display = 'block'
+    }))
+
+    document.querySelectorAll('[data-del-prod]').forEach(btn => btn.addEventListener('click', async () => {
+      if (confirm('¿Eliminar producto?')) { await supabase.from('productos').delete().eq('id', btn.dataset.delProd); cargarProductos() }
+    }))
+  }
+
+  $('#form-producto').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const id = $('#prod-id').value
+    setLoading($('#prod-btn'), true)
+    let imagen_url = prodImgActual
+    if (prodFile) imagen_url = await subirImagen(prodFile, 'productos')
+    await supabase.from('productos').upsert({
+      id: id || undefined, sku: $('#prod-sku').value.trim(), precio: parseFloat($('#prod-precio').value) || 0,
+      nombre: $('#prod-nombre').value.trim(), categoria_id: parseInt($('#prod-categoria').value),
+      descripcion: $('#prod-desc').value.trim() || null, imagen_url
+    })
+    setLoading($('#prod-btn'), false, 'Guardar producto')
+    resetProdForm(); cargarProductos()
+  })
+
+  // Inicialización global
   async function cargarTodo() {
     await cargarCategorias()
     await cargarLotes()
     await cargarProductos()
     await cargarInventarioDataTable()
+    await cargarClientes()
+    await cargarPagos()
   }
 </script>
 
