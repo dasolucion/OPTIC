@@ -255,7 +255,7 @@ section[id] {
    ========================================================================== */
 .hero {
   position: relative;
-  min-height: clamp(520px, 68vh, 840px);
+  min-height: clamp(520px, 84vh, 840px);
   display: flex;
   align-items: center;
   background-image: url('../img/portada.jpg');
