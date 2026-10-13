@@ -12,7 +12,40 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+<!-- ================= HEADER / NAVEGACIÓN GLOBAL ================= -->
+<header class="header">
+  <div class="contenedor header__inner">
+    <a href="index.html" class="logo">
+      <img src="img/logo.png" alt="Optiline" class="logo__img">
+    </a>
 
+    <input type="checkbox" id="menu-toggle" class="menu-toggle">
+    <label for="menu-toggle" class="menu-icono" aria-label="Abrir menú">
+      <span></span>
+      <span></span>
+      <span></span>
+    </label>
+
+    <nav class="nav">
+      <ul class="nav__lista">
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="catalogo.html" class="activo">Catálogo</a></li>
+        <li><a href="cuenta.html?tab=pagos" style="color: var(--naranja);">Notificación de pago</a></li>
+        <li><a href="cuenta.html" id="nav-cuenta-link" class="boton boton--primario" style="padding: 0.4rem 1.2rem; color: #fff;">Mi Cuenta</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<script type="module">
+  // Detecta si el cliente de WooCommerce ya inició sesión local
+  const clienteActivo = JSON.parse(localStorage.getItem('optiline_cliente') || 'null');
+  const cuentaLink = document.getElementById('nav-cuenta-link');
+  if (clienteActivo && cuentaLink) {
+    cuentaLink.textContent = clienteActivo.empresa || 'Mi Óptica';
+    cuentaLink.style.backgroundColor = 'var(--azul)';
+  }
+</script>
 <!-- ================= HEADER ================= -->
 <header class="header">
   <div class="contenedor header__inner">
