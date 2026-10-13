@@ -23,18 +23,6 @@
     <label for="menu-toggle" class="menu-icono" aria-label="Abrir menú">
       <span></span><span></span><span></span>
     </label>
-    <nav class="nav">
-      <ul class="nav__lista">
-        <li><a href="index.html">Inicio</a></li>
-        <li><a href="index.html#productos">Productos</a></li>
-        <li><a href="catalogo.html" class="activo">Catálogo</a></li>
-        <li><a href="index.html#como-adquirir">Cómo adquirir</a></li>
-        <li><a href="index.html#nosotros">Nosotros</a></li>
-        <li><a href="index.html#certificados">Certificados</a></li>
-        <li><a href="index.html#faq">FAQ</a></li>
-        <li><a href="index.html#registro">Registra tu óptica</a></li>
-      </ul>
-    </nav>
   </div>
 </header>
 
@@ -56,7 +44,7 @@
 <section class="seccion view active" id="view-categorias">
   <div class="contenedor">
     <header class="seccion__cabecera seccion__cabecera--centrada">
-      <h2 class="seccion__titulo">Productos para cada necesidad</h2>
+      <h2 class="seccion__titulo">Escoge una categoría</h2>
     </header>
     <div class="grid-productos" id="grid-categorias">
       <!-- Se llena desde Supabase -->
@@ -143,7 +131,7 @@
         <div class="producto-card__cuerpo">
           <h3 class="producto-card__titulo">${cat.nombre}</h3>
           <p class="producto-card__desc">Descubre todos los productos disponibles en esta categoría.</p>
-          <button type="button" class="boton boton--primario" onclick="showView('productos', ${cat.id}, '${cat.nombre}')">Ver catálogo</button>
+          <button type="button" class="boton boton--primario" onclick="showView('productos', ${cat.id}, '${cat.nombre}')">Ver opciones</button>
         </div>
       </article>
     `).join('')
