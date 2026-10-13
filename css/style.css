@@ -360,7 +360,9 @@ section[id] {
   }
 }
 
-/* ================= HISTORIA ================= */
+/* ==========================================================================
+   1. HISTORIA (IMAGEN FLOTANTE, SIN TARJETA Y CENTRADA)
+   ========================================================================== */
 .historia {
   display: grid;
   grid-template-columns: 1fr;
@@ -368,18 +370,41 @@ section[id] {
   align-items: center;
 }
 
+.historia__media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  padding: 0;
+  border: none;
+  box-shadow: none;
+}
+
 .historia__media img {
-  border-radius: var(--radio-borde);
-  box-shadow: var(--sombra-md);
-  margin-inline: auto;
+  width: 100%;
+  max-width: 540px;
+  height: auto;
+  object-fit: contain;
+  /* Elimina cualquier apariencia de tarjeta */
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  background: transparent;
+}
+
+.historia__texto {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .historia__texto .seccion__texto {
   text-align: justify;
   line-height: 1.75;
 }
-
-/* ================= PRODUCTOS INDEX ================= */
+/* ==========================================================================
+   2. PRODUCTOS (ELIMINACIÓN DE ESPACIO VACÍO SUPERIOR/INFERIOR)
+   ========================================================================== */
 .grid-productos {
   display: grid;
   grid-template-columns: 1fr;
@@ -405,16 +430,21 @@ section[id] {
 }
 
 .producto-card__media {
-  aspect-ratio: 1 / 1;
-  display: grid;
-  place-items: center;
-  padding: 1.5rem;
+  /* Se retira aspect-ratio cuadrado y se compacta el alto */
+  aspect-ratio: auto;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 1.5rem 0.25rem;
   background: var(--blanco);
+  overflow: hidden;
 }
 
 .producto-card__media img {
   max-height: 100%;
   max-width: 100%;
+  width: auto;
   object-fit: contain;
   transition: transform 0.4s ease;
 }
@@ -424,7 +454,7 @@ section[id] {
 }
 
 .producto-card__cuerpo {
-  padding: 1.5rem;
+  padding: 0.75rem 1.5rem 1.75rem; /* Margen superior reducido hacia la imagen */
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -436,14 +466,14 @@ section[id] {
   font-size: 1.15rem;
   font-weight: 800;
   color: var(--gris-900);
-  line-height: 1.3;
-  margin-bottom: 0.5rem;
+  line-height: 1.25;
+  margin-bottom: 0.4rem;
 }
 
 .producto-card__desc {
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   color: var(--gris-700);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
   flex-grow: 1;
 }
 
@@ -451,7 +481,9 @@ section[id] {
   align-self: center;
 }
 
-/* ================= CÓMO ADQUIRIR ================= */
+/* ==========================================================================
+   3. CÓMO ADQUIRIR (MOCKUP DEL CELULAR EXPANDIDO)
+   ========================================================================== */
 .como-adquirir {
   display: grid;
   grid-template-columns: 1fr;
@@ -459,67 +491,29 @@ section[id] {
   align-items: center;
 }
 
-.pasos {
-  display: grid;
-  gap: 1.75rem;
-  margin-top: 1.5rem;
-}
-
-.paso {
-  display: flex;
-  gap: 1.25rem;
-  align-items: flex-start;
-}
-
-.paso__icono {
-  flex-shrink: 0;
-  width: 44px;
-  height: 44px;
-  background-color: rgba(11, 77, 140, 0.08);
-  color: var(--azul);
-  border-radius: 50%;
+.como-adquirir__media {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.paso__icono svg {
-  width: 22px;
-  height: 22px;
-}
-
-.paso h3 {
-  font-family: var(--fuente-titulos);
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--gris-900);
-  margin-bottom: 0.25rem;
-}
-
-.paso p {
-  font-size: 0.92rem;
+  width: 100%;
 }
 
 .como-adquirir__media img {
-  margin-inline: auto;
-  max-height: 480px;
+  width: auto;
+  max-width: 100%;
+  max-height: 580px; /* Igualado a la escala vertical del bloque de texto */
   object-fit: contain;
+  filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.12));
 }
 
-/* ================= CERTIFICADOS ================= */
-.certificados__grupo {
-  font-family: var(--fuente-titulos);
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--gris-900);
-  margin: 2.5rem 0 1rem;
-}
-
+/* ==========================================================================
+   4. CERTIFICADOS (LOGOS Y CONTENEDORES MÁS GRANDES)
+   ========================================================================== */
 .grid-certificados {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* Mayor ancho por tarjeta */
+  gap: 1.25rem;
+  margin-bottom: 2rem;
 }
 
 .certificado {
@@ -529,79 +523,56 @@ section[id] {
   text-align: center;
   transition: var(--transicion);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .certificado:hover {
-  box-shadow: var(--sombra-md);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
   border-color: var(--azul);
 }
 
 .certificado__logo {
-  aspect-ratio: 16 / 9;
-  display: grid;
-  place-items: center;
-  padding: 0.75rem;
+  height: 85px; /* Altura optimizada para resaltar logos */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 1.25rem;
+  background: var(--blanco);
 }
 
 .certificado__logo img {
-  max-height: 100%;
+  max-height: 52px; /* Logo más visible y nítido */
+  max-width: 90%;
   object-fit: contain;
 }
 
 .certificado p {
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--gris-700);
-  padding: 0.6rem 0.4rem;
-  border-top: 1px solid var(--gris-200);
-  background: var(--gris-100);
-}
-
-/* ================= FAQ ================= */
-.faq-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
-  max-width: 1100px;
-  margin-inline: auto;
-}
-
-.faq-col {
-  display: grid;
-  gap: 1.5rem;
-}
-
-.faq-item {
-  background: var(--blanco);
-  border: 1px solid var(--gris-200);
-  border-radius: var(--radio-borde);
-  padding: 1.5rem;
-}
-
-.faq-item h3 {
   font-family: var(--fuente-titulos);
-  font-size: 1rem;
+  font-size: 0.8rem;
   font-weight: 700;
   color: var(--gris-900);
-  margin-bottom: 0.6rem;
-  border-bottom: 1px solid var(--gris-200);
-  padding-bottom: 0.5rem;
+  padding: 0.75rem 0.5rem;
+  border-top: 1px solid var(--gris-200);
+  background: var(--gris-100);
+  margin-top: auto;
 }
 
-.faq-item p {
-  font-size: 0.92rem;
-  line-height: 1.6;
-}
-
+/* ==========================================================================
+   5. PREGUNTAS FRECUENTES (ENLACES EN NARANJA CORPORATIVO)
+   ========================================================================== */
 .faq-item a {
-  color: var(--azul);
-  font-weight: 600;
+  color: var(--naranja) !important;
+  font-weight: 700;
   text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.2s ease;
 }
 
 .faq-item a:hover {
-  color: var(--naranja);
+  color: var(--naranja-osc) !important;
 }
+
 
 /* ================= FORMULARIO REGISTRO ================= */
 .formulario--registro {
@@ -962,81 +933,21 @@ section[id] {
   text-align: center;
 }
 
-/* ================= MEDIA QUERIES (BREAKPOINTS) ================= */
+/* ==========================================================================
+   MEDIA QUERIES (DESKTOP BALANCEADO)
+   ========================================================================== */
 @media (min-width: 768px) {
+  .historia {
+    grid-template-columns: 1.15fr 1fr;
+    gap: 4rem;
+  }
+
   .grid-productos {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .historia {
-    grid-template-columns: 1.1fr 1fr;
-  }
-
   .como-adquirir {
-    grid-template-columns: 1.2fr 1fr;
-  }
-
-  .faq-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .footer__inner {
-    grid-template-columns: 1.6fr 1fr 1fr;
-  }
-}
-
-@media (max-width: 960px) {
-  .menu-icono {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    cursor: pointer;
-    padding: 0.5rem;
-  }
-
-  .menu-icono span {
-    display: block;
-    width: 24px;
-    height: 2px;
-    background: var(--gris-900);
-    transition: var(--transicion);
-  }
-
-  .nav {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: var(--blanco);
-    border-bottom: 1px solid var(--gris-200);
-    box-shadow: var(--sombra-md);
-    padding: 1rem 1.5rem;
-  }
-
-  .menu-toggle:checked ~ .nav {
-    display: block;
-  }
-
-  .nav__lista {
-    flex-direction: column;
-    gap: 0;
-  }
-
-  .nav__lista li {
-    border-bottom: 1px solid var(--gris-200);
-  }
-
-  .nav__lista li:last-child {
-    border-bottom: none;
-  }
-
-  .nav__lista a {
-    display: block;
-    padding: 0.85rem 0;
-  }
-
-  .nav__lista a.activo::after {
-    display: none;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 3rem;
   }
 }
