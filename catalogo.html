@@ -11,128 +11,52 @@
   <link rel="stylesheet" href="css/style.css">
 
   <style>
-    /* Header Tools: Carrito + Mi Cuenta + Llave Admin */
     .header-tools { display: flex; align-items: center; gap: 0.85rem; margin-left: 1.5rem; }
     
     .btn-carrito-toggle {
-      background: none;
-      border: none;
-      cursor: pointer;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--gris-900);
-      padding: 0.4rem;
-      transition: transform 0.2s;
+      background: none; border: none; cursor: pointer; position: relative;
+      display: flex; align-items: center; justify-content: center; color: var(--gris-900); padding: 0.4rem;
     }
-    .btn-carrito-toggle:hover { transform: scale(1.1); color: var(--azul); }
+    .btn-carrito-toggle:hover { color: var(--azul); }
     .btn-carrito-toggle svg { width: 24px; height: 24px; }
     
     .carrito-badge {
-      position: absolute;
-      top: -3px;
-      right: -3px;
-      background: var(--naranja);
-      color: #fff;
-      font-size: 0.7rem;
-      font-weight: 800;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      position: absolute; top: -3px; right: -3px; background: var(--naranja); color: #fff;
+      font-size: 0.7rem; font-weight: 800; width: 18px; height: 18px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
     }
 
-    .btn-admin-key {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--gris-700);
-      padding: 0.4rem;
-      border-radius: 50%;
-      transition: all 0.2s;
-    }
+    .btn-admin-key { display: flex; align-items: center; justify-content: center; color: var(--gris-700); padding: 0.4rem; border-radius: 50%; }
     .btn-admin-key:hover { color: var(--naranja); background: #fef3c7; }
     .btn-admin-key svg { width: 22px; height: 22px; }
 
-    /* Drawer Lateral del Carrito */
-    .cart-drawer-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 999;
-      display: none;
-    }
+    /* Drawer */
+    .cart-drawer-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; display: none; }
     .cart-drawer-backdrop.activo { display: block; }
-
     .cart-drawer {
-      position: fixed;
-      top: 0; right: 0; bottom: 0;
-      width: 100%; max-width: 420px;
-      background: #fff;
-      z-index: 1000;
-      box-shadow: -4px 0 15px rgba(0,0,0,0.15);
-      transform: translateX(100%);
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      display: flex;
-      flex-direction: column;
+      position: fixed; top: 0; right: 0; bottom: 0; width: 100%; max-width: 440px; background: #fff;
+      z-index: 1000; box-shadow: -4px 0 15px rgba(0,0,0,0.15); transform: translateX(100%);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column;
     }
     .cart-drawer.activo { transform: translateX(0); }
-
-    .cart-drawer__header {
-      padding: 1.25rem 1.5rem;
-      border-bottom: 1px solid var(--gris-200);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .cart-drawer__header h3 { font-family: var(--fuente-titulos); font-size: 1.15rem; font-weight: 800; }
-    
+    .cart-drawer__header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--gris-200); display: flex; justify-content: space-between; align-items: center; }
     .cart-drawer__body { flex-grow: 1; overflow-y: auto; padding: 1.5rem; }
-    .cart-item {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 1rem;
-      padding-bottom: 1rem;
-      margin-bottom: 1rem;
-      border-bottom: 1px solid var(--gris-200);
-    }
-    .cart-item h4 { font-family: var(--fuente-titulos); font-size: 0.95rem; font-weight: 700; }
-    .cart-item p { font-size: 0.8rem; color: var(--gris-700); }
+    .cart-item { display: grid; grid-template-columns: 1fr auto; gap: 1rem; padding-bottom: 1rem; margin-bottom: 1rem; border-bottom: 1px solid var(--gris-200); }
+    .cart-drawer__footer { padding: 1.5rem; border-top: 1px solid var(--gris-200); background: var(--gris-100); }
 
-    .cart-drawer__footer {
-      padding: 1.5rem;
-      border-top: 1px solid var(--gris-200);
-      background: var(--gris-100);
-    }
-    .cart-total-row { display: flex; justify-content: space-between; font-size: 1.15rem; font-weight: 800; margin-bottom: 1rem; }
+    .cart-summary-line { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 0.4rem; color: #4b5563; }
+    .cart-summary-line.total { font-size: 1.15rem; font-weight: 800; color: #111827; border-top: 1px solid #d1d5db; padding-top: 0.6rem; margin-top: 0.6rem; }
+    .cart-summary-line.divisa { font-size: 1.25rem; font-weight: 900; color: var(--azul); }
 
-    /* Modal Selección de Unidades */
-    .modal-units-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.6);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      padding: 1rem;
-    }
+    /* Modal */
+    .modal-units-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
     .modal-units-backdrop.activo { display: flex; }
-    .modal-units-box {
-      background: #fff;
-      border-radius: 8px;
-      max-width: 480px;
-      width: 100%;
-      padding: 2rem;
-    }
+    .modal-units-box { background: #fff; border-radius: 8px; max-width: 480px; width: 100%; padding: 2rem; }
   </style>
 </head>
 <body>
 
-  <!-- ================= HEADER COMPLETO ================= -->
+  <!-- HEADER -->
   <header class="header">
     <div class="contenedor header__inner">
       <a href="index.html" class="logo">
@@ -147,55 +71,37 @@
         </ul>
       </nav>
 
-      <!-- HERRAMIENTAS: CARRITO + MI CUENTA + LLAVE ADMIN -->
       <div class="header-tools">
-        <!-- 1. Carrito a la izquierda -->
         <button type="button" class="btn-carrito-toggle" id="btn-abrir-carrito" aria-label="Ver Carrito">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/>
-            <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
-          </svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
           <span class="carrito-badge" id="cart-counter">0</span>
         </button>
 
-        <!-- 2. Botón Mi Cuenta en el centro -->
         <a href="cuenta.html" id="nav-btn-cuenta" class="boton boton--primario" style="padding:0.45rem 1.25rem;">Mi Cuenta</a>
 
-        <!-- 3. Icono Llave Admin a la derecha -->
         <a href="admin.html" class="btn-admin-key" title="Panel Administrativo" aria-label="Acceso Administrador">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/>
-            <path d="m21 2-9.6 9.6"/>
-            <circle cx="7.5" cy="15.5" r="5.5"/>
-          </svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/></svg>
         </a>
       </div>
     </div>
   </header>
 
-  <!-- BANNER CATÁLOGO -->
+  <!-- BANNER -->
   <section class="banner-pagina">
     <div class="contenedor">
-      <h1 class="banner-pagina__titulo">Catálogo de Productos</h1>
-      <div class="migas">
-        <a href="index.html">Inicio</a>
-        <span>/</span>
-        <span>Catálogo Mayorista</span>
-      </div>
+      <h1 class="banner-pagina__titulo">Catálogo Mayorista</h1>
+      <div class="migas"><a href="index.html">Inicio</a><span>/</span><span>Productos Disponibles</span></div>
     </div>
   </section>
 
-  <!-- CATÁLOGO PRINCIPAL -->
+  <!-- CATÁLOGO -->
   <main class="seccion">
     <div class="contenedor">
       <div class="catalogo-toolbar">
-        <div class="catalogo-toolbar__right" id="txt-total-productos">Cargando inventario real...</div>
-        <select class="catalogo-select" id="select-filtro-categoria">
-          <option value="">Todas las Categorías</option>
-        </select>
+        <div class="catalogo-toolbar__right" id="txt-total-productos">Cargando inventario...</div>
+        <select class="catalogo-select" id="select-filtro-categoria"><option value="">Todas las Categorías</option></select>
       </div>
 
-      <!-- Cuadrícula Dinámica -->
       <div class="grid-catalogo-productos" id="grid-catalogo"></div>
     </div>
   </main>
@@ -204,22 +110,39 @@
   <div class="cart-drawer-backdrop" id="cart-backdrop"></div>
   <aside class="cart-drawer" id="cart-drawer">
     <div class="cart-drawer__header">
-      <h3>Orden de Pedido</h3>
+      <h3 style="font-family:var(--fuente-titulos);">Orden de Pedido</h3>
       <button type="button" id="btn-cerrar-carrito" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
     </div>
+
     <div class="cart-drawer__body" id="cart-items-container">
       <p style="text-align:center; color:#9ca3af; margin-top:3rem;">Tu carrito está vacío.</p>
     </div>
+
     <div class="cart-drawer__footer">
-      <div class="cart-total-row">
-        <span>Total Estimado:</span>
-        <span id="cart-total">$0.00</span>
+      <div style="margin-bottom:1rem;">
+        <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.35rem;">Moneda / Modalidad de Pago:</label>
+        <select id="cart-moneda-pago" style="width:100%; padding:0.65rem; border:1px solid #d1d5db; border-radius:6px; font-size:0.88rem; background:#fff;">
+          <option value="Bs">Pago en Bolívares (Pago Móvil / Transferencia)</option>
+          <option value="USD">Pago en Divisas (Zelle / Efectivo / Panamá)</option>
+        </select>
       </div>
-      <button type="button" class="boton boton--naranja boton--bloque" id="btn-confirmar-pedido">Confirmar y Generar Orden</button>
+
+      <div id="cart-breakdown">
+        <div class="cart-summary-line"><span>Precio en Bs:</span><span id="txt-subtotal-bs">Bs. 0,00</span></div>
+        <div class="cart-summary-line" id="row-descuento-bs" style="display:none; color:#03543f;">
+          <span>Menos Descuento en Bs:</span><span id="txt-descuento-bs">- Bs. 0,00</span>
+        </div>
+        <div class="cart-summary-line total"><span>Total en Bs:</span><span id="txt-total-bs">Bs. 0,00</span></div>
+        <div class="cart-summary-line divisa" id="row-total-divisa" style="display:none;">
+          <span>En Divisa:</span><span id="txt-total-divisa">$0.00</span>
+        </div>
+      </div>
+
+      <button type="button" class="boton boton--naranja boton--bloque" id="btn-confirmar-pedido" style="margin-top:1.25rem;">Confirmar Pedido</button>
     </div>
   </aside>
 
-  <!-- MODAL: SELECCIÓN DE VARIANTE Y UNIDADES REALES -->
+  <!-- MODAL: SELECCIÓN DE VARIANTE -->
   <div class="modal-units-backdrop" id="modal-units">
     <div class="modal-units-box">
       <h3 id="modal-prod-nombre" style="font-family:var(--fuente-titulos); font-size:1.2rem; font-weight:800; margin-bottom:0.4rem;"></h3>
@@ -242,14 +165,14 @@
         </div>
 
         <div style="display:flex; gap:0.75rem; margin-top:2rem;">
-          <button type="submit" class="boton boton--primario boton--bloque" id="btn-modal-add">Añadir al Pedido</button>
+          <button type="submit" class="boton boton--primario boton--bloque">Añadir a la Orden</button>
           <button type="button" class="boton boton--contorno" id="btn-modal-cancel" style="border-color:var(--gris-400); color:var(--gris-900);">Cancelar</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- SCRIPT SUPABASE + CARRITO -->
+  <!-- SCRIPT -->
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
@@ -258,47 +181,58 @@
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
     const $ = (s) => document.querySelector(s)
 
-    // Estado del Carrito Local
     let carrito = JSON.parse(localStorage.getItem('optiline_cart') || '[]')
     let catalogoProductos = []
     let inventarioReal = []
+    let tasaCatalogo = 1000.00
+    let tasaBcv = 900.00
 
-    // Detectar Óptica Logueada
     const clienteActivo = JSON.parse(localStorage.getItem('optiline_cliente') || 'null')
-    if (clienteActivo) {
-      $('#nav-btn-cuenta').textContent = clienteActivo.empresa || 'Mi Cuenta'
+    if (clienteActivo) $('#nav-btn-cuenta').textContent = clienteActivo.empresa || 'Mi Cuenta'
+
+    function formatoBs(monto) {
+      return 'Bs. ' + Number(monto).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
     }
 
-    actualizarBadgeCarrito()
+    // Cargar Parámetros Cambiarios de Supabase
+    async function cargarParametrosCambiarios() {
+      const { data } = await supabase.from('parametros').select('*').eq('id', 1).maybeSingle()
+      if (data) {
+        tasaCatalogo = parseFloat(data.tasa_catalogo) || 1000.00
+        tasaBcv = parseFloat(data.tasa_bcv) || 900.00
+      }
+    }
 
-    // Cargar Catálogo e Inventario de Supabase
     async function inicializarCatalogo() {
-      // 1. Obtener Categorías
+      await cargarParametrosCambiarios()
+
       const { data: cats } = await supabase.from('categorias').select('*').order('nombre')
       $('#select-filtro-categoria').innerHTML = '<option value="">Todas las Categorías</option>' + (cats || []).map(c => `<option value="${c.id}">${c.nombre}</option>`).join('')
 
-      // 2. Obtener Productos
       const { data: prods } = await supabase.from('productos').select('*, categorias(nombre)').order('id')
       catalogoProductos = prods || []
 
-      // 3. Obtener Inventario y Stock Real
       const { data: inv } = await supabase.from('inventario_lotes').select('id, stock, precio, variante_id, variantes(id, nombre, producto_id), lotes(codigo_lote, fecha_vencimiento)')
       inventarioReal = inv || []
 
+      actualizarBadgeCarrito()
       renderCatalogo()
     }
 
     function renderCatalogo() {
       const cId = $('#select-filtro-categoria').value
       const filtrados = catalogoProductos.filter(p => !cId || p.categoria_id == cId)
-
       $('#txt-total-productos').textContent = `Mostrando ${filtrados.length} productos disponibles`
 
       $('#grid-catalogo').innerHTML = filtrados.map(p => {
-        // Calcular stock total sumando todas sus fórmulas reales
         const itemsInv = inventarioReal.filter(i => i.variantes?.producto_id === p.id)
         const stockTotal = itemsInv.reduce((sum, item) => sum + (item.stock || 0), 0)
         const tieneStock = stockTotal > 0
+
+        // Precio base USD
+        const precioBaseUSD = parseFloat(p.precio) || (itemsInv.length && parseFloat(itemsInv[0].precio)) || 0.00
+        // Precio mostrado en Catálogo en Bolívares
+        const precioBs = precioBaseUSD * tasaCatalogo
 
         return `
           <article class="catalogo-producto">
@@ -321,7 +255,8 @@
                 `}
               </div>
 
-              <div class="catalogo-producto__precio">$${Number(p.precio || 0).toFixed(2)}</div>
+              <!-- PRECIO EN BOLÍVARES -->
+              <div class="catalogo-producto__precio">${formatoBs(precioBs)}</div>
             </div>
 
             <button type="button" 
@@ -334,33 +269,26 @@
         `
       }).join('')
 
-      // Eventos de botones
       document.querySelectorAll('[data-abrir-prod]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const pId = parseInt(btn.dataset.abrirProd)
-          abrirModalUnidades(pId)
-        })
+        btn.addEventListener('click', () => abrirModalUnidades(parseInt(btn.dataset.abrirProd)))
       })
     }
 
     $('#select-filtro-categoria').addEventListener('change', renderCatalogo)
 
-    // ================= MODAL SELECCIÓN DE VARIANTE =================
-    let productoActualModal = null
-    let itemsDisponiblesModal = []
-
+    // Modal
+    let productoActualModal = null, itemsDisponiblesModal = []
     function abrirModalUnidades(pId) {
       productoActualModal = catalogoProductos.find(p => p.id === pId)
       if (!productoActualModal) return
 
       itemsDisponiblesModal = inventarioReal.filter(i => i.variantes?.producto_id === pId && i.stock > 0)
-
       $('#modal-prod-nombre').textContent = productoActualModal.nombre
-      $('#modal-prod-desc').textContent = productoActualModal.descripcion || 'Selecciona la graduación y cantidad para tu orden.'
+      $('#modal-prod-desc').textContent = productoActualModal.descripcion || 'Selecciona graduación y cantidad.'
 
       $('#modal-select-variante').innerHTML = '<option value="">Selecciona graduación...</option>' +
         itemsDisponiblesModal.map(i => `
-          <option value="${i.id}" data-stock="${i.stock}" data-precio="${i.precio || productoActualModal.precio}">
+          <option value="${i.id}" data-stock="${i.stock}" data-precio-usd="${i.precio || productoActualModal.precio}">
             ${i.variantes?.nombre} (Lote: ${i.lotes?.codigo_lote} | Disp: ${i.stock} unids)
           </option>
         `).join('')
@@ -373,9 +301,9 @@
     $('#modal-select-variante').addEventListener('change', (e) => {
       const opt = e.target.selectedOptions[0]
       if (opt && opt.value) {
-        const stockMax = parseInt(opt.dataset.stock)
-        $('#modal-cantidad').max = stockMax
-        $('#modal-stock-info').textContent = `Máximo disponible: ${stockMax} unids`
+        const sMax = parseInt(opt.dataset.stock)
+        $('#modal-cantidad').max = sMax
+        $('#modal-stock-info').textContent = `Máximo disponible: ${sMax} unids`
       } else {
         $('#modal-stock-info').textContent = ''
       }
@@ -388,13 +316,9 @@
       const invId = parseInt($('#modal-select-variante').value)
       const cant = parseInt($('#modal-cantidad').value)
       const itemInv = itemsDisponiblesModal.find(i => i.id === invId)
+      if (!itemInv || cant <= 0 || cant > itemInv.stock) return alert('Selecciona cantidad válida.')
 
-      if (!itemInv || cant <= 0 || cant > itemInv.stock) {
-        alert('Por favor selecciona una variante válida y cantidad en existencia.')
-        return
-      }
-
-      const precioUnit = parseFloat(itemInv.precio || productoActualModal.precio || 0)
+      const precioBaseUSD = parseFloat(itemInv.precio || productoActualModal.precio || 0)
 
       carrito.push({
         invId: itemInv.id,
@@ -403,8 +327,7 @@
         variante: itemInv.variantes?.nombre,
         lote: itemInv.lotes?.codigo_lote,
         cantidad: cant,
-        precio: precioUnit,
-        subtotal: cant * precioUnit
+        precioUSD: precioBaseUSD
       })
 
       localStorage.setItem('optiline_cart', JSON.stringify(carrito))
@@ -413,16 +336,15 @@
       abrirDrawerCarrito()
     })
 
-    // ================= CARRITO Y DRAWER =================
+    // Carrito y Cálculos Cambiarios
     function actualizarBadgeCarrito() {
-      const totalUnidades = carrito.reduce((sum, item) => sum + item.cantidad, 0)
-      $('#cart-counter').textContent = totalUnidades
+      $('#cart-counter').textContent = carrito.reduce((sum, item) => sum + item.cantidad, 0)
     }
 
     function abrirDrawerCarrito() {
       $('#cart-backdrop').classList.add('activo')
       $('#cart-drawer').classList.add('activo')
-      renderItemsCarrito()
+      renderCarrito()
     }
 
     function cerrarDrawerCarrito() {
@@ -433,46 +355,78 @@
     $('#btn-abrir-carrito').addEventListener('click', abrirDrawerCarrito)
     $('#btn-cerrar-carrito').addEventListener('click', cerrarDrawerCarrito)
     $('#cart-backdrop').addEventListener('click', cerrarDrawerCarrito)
+    $('#cart-moneda-pago').addEventListener('change', renderCarrito)
 
-    function renderItemsCarrito() {
+    function renderCarrito() {
       if (!carrito.length) {
         $('#cart-items-container').innerHTML = '<p style="text-align:center; color:#9ca3af; margin-top:3rem;">Tu carrito está vacío.</p>'
-        $('#cart-total').textContent = '$0.00'
+        $('#txt-subtotal-bs').textContent = formatoBs(0)
+        $('#txt-total-bs').textContent = formatoBs(0)
+        $('#row-descuento-bs').style.display = 'none'
+        $('#row-total-divisa').style.display = 'none'
         return
       }
 
-      let total = 0
+      const moneda = $('#cart-moneda-pago').value // 'Bs' o 'USD'
+      let totalUSD = 0
+
       $('#cart-items-container').innerHTML = carrito.map((item, idx) => {
-        total += item.subtotal
+        const itemTotalUSD = item.cantidad * item.precioUSD
+        totalUSD += itemTotalUSD
+        const itemPrecioBs = item.precioUSD * tasaCatalogo
+
         return `
           <div class="cart-item">
             <div>
-              <h4>${item.nombre}</h4>
-              <p>Fórmula: <strong>${item.variante}</strong> (Lote: ${item.lote})</p>
-              <p>${item.cantidad} unids x $${item.precio.toFixed(2)}</p>
+              <h4 style="font-family:var(--fuente-titulos);">${item.nombre}</h4>
+              <p>Fórmula: <strong>${item.variante}</strong></p>
+              <p>${item.cantidad} unids x ${formatoBs(itemPrecioBs)}</p>
             </div>
             <div style="text-align:right;">
-              <strong style="display:block; margin-bottom:0.25rem;">$${item.subtotal.toFixed(2)}</strong>
+              <strong style="display:block; margin-bottom:0.25rem;">${formatoBs(itemTotalUSD * tasaCatalogo)}</strong>
               <button type="button" data-del-cart="${idx}" style="background:none; border:none; color:#991b1b; font-size:0.75rem; cursor:pointer; text-decoration:underline;">Quitar</button>
             </div>
           </div>
         `
       }).join('')
 
-      $('#cart-total').textContent = `$${total.toFixed(2)}`
+      // CÁLCULO CAMBIARIO CON FÓRMULA SOLICITADA
+      const subtotalBs = totalUSD * tasaCatalogo
+
+      if (moneda === 'USD') {
+        // Al pagar en divisa:
+        // total_bs_compensado = totalUSD * tasaBcv
+        // descuento_bs = subtotalBs - total_bs_compensado
+        const totalBsCompensado = totalUSD * tasaBcv
+        const descuentoBs = subtotalBs - totalBsCompensado
+
+        $('#row-descuento-bs').style.display = 'flex'
+        $('#row-total-divisa').style.display = 'flex'
+
+        $('#txt-subtotal-bs').textContent = formatoBs(subtotalBs)
+        $('#txt-descuento-bs').textContent = '- ' + formatoBs(descuentoBs)
+        $('#txt-total-bs').textContent = formatoBs(totalBsCompensado)
+        $('#txt-total-divisa').textContent = `$${totalUSD.toFixed(2)}`
+      } else {
+        // Pago en Bolívares
+        $('#row-descuento-bs').style.display = 'none'
+        $('#row-total-divisa').style.display = 'none'
+
+        $('#txt-subtotal-bs').textContent = formatoBs(subtotalBs)
+        $('#txt-total-bs').textContent = formatoBs(subtotalBs)
+      }
 
       document.querySelectorAll('[data-del-cart]').forEach(btn => {
         btn.addEventListener('click', () => {
-          const idx = parseInt(btn.dataset.delCart)
-          carrito.splice(idx, 1)
+          carrito.splice(parseInt(btn.dataset.delCart), 1)
           localStorage.setItem('optiline_cart', JSON.stringify(carrito))
           actualizarBadgeCarrito()
-          renderItemsCarrito()
+          renderCarrito()
         })
       })
     }
 
-    // Confirmar y Generar Orden en Supabase
+    // Confirmar Orden
     $('#btn-confirmar-pedido').addEventListener('click', async () => {
       if (!carrito.length) return alert('El carrito está vacío.')
       if (!clienteActivo) {
@@ -481,31 +435,36 @@
         return
       }
 
-      const total = carrito.reduce((sum, item) => sum + item.subtotal, 0)
+      const moneda = $('#cart-moneda-pago').value
+      const totalUSD = carrito.reduce((sum, item) => sum + (item.cantidad * item.precioUSD), 0)
+      const subtotalBs = totalUSD * tasaCatalogo
+      const totalBs = moneda === 'USD' ? (totalUSD * tasaBcv) : subtotalBs
+      const descuentoBs = moneda === 'USD' ? (subtotalBs - totalBs) : 0.00
       const codPedido = `OPT-${Date.now().toString().slice(-5)}`
 
-      const { data, error } = await supabase.from('pedidos').insert({
+      const { error } = await supabase.from('pedidos').insert({
         codigo_pedido: codPedido,
         cliente_id: clienteActivo.id,
-        total: total,
+        total: moneda === 'USD' ? totalUSD : totalBs,
+        moneda_pago: moneda === 'USD' ? 'USD' : 'Bs.',
+        subtotal_bs: subtotalBs,
+        descuento_bs: descuentoBs,
+        total_bs: totalBs,
+        total_usd: totalUSD,
         monto_pagado: 0.00,
         estado_pago: 'Pendiente',
         estado_despacho: 'En preparación',
         detalles: carrito
-      }).select().single()
+      })
 
-      if (error) {
-        alert('Error al generar pedido: ' + error.message)
-        return
-      }
+      if (error) return alert('Error al generar pedido: ' + error.message)
 
-      // Vaciar carrito
       carrito = []
       localStorage.removeItem('optiline_cart')
       actualizarBadgeCarrito()
       cerrarDrawerCarrito()
 
-      alert(`✓ ¡Orden #${codPedido} generada con éxito! Puedes reportar tus abonos o pago total en Mi Cuenta.`)
+      alert(`✓ ¡Orden #${codPedido} generada con éxito! Puedes reportar tu pago en Mi Cuenta.`)
       window.location.href = 'cuenta.html'
     })
 
