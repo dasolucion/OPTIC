@@ -9,390 +9,109 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
-  
-  <!-- SheetJS para lectura/escritura de Excel en cliente -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <style>
     body { background: #f4f6f9; min-height: 100vh; color: #374151; font-family: 'Open Sans', sans-serif; }
 
-    /* ============ LOGIN ============ */
-    .admin-login {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem;
-    }
-    .admin-login__box {
-      background: #fff;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 2.5rem 2rem;
-      width: 100%;
-      max-width: 420px;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.08);
-    }
-    .admin-login__box h1 {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 1.35rem;
-      font-weight: 800;
-      color: #111827;
-      margin-bottom: .3rem;
-    }
+    /* Login */
+    .admin-login { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
+    .admin-login__box { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 2.5rem 2rem; width: 100%; max-width: 420px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.08); }
+    .admin-login__box h1 { font-family: 'Montserrat', sans-serif; font-size: 1.35rem; font-weight: 800; color: #111827; margin-bottom: .3rem; }
     .admin-login__box p { font-size: .85rem; color: #6b7280; margin-bottom: 1.5rem; }
-    .admin-login__box input {
-      width: 100%;
-      padding: .75rem 1rem;
-      margin-bottom: .9rem;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-      font-family: inherit;
-      font-size: .9rem;
-    }
+    .admin-login__box input { width: 100%; padding: .75rem 1rem; margin-bottom: .9rem; border: 1px solid #d1d5db; border-radius: 6px; font-family: inherit; font-size: .9rem; }
     .admin-login__box input:focus { outline: none; border-color: #0b4d8c; }
     .admin-login__box .boton { width: 100%; }
 
-    /* Mensajes */
-    .msg {
-      padding: .75rem 1rem;
-      font-size: .85rem;
-      border-radius: 6px;
-      margin-bottom: 1rem;
-      display: none;
-    }
+    .msg { padding: .75rem 1rem; font-size: .85rem; border-radius: 6px; margin-bottom: 1rem; display: none; }
     .msg--error { background: #fde8e8; color: #9b1c1c; border: 1px solid #f8b4b4; }
     .msg--ok    { background: #def7ec; color: #03543f; border: 1px solid #bcf0da; }
     .msg.visible { display: block; }
 
-    /* ============ PANEL ============ */
+    /* Panel */
     .admin-panel { display: none; padding: 2rem 0 4rem; }
     .admin-panel.activo { display: block; }
 
-    .admin-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-    .admin-header h1 {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 1.6rem;
-      font-weight: 800;
-      color: #111827;
-    }
+    .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap; }
+    .admin-header h1 { font-family: 'Montserrat', sans-serif; font-size: 1.6rem; font-weight: 800; color: #111827; }
     .admin-header small { display: block; color: #6b7280; font-size: .82rem; font-weight: 600; margin-top: 2px; }
 
     /* Tabs */
-    .admin-tabs {
-      display: flex;
-      gap: .5rem;
-      margin-bottom: 1.5rem;
-      border-bottom: 2px solid #e5e7eb;
-      overflow-x: auto;
-    }
-    .admin-tab {
-      padding: .8rem 1.3rem;
-      background: transparent;
-      border: none;
-      font-family: 'Montserrat', sans-serif;
-      font-size: .82rem;
-      font-weight: 700;
-      color: #6b7280;
-      cursor: pointer;
-      border-bottom: 3px solid transparent;
-      margin-bottom: -2px;
-      text-transform: uppercase;
-      letter-spacing: .05em;
-      white-space: nowrap;
-      transition: all .2s;
-    }
+    .admin-tabs { display: flex; gap: .4rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e5e7eb; overflow-x: auto; }
+    .admin-tab { padding: .8rem 1.15rem; background: transparent; border: none; font-family: 'Montserrat', sans-serif; font-size: .8rem; font-weight: 700; color: #6b7280; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; text-transform: uppercase; letter-spacing: .05em; white-space: nowrap; transition: all .2s; }
     .admin-tab.activo { color: #0b4d8c; border-bottom-color: #0b4d8c; }
     .admin-tab-content { display: none; }
     .admin-tab-content.activo { display: block; }
 
-    /* Grid Formulario + Listado */
-    .admin-grid {
-      display: grid;
-      grid-template-columns: 360px 1fr;
-      gap: 1.8rem;
-      align-items: start;
-    }
+    /* Grid Form + List */
+    .admin-grid { display: grid; grid-template-columns: 360px 1fr; gap: 1.8rem; align-items: start; }
     @media (max-width: 1024px) { .admin-grid { grid-template-columns: 1fr; } }
 
-    .admin-form {
-      background: #fff;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 1.5rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-      position: sticky;
-      top: 1rem;
-    }
-    .admin-form h3 {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 1.05rem;
-      font-weight: 800;
-      color: #111827;
-      margin-bottom: 1rem;
-      padding-bottom: .6rem;
-      border-bottom: 1px solid #f3f4f6;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .admin-form label {
-      display: block;
-      font-size: .8rem;
-      font-weight: 700;
-      color: #374151;
-      margin-bottom: .3rem;
-    }
-    .admin-form input[type="text"],
-    .admin-form input[type="number"],
-    .admin-form input[type="email"],
-    .admin-form input[type="password"],
-    .admin-form input[type="date"],
-    .admin-form select,
-    .admin-form textarea {
-      width: 100%;
-      padding: .65rem .85rem;
-      margin-bottom: .85rem;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-      font-family: inherit;
-      font-size: .88rem;
-      background: #fff;
-    }
-    .admin-form input:focus,
-    .admin-form select:focus,
-    .admin-form textarea:focus { outline: none; border-color: #0b4d8c; }
+    .admin-form { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: sticky; top: 1rem; }
+    .admin-form h3 { font-family: 'Montserrat', sans-serif; font-size: 1.05rem; font-weight: 800; color: #111827; margin-bottom: 1rem; padding-bottom: .6rem; border-bottom: 1px solid #f3f4f6; }
+    .admin-form label { display: block; font-size: .8rem; font-weight: 700; color: #374151; margin-bottom: .3rem; }
+    .admin-form input, .admin-form select, .admin-form textarea { width: 100%; padding: .65rem .85rem; margin-bottom: .85rem; border: 1px solid #d1d5db; border-radius: 6px; font-family: inherit; font-size: .88rem; background: #fff; }
+    .admin-form input:focus, .admin-form select:focus, .admin-form textarea:focus { outline: none; border-color: #0b4d8c; }
     .admin-form textarea { resize: vertical; min-height: 70px; }
 
     .admin-form__row { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
     .admin-form__row > * { margin-bottom: 0; }
     .admin-form__row { margin-bottom: .85rem; }
 
-    .admin-form__file {
-      border: 2px dashed #cbd5e1;
-      border-radius: 6px;
-      padding: .85rem;
-      text-align: center;
-      cursor: pointer;
-      margin-bottom: .85rem;
-      display: block;
-      font-size: .82rem;
-      color: #4b5563;
-      font-weight: 600;
-      transition: all .2s;
-    }
-    .admin-form__file:hover { border-color: #0b4d8c; background: #f0f7ff; }
-    .admin-form__file input { display: none; }
+    .info-tag { font-size: 0.78rem; color: #64748b; background: #f1f5f9; padding: 0.25rem 0.5rem; border-radius: 4px; display: inline-block; margin-bottom: 0.65rem; }
 
-    .admin-form__preview {
-      width: 100%;
-      height: 130px;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      display: grid;
-      place-items: center;
-      margin-bottom: .85rem;
-      overflow: hidden;
-    }
-    .admin-form__preview img { width: 100%; height: 100%; object-fit: contain; }
-    .admin-form__preview span { color: #94a3b8; font-size: .8rem; }
-
-    /* Botones */
-    .btn-group { display: flex; gap: .5rem; }
-    .btn-cancelar {
-      display: none;
-      background: #f3f4f6;
-      color: #374151;
-      border: 1px solid #d1d5db;
-    }
-
-    /* Listado de tarjetas */
-    .admin-list { display: grid; gap: .8rem; }
-    .admin-card {
-      background: #fff;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 1rem 1.2rem;
-      display: grid;
-      grid-template-columns: 70px 1fr auto;
-      gap: 1rem;
-      align-items: center;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-    }
-    @media (max-width: 640px) {
-      .admin-card { grid-template-columns: 55px 1fr; }
-      .admin-card__actions { grid-column: 1 / -1; justify-content: flex-end; }
-    }
-    .admin-card__thumb {
-      width: 70px; height: 70px;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      display: grid;
-      place-items: center;
-      overflow: hidden;
-    }
-    .admin-card__thumb img { width: 100%; height: 100%; object-fit: contain; }
-    .admin-card h3 {
-      font-family: 'Montserrat', sans-serif;
-      font-size: .95rem;
-      font-weight: 700;
-      color: #111827;
-      margin-bottom: .15rem;
-    }
-    .admin-card p { font-size: .82rem; color: #4b5563; margin: 0; }
-    .admin-card__actions { display: flex; gap: .4rem; }
-
-    .btn-sm {
-      padding: .4rem .75rem;
-      font-size: .72rem;
-      font-family: 'Montserrat', sans-serif;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .04em;
-      border-radius: 4px;
-      border: none;
-      cursor: pointer;
-      transition: opacity .2s;
-    }
-    .btn-sm:hover { opacity: .85; }
-    .btn-sm--danger  { background: #fee2e2; color: #991b1b; }
-    .btn-sm--edit    { background: #e0f2fe; color: #0369a1; }
-    .btn-sm--success { background: #def7ec; color: #03543f; }
-
-    .admin-empty {
-      text-align: center;
-      color: #9ca3af;
-      font-size: .88rem;
-      padding: 3rem 1rem;
-      background: #fff;
-      border: 1px dashed #d1d5db;
-      border-radius: 8px;
-    }
-
-    /* Data Table & Zonas Excel */
-    .admin-panel-box {
-      background: #fff;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 1.5rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-      margin-bottom: 1.8rem;
-    }
-    .excel-zone {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-      background: #f8fafc;
-      border: 2px dashed #93c5fd;
-      padding: 1.25rem 1.5rem;
-      border-radius: 8px;
-      margin-bottom: 1.5rem;
-    }
-    .excel-zone__texto h4 {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 1rem;
-      font-weight: 800;
-      color: #0b4d8c;
-      margin-bottom: .2rem;
-    }
-    .excel-zone__texto p { font-size: .82rem; color: #4b5563; }
-    .excel-zone__actions { display: flex; gap: .8rem; align-items: center; }
-
-    .filtros-bar {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: .8rem;
-      margin-bottom: 1.2rem;
-    }
-    .filtros-bar input,
-    .filtros-bar select {
-      width: 100%;
-      padding: .65rem .85rem;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-      font-size: .85rem;
-      background: #fff;
-    }
-
+    /* Boxes y Tablas */
+    .admin-panel-box { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 1.8rem; }
     .table-responsive { width: 100%; overflow-x: auto; border: 1px solid #e5e7eb; border-radius: 6px; }
-    .data-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: .85rem;
-      text-align: left;
-      min-width: 800px;
-    }
-    .data-table th {
-      background: #f9fafb;
-      padding: .75rem 1rem;
-      font-family: 'Montserrat', sans-serif;
-      font-size: .75rem;
-      font-weight: 800;
-      color: #374151;
-      text-transform: uppercase;
-      border-bottom: 1px solid #e5e7eb;
-    }
-    .data-table td {
-      padding: .75rem 1rem;
-      border-bottom: 1px solid #f3f4f6;
-      color: #4b5563;
-    }
+    .data-table { width: 100%; border-collapse: collapse; font-size: .85rem; text-align: left; min-width: 820px; }
+    .data-table th { background: #f9fafb; padding: .75rem 1rem; font-family: 'Montserrat', sans-serif; font-size: .75rem; font-weight: 800; color: #374151; text-transform: uppercase; border-bottom: 1px solid #e5e7eb; }
+    .data-table td { padding: .75rem 1rem; border-bottom: 1px solid #f3f4f6; color: #4b5563; }
     .data-table tr:hover td { background: #f8fafc; }
-    
-    /* Badges */
-    .badge-status {
-      display: inline-block;
-      padding: .2rem .55rem;
-      border-radius: 4px;
-      font-weight: 700;
-      font-size: .75rem;
-      text-transform: uppercase;
-    }
-    .badge-status--verificando { background: #fef08a; color: #713f12; }
-    .badge-status--aprobado    { background: #def7ec; color: #03543f; }
-    .badge-status--rechazado   { background: #fee2e2; color: #991b1b; }
 
-    .loading {
-      display: inline-block;
-      width: 15px; height: 15px;
-      border: 2px solid rgba(255,255,255,.4);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin .7s linear infinite;
-      vertical-align: middle;
-      margin-right: .4rem;
-    }
+    /* Tarjetas de Banco */
+    .bancos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .banco-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border-left: 5px solid #0b4d8c; }
+    .banco-card.bs { border-left-color: #f39200; }
+    .banco-card h4 { font-family: 'Montserrat', sans-serif; font-size: 0.95rem; font-weight: 800; margin-bottom: 0.2rem; }
+    .banco-card p { font-size: 0.78rem; color: #64748b; margin-bottom: 0.5rem; }
+    .banco-card__monto { font-family: 'Montserrat', sans-serif; font-size: 1.45rem; font-weight: 900; color: #111827; }
+
+    /* Excel Zone */
+    .excel-zone { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; background: #f8fafc; border: 2px dashed #93c5fd; padding: 1.25rem 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; }
+    .excel-zone h4 { font-family: 'Montserrat', sans-serif; font-size: 1rem; font-weight: 800; color: #0b4d8c; margin-bottom: .2rem; }
+    .excel-zone p { font-size: .82rem; color: #4b5563; }
+
+    .filtros-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: .8rem; margin-bottom: 1.2rem; }
+    .filtros-bar input, .filtros-bar select { width: 100%; padding: .65rem .85rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: .85rem; background: #fff; }
+
+    .btn-group { display: flex; gap: .5rem; }
+    .btn-cancelar { display: none; background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; }
+    
+    .btn-sm { padding: .4rem .75rem; font-size: .72rem; font-family: 'Montserrat', sans-serif; font-weight: 700; text-transform: uppercase; border-radius: 4px; border: none; cursor: pointer; transition: opacity .2s; }
+    .btn-sm--danger { background: #fee2e2; color: #991b1b; }
+    .btn-sm--edit   { background: #e0f2fe; color: #0369a1; }
+
+    .loading { display: inline-block; width: 15px; height: 15px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; margin-right: .4rem; }
     @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
 
-<!-- ================= LOGIN ================= -->
+<!-- LOGIN -->
 <div class="admin-login" id="login-view">
   <div class="admin-login__box">
     <h1>Panel de Control</h1>
     <p>Distribución Mayorista · Optiline</p>
     <div class="msg msg--error" id="login-error"></div>
     <form id="login-form">
-      <input type="email" id="login-email" placeholder="Correo electrónico" autocomplete="email" required>
-      <input type="password" id="login-password" placeholder="Contraseña" autocomplete="current-password" required>
+      <input type="email" id="login-email" placeholder="Correo electrónico" required>
+      <input type="password" id="login-password" placeholder="Contraseña" required>
       <button type="submit" class="boton boton--primario" id="login-btn">Entrar al Sistema</button>
     </form>
   </div>
 </div>
 
-<!-- ================= PANEL PRINCIPAL ================= -->
+<!-- PANEL PRINCIPAL -->
 <div class="admin-panel" id="panel-view">
   <div class="contenedor">
 
@@ -404,72 +123,76 @@
       <button type="button" class="boton boton--naranja" id="logout-btn">Cerrar sesión</button>
     </div>
 
-    <!-- Pestañas de Navegación -->
+    <!-- ORDEN DE PESTAÑAS SOLICITADO -->
     <div class="admin-tabs">
-      <button class="admin-tab activo" data-tab="variantes">Inventario y Fórmulas</button>
-      <button class="admin-tab" data-tab="pagos">Conciliación de Pagos</button>
-      <button class="admin-tab" data-tab="clientes">Ópticas / Clientes</button>
-      <button class="admin-tab" data-tab="productos">Productos</button>
-      <button class="admin-tab" data-tab="lotes">Lotes</button>
-      <button class="admin-tab" data-tab="categorias">Categorías</button>
+      <button class="admin-tab activo" data-tab="clientes">1. Ópticas / Clientes</button>
+      <button class="admin-tab" data-tab="conciliacion">2. Conciliación</button>
+      <button class="admin-tab" data-tab="saldos">3. Saldos y Bancos</button>
+      <button class="admin-tab" data-tab="inventario">4. Inventario y Fórmulas</button>
+      <button class="admin-tab" data-tab="productos">5. Productos</button>
+      <button class="admin-tab" data-tab="categorias">6. Categorías</button>
+      <button class="admin-tab" data-tab="lotes">7. Lotes</button>
+      <button class="admin-tab" data-tab="bancos-config">8. Métodos y Cuentas</button>
     </div>
 
-    <!-- ========= TAB 1: VARIANTES E INVENTARIO ========= -->
-    <div class="admin-tab-content activo" data-content="variantes">
+    <!-- ================= 1. ÓPTICAS / CLIENTES ================= -->
+    <div class="admin-tab-content activo" data-content="clientes">
       <div class="excel-zone">
-        <div class="excel-zone__texto">
-          <h4>Carga Masiva de Inventario (Excel / CSV)</h4>
-          <p>Columnas requeridas: <strong>sku_producto | variable | lote | cantidad</strong></p>
+        <div>
+          <h4>Importar Clientes de WooCommerce (Excel / CSV)</h4>
+          <p>Columnas: <strong>codigo_usuario | email | empresa | rif | password | telefono | direccion_fiscal | direccion_envio</strong></p>
         </div>
-        <div class="excel-zone__actions">
-          <button type="button" class="btn-sm btn-sm--edit" id="btn-descargar-plantilla">📥 Plantilla Inventario</button>
+        <div style="display:flex; gap:.8rem;">
+          <button type="button" class="btn-sm btn-sm--edit" id="btn-plantilla-clientes">📥 Plantilla Clientes</button>
           <label class="boton boton--primario" style="margin:0; cursor:pointer;">
             📤 Cargar Excel
-            <input type="file" id="input-excel-file" accept=".xlsx, .xls, .csv" style="display:none;">
+            <input type="file" id="input-excel-clientes" accept=".xlsx, .xls, .csv" style="display:none;">
           </label>
         </div>
       </div>
-      <div class="msg msg--ok" id="excel-msg"></div>
+      <div class="msg msg--ok" id="clientes-msg"></div>
 
-      <div class="admin-panel-box">
-        <div class="filtros-bar">
-          <input type="text" id="filtro-busqueda" placeholder="🔍 Buscar por SKU, producto o fórmula...">
-          <select id="filtro-categoria"><option value="">Todas las categorías</option></select>
-          <select id="filtro-producto"><option value="">Todos los productos</option></select>
-          <select id="filtro-lote"><option value="">Todos los lotes</option></select>
-        </div>
+      <div class="admin-grid">
+        <form class="admin-form" id="form-cliente">
+          <h3 id="cliente-title">Nueva Óptica</h3>
+          <input type="hidden" id="cliente-id" value="">
+          <div class="admin-form__row">
+            <div><label>Código Usuario *</label><input type="text" id="cliente-codigo" placeholder="Ej: OPT-001" required></div>
+            <div><label>RIF *</label><input type="text" id="cliente-rif" placeholder="J-30200326-1" required></div>
+          </div>
+          <label>Nombre / Razón Social *</label><input type="text" id="cliente-empresa" required>
+          <label>Correo Electrónico *</label><input type="email" id="cliente-email" required>
+          <div class="admin-form__row">
+            <div><label>Contraseña *</label><input type="text" id="cliente-password" required></div>
+            <div><label>Teléfono</label><input type="text" id="cliente-telefono"></div>
+          </div>
+          <label>Dirección Fiscal</label><textarea id="cliente-fiscal" rows="2"></textarea>
+          <label>Dirección de Envío</label><textarea id="cliente-envio" rows="2"></textarea>
+          <div class="btn-group">
+            <button type="submit" class="boton boton--primario boton--bloque" id="cliente-btn">Guardar óptica</button>
+            <button type="button" class="boton btn-cancelar" id="cliente-btn-cancelar">Cancelar</button>
+          </div>
+        </form>
 
-        <div class="table-responsive">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>SKU</th>
-                <th>Producto</th>
-                <th>Categoría</th>
-                <th>Fórmula / Variable</th>
-                <th>Lote</th>
-                <th>Vencimiento</th>
-                <th>Stock</th>
-                <th>Precio</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="tbody-inventario"></tbody>
-          </table>
+        <div>
+          <div class="admin-panel-box" style="padding:1rem; margin-bottom:1rem;">
+            <input type="text" id="filtro-clientes" placeholder="🔍 Buscar óptica por RIF, código, empresa o correo..." style="width:100%; padding:.65rem; border:1px solid #d1d5db; border-radius:6px;">
+          </div>
+          <div class="admin-list" id="lista-clientes"></div>
         </div>
       </div>
     </div>
 
-    <!-- ========= TAB 2: CONCILIACIÓN DE PAGOS (NOTIFICACIONES) ========= -->
-    <div class="admin-tab-content" data-content="pagos">
+    <!-- ================= 2. CONCILIACIÓN ================= -->
+    <div class="admin-tab-content" data-content="conciliacion">
       <div class="admin-panel-box">
         <div class="filtros-bar">
-          <input type="text" id="filtro-pagos-busqueda" placeholder="🔍 Buscar por orden, referencia o cliente...">
-          <select id="filtro-pagos-estado">
-            <option value="">Todos los estados</option>
-            <option value="En verificación">En verificación</option>
-            <option value="Aprobado">Aprobado</option>
-            <option value="Rechazado">Rechazado</option>
+          <input type="text" id="filtro-concil-busqueda" placeholder="🔍 Buscar por referencia, orden o cliente...">
+          <select id="filtro-concil-banco"><option value="">Todos los bancos</option></select>
+          <select id="filtro-concil-estado">
+            <option value="">Todos (Conciliados y Pendientes)</option>
+            <option value="false">Pendientes por Conciliar</option>
+            <option value="true">Conciliados (Aprobados)</option>
           </select>
         </div>
 
@@ -478,100 +201,149 @@
             <thead>
               <tr>
                 <th>Fecha</th>
-                <th>Orden</th>
-                <th>Óptica / Cliente</th>
-                <th>Monto ($)</th>
-                <th>Tipo</th>
+                <th>Nro Pedido</th>
+                <th>Cliente / Óptica</th>
+                <th>Monto</th>
                 <th>Método</th>
+                <th>Banco Destino</th>
                 <th>Referencia</th>
                 <th>Comprobante</th>
-                <th>Estado</th>
-                <th>Acciones</th>
+                <th style="text-align:center;">Conciliado (Check)</th>
               </tr>
             </thead>
-            <tbody id="tbody-pagos"></tbody>
+            <tbody id="tbody-conciliacion"></tbody>
           </table>
         </div>
       </div>
     </div>
 
-    <!-- ========= TAB 3: ÓPTICAS / CLIENTES (CRUD Y EXCEL WOOCOMMERCE) ========= -->
-    <div class="admin-tab-content" data-content="clientes">
+    <!-- ================= 3. SALDOS Y BANCOS (TESORERÍA Y RETIROS) ================= -->
+    <div class="admin-tab-content" data-content="saldos">
       
-      <!-- Carga Masiva de Clientes -->
-      <div class="excel-zone">
-        <div class="excel-zone__texto">
-          <h4>Importar Clientes de WooCommerce (Excel / CSV)</h4>
-          <p>Columnas: <strong>codigo_usuario | email | empresa | rif | password | telefono | direccion_fiscal | direccion_envio</strong></p>
+      <!-- Tarjetas de Saldo por Banco Independiente -->
+      <h3 style="font-family:var(--fuente-titulos); margin-bottom:1rem; font-size:1.15rem;">Saldos Disponibles por Banco</h3>
+      <div class="bancos-grid" id="grid-bancos-saldos"></div>
+
+      <div class="admin-grid">
+        <!-- Formulario de Retiro / Egreso -->
+        <form class="admin-form" id="form-retiro">
+          <h3>Registrar Retiro / Egreso</h3>
+          <div class="msg msg--ok" id="retiro-msg"></div>
+
+          <label>Banco de Salida *</label>
+          <select id="retiro-banco" required></select>
+
+          <label>Fecha *</label>
+          <input type="date" id="retiro-fecha" required>
+
+          <label>Monto a Retirar *</label>
+          <input type="number" id="retiro-monto" step="0.01" min="0.01" required>
+
+          <label>Concepto / Motivo *</label>
+          <input type="text" id="retiro-concepto" placeholder="Ej: Pago de flete / Retiro de utilidades" required>
+
+          <label>Referencia Bancaria</label>
+          <input type="text" id="retiro-referencia" placeholder="Opcional">
+
+          <button type="submit" class="boton boton--naranja boton--bloque" id="retiro-btn">Registrar Egreso</button>
+        </form>
+
+        <!-- Libro de Movimientos y Extracto -->
+        <div class="admin-panel-box">
+          <div class="filtros-bar">
+            <select id="filtro-mov-banco"><option value="">Selecciona un banco para ver extracto</option></select>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Concepto / Pedido</th>
+                  <th>Cliente / Detalle</th>
+                  <th>Monto</th>
+                  <th>Saldo Resultante</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-movimientos">
+                <tr><td colspan="5" style="text-align:center; padding:2rem; color:#9ca3af;">Selecciona un banco arriba para ver sus movimientos.</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
-        <div class="excel-zone__actions">
-          <button type="button" class="btn-sm btn-sm--edit" id="btn-descargar-plantilla-clientes">📥 Plantilla Clientes</button>
+      </div>
+
+    </div>
+
+    <!-- ================= 4. INVENTARIO Y FÓRMULAS ================= -->
+    <div class="admin-tab-content" data-content="inventario">
+      <div class="excel-zone">
+        <div>
+          <h4>Carga Masiva de Fórmulas e Inventario</h4>
+          <p>Columnas: <strong>sku_producto | variable | lote | cantidad | precio</strong></p>
+        </div>
+        <div style="display:flex; gap:.8rem;">
+          <button type="button" class="btn-sm btn-sm--edit" id="btn-plantilla-inventario">📥 Plantilla Excel</button>
           <label class="boton boton--primario" style="margin:0; cursor:pointer;">
-            📤 Cargar Clientes
-            <input type="file" id="input-excel-clientes" accept=".xlsx, .xls, .csv" style="display:none;">
+            📤 Cargar Excel
+            <input type="file" id="input-excel-inv" accept=".xlsx, .xls, .csv" style="display:none;">
           </label>
         </div>
       </div>
-      <div class="msg msg--ok" id="clientes-excel-msg"></div>
+      <div class="msg msg--ok" id="inv-msg"></div>
 
       <div class="admin-grid">
-        <!-- Formulario Crear/Editar Cliente -->
-        <form class="admin-form" id="form-cliente">
-          <h3 id="cliente-form-title">Nueva Óptica</h3>
-          <input type="hidden" id="cliente-id" value="">
-          <div class="msg msg--ok" id="cliente-msg"></div>
+        <!-- Formulario Reactivo de Creación Manual -->
+        <form class="admin-form" id="form-formula-manual">
+          <h3>Asignar Fórmula / Inventario</h3>
+          
+          <label>Producto *</label>
+          <select id="manual-producto" required><option value="">Seleccionar producto...</option></select>
+          <div class="info-tag" id="tag-prod-info">SKU: — | Cat: —</div>
+
+          <label>Lote *</label>
+          <select id="manual-lote" required><option value="">Seleccionar lote...</option></select>
+          <div class="info-tag" id="tag-lote-info">Lote: — | Vence: —</div>
+
+          <label>Variable / Fórmula *</label>
+          <input type="text" id="manual-formula" placeholder="Ej: -2.00 / -0.75 x 90 o Verde Esmeralda" required>
 
           <div class="admin-form__row">
-            <div>
-              <label for="cliente-codigo">Código Usuario *</label>
-              <input type="text" id="cliente-codigo" placeholder="Ej: OPT-001" required>
-            </div>
-            <div>
-              <label for="cliente-rif">RIF *</label>
-              <input type="text" id="cliente-rif" placeholder="J-30200326-1" required>
-            </div>
+            <div><label>Stock *</label><input type="number" id="manual-stock" min="0" value="0" required></div>
+            <div><label>Precio ($) *</label><input type="number" id="manual-precio" step="0.01" min="0" placeholder="0.00" required></div>
           </div>
 
-          <label for="cliente-empresa">Nombre / Razón Social *</label>
-          <input type="text" id="cliente-empresa" placeholder="Ej: Óptica Santa Lucía, C.A." required>
-
-          <label for="cliente-email">Correo Electrónico *</label>
-          <input type="email" id="cliente-email" required>
-
-          <div class="admin-form__row">
-            <div>
-              <label for="cliente-password">Contraseña (Woo) *</label>
-              <input type="text" id="cliente-password" placeholder="Clave de acceso" required>
-            </div>
-            <div>
-              <label for="cliente-telefono">Teléfono</label>
-              <input type="text" id="cliente-telefono" placeholder="0414-0000000">
-            </div>
-          </div>
-
-          <label for="cliente-fiscal">Dirección Fiscal</label>
-          <textarea id="cliente-fiscal" rows="2"></textarea>
-
-          <label for="cliente-envio">Dirección de Despacho</label>
-          <textarea id="cliente-envio" rows="2"></textarea>
-
-          <div class="btn-group">
-            <button type="submit" class="boton boton--primario boton--bloque" id="cliente-btn">Guardar óptica</button>
-            <button type="button" class="boton btn-cancelar" id="cliente-btn-cancelar">Cancelar</button>
-          </div>
+          <button type="submit" class="boton boton--primario boton--bloque" id="manual-btn">Guardar en Inventario</button>
         </form>
 
-        <!-- Listado y Buscador de Clientes -->
-        <div>
-          <div class="admin-panel-box" style="padding:1rem; margin-bottom:1rem;">
-            <input type="text" id="filtro-clientes-busqueda" placeholder="🔍 Buscar óptica por RIF, código, empresa o correo..." style="width:100%; padding:.65rem; border:1px solid #d1d5db; border-radius:6px;">
+        <!-- Cuadro con Filtros -->
+        <div class="admin-panel-box">
+          <div class="filtros-bar">
+            <input type="text" id="filtro-inv-busqueda" placeholder="🔍 Buscar por SKU, producto o variable...">
+            <select id="filtro-inv-categoria"><option value="">Todas las categorías</option></select>
+            <select id="filtro-inv-producto"><option value="">Todos los productos</option></select>
           </div>
-          <div class="admin-list" id="lista-clientes"></div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>SKU</th>
+                  <th>Producto</th>
+                  <th>Categoría</th>
+                  <th>Fórmula / Variable</th>
+                  <th>Lote</th>
+                  <th>Stock</th>
+                  <th>Precio</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-inventario"></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- ========= TAB 4: PRODUCTOS ========= -->
+    <!-- ================= 5. PRODUCTOS ================= -->
     <div class="admin-tab-content" data-content="productos">
       <div class="admin-grid">
         <form class="admin-form" id="form-producto">
@@ -580,104 +352,88 @@
           <div class="msg msg--ok" id="prod-msg"></div>
 
           <div class="admin-form__row">
-            <div>
-              <label for="prod-sku">SKU *</label>
-              <input type="text" id="prod-sku" placeholder="Ej: FORM-HDX2" required>
-            </div>
-            <div>
-              <label for="prod-precio">Precio ($) *</label>
-              <input type="number" id="prod-precio" step="0.01" min="0" placeholder="0.00" required>
-            </div>
+            <div><label>SKU *</label><input type="text" id="prod-sku" required></div>
+            <div><label>Precio Base ($) *</label><input type="number" id="prod-precio" step="0.01" required></div>
           </div>
-
-          <label for="prod-nombre">Nombre *</label>
-          <input type="text" id="prod-nombre" required>
-
-          <label for="prod-categoria">Categoría *</label>
-          <select id="prod-categoria" required></select>
-
-          <label for="prod-desc">Descripción</label>
-          <textarea id="prod-desc" rows="3"></textarea>
-
-          <label>Imagen del Producto</label>
+          <label>Nombre *</label><input type="text" id="prod-nombre" required>
+          <label>Categoría *</label><select id="prod-categoria" required></select>
+          <label>Descripción</label><textarea id="prod-desc" rows="3"></textarea>
+          <label>Imagen</label>
           <div class="admin-form__preview" id="prod-preview"><span>Sin imagen</span></div>
-          <label class="admin-form__file" for="prod-imagen">
-            📷 Seleccionar imagen
-            <input type="file" id="prod-imagen" accept="image/*">
-          </label>
-
+          <label class="admin-form__file" for="prod-imagen">📷 Subir Imagen<input type="file" id="prod-imagen" accept="image/*"></label>
           <div class="btn-group">
             <button type="submit" class="boton boton--primario boton--bloque" id="prod-btn">Guardar producto</button>
             <button type="button" class="boton btn-cancelar" id="prod-btn-cancelar">Cancelar</button>
           </div>
         </form>
-
         <div class="admin-list" id="lista-productos"></div>
       </div>
     </div>
 
-    <!-- ========= TAB 5: LOTES ========= -->
-    <div class="admin-tab-content" data-content="lotes">
-      <div class="admin-grid">
-        <form class="admin-form" id="form-lote">
-          <h3 id="lote-form-title">Nuevo lote</h3>
-          <input type="hidden" id="lote-id" value="">
-          <div class="msg msg--ok" id="lote-msg"></div>
-
-          <label for="lote-codigo">Número de Lote *</label>
-          <input type="text" id="lote-codigo" placeholder="Ej: OPT-2026-A1" required>
-
-          <label for="lote-vencimiento">Fecha de Vencimiento *</label>
-          <input type="date" id="lote-vencimiento" required>
-
-          <div class="btn-group">
-            <button type="submit" class="boton boton--primario boton--bloque" id="lote-btn">Guardar lote</button>
-            <button type="button" class="boton btn-cancelar" id="lote-btn-cancelar">Cancelar</button>
-          </div>
-        </form>
-
-        <div class="admin-list" id="lista-lotes"></div>
-      </div>
-    </div>
-
-    <!-- ========= TAB 6: CATEGORÍAS ========= -->
+    <!-- ================= 6. CATEGORÍAS ================= -->
     <div class="admin-tab-content" data-content="categorias">
       <div class="admin-grid">
         <form class="admin-form" id="form-categoria">
           <h3 id="cat-form-title">Nueva categoría</h3>
           <input type="hidden" id="cat-id" value="">
           <div class="msg msg--ok" id="cat-msg"></div>
-
-          <label for="cat-sku">Prefijo / SKU *</label>
-          <input type="text" id="cat-sku" placeholder="Ej: CAT-FORM" required>
-
-          <label for="cat-nombre">Nombre *</label>
-          <input type="text" id="cat-nombre" required>
-
-          <label for="cat-slug">Slug (sin espacios, minúsculas) *</label>
-          <input type="text" id="cat-slug" placeholder="ej: formulados" required>
-
-          <label>Imagen de Categoría</label>
+          <label>Prefijo SKU *</label><input type="text" id="cat-sku" required>
+          <label>Nombre *</label><input type="text" id="cat-nombre" required>
+          <label>Slug *</label><input type="text" id="cat-slug" required>
+          <label>Imagen</label>
           <div class="admin-form__preview" id="cat-preview"><span>Sin imagen</span></div>
-          <label class="admin-form__file" for="cat-imagen">
-            📷 Seleccionar imagen
-            <input type="file" id="cat-imagen" accept="image/*">
-          </label>
-
+          <label class="admin-form__file" for="cat-imagen">📷 Subir Imagen<input type="file" id="cat-imagen" accept="image/*"></label>
           <div class="btn-group">
             <button type="submit" class="boton boton--primario boton--bloque" id="cat-btn">Guardar categoría</button>
             <button type="button" class="boton btn-cancelar" id="cat-btn-cancelar">Cancelar</button>
           </div>
         </form>
-
         <div class="admin-list" id="lista-categorias"></div>
+      </div>
+    </div>
+
+    <!-- ================= 7. LOTES ================= -->
+    <div class="admin-tab-content" data-content="lotes">
+      <div class="admin-grid">
+        <form class="admin-form" id="form-lote">
+          <h3 id="lote-form-title">Nuevo lote</h3>
+          <input type="hidden" id="lote-id" value="">
+          <div class="msg msg--ok" id="lote-msg"></div>
+          <label>Número de Lote *</label><input type="text" id="lote-codigo" required>
+          <label>Fecha de Vencimiento *</label><input type="date" id="lote-vencimiento" required>
+          <div class="btn-group">
+            <button type="submit" class="boton boton--primario boton--bloque" id="lote-btn">Guardar lote</button>
+            <button type="button" class="boton btn-cancelar" id="lote-btn-cancelar">Cancelar</button>
+          </div>
+        </form>
+        <div class="admin-list" id="lista-lotes"></div>
+      </div>
+    </div>
+
+    <!-- ================= 8. CONFIGURACIÓN BANCARIA ================= -->
+    <div class="admin-tab-content" data-content="bancos-config">
+      <div class="admin-grid">
+        <form class="admin-form" id="form-cuenta-banco">
+          <h3>Nueva Cuenta Bancaria</h3>
+          <div class="msg msg--ok" id="cuenta-msg"></div>
+          <label>Nombre de la Cuenta / Banco *</label><input type="text" id="banco-nombre" placeholder="Ej: Banesco Bs. o Zelle Chase" required>
+          <label>Titular de la Cuenta</label><input type="text" id="banco-titular" placeholder="Razón social o nombre">
+          <label>Moneda *</label>
+          <select id="banco-moneda" required>
+            <option value="USD">Dólares (USD)</option>
+            <option value="Bs.">Bolívares (Bs.)</option>
+          </select>
+          <label>Saldo Inicial</label><input type="number" id="banco-saldo-inicial" step="0.01" value="0.00">
+          <button type="submit" class="boton boton--primario boton--bloque">Crear Cuenta</button>
+        </form>
+        <div class="admin-list" id="lista-cuentas-config"></div>
       </div>
     </div>
 
   </div>
 </div>
 
-<!-- ================= LÓGICA MODULAR Y SUPABASE ================= -->
+<!-- ================= LÓGICA MODULAR EN SUPABASE ================= -->
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
@@ -698,7 +454,7 @@
     if (loading) {
       btn.dataset.text = btn.textContent
       btn.disabled = true
-      btn.innerHTML = '<span class="loading"></span>Procesando...'
+      btn.innerHTML = '<span class="loading"></span>Guardando...'
     } else {
       btn.disabled = false
       btn.textContent = btn.dataset.text || defaultText
@@ -714,29 +470,18 @@
     return publicUrl
   }
 
-  // ================= AUTENTICACIÓN =================
+  // Auth
   $('#login-form').addEventListener('submit', async (e) => {
     e.preventDefault()
     $('#login-error').classList.remove('visible')
     setLoading($('#login-btn'), true, 'Entrando...')
-    const email = $('#login-email').value.trim()
-    const password = $('#login-password').value
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    const { data, error } = await supabase.auth.signInWithPassword({ email: $('#login-email').value.trim(), password: $('#login-password').value })
     setLoading($('#login-btn'), false, 'Entrar al Sistema')
-
-    if (error) {
-      $('#login-error').textContent = `Error: ${error.message}`
-      $('#login-error').classList.add('visible')
-      return
-    }
+    if (error) { $('#login-error').textContent = error.message; $('#login-error').classList.add('visible'); return }
     iniciarSesion(data.user)
   })
 
-  $('#logout-btn').addEventListener('click', async () => {
-    await supabase.auth.signOut()
-    location.reload()
-  })
-
+  $('#logout-btn').addEventListener('click', async () => { await supabase.auth.signOut(); location.reload() })
   const { data: { session } } = await supabase.auth.getSession()
   if (session) iniciarSesion(session.user)
 
@@ -747,7 +492,7 @@
     cargarTodo()
   }
 
-  // Pestañas
+  // Tabs
   document.querySelectorAll('.admin-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('activo'))
@@ -757,90 +502,54 @@
     })
   })
 
-  // ================= 1. GESTIÓN DE CLIENTES / ÓPTICAS (CRUD Y EXCEL) =================
+  // ================= 1. CLIENTES =================
   let clientesCache = []
-
-  function resetClienteForm() {
-    $('#cliente-id').value = ''
-    $('#cliente-codigo').value = ''
-    $('#cliente-rif').value = ''
-    $('#cliente-empresa').value = ''
-    $('#cliente-email').value = ''
-    $('#cliente-password').value = ''
-    $('#cliente-telefono').value = ''
-    $('#cliente-fiscal').value = ''
-    $('#cliente-envio').value = ''
-    $('#cliente-form-title').textContent = 'Nueva Óptica'
-    $('#cliente-btn').textContent = 'Guardar óptica'
-    $('#cliente-btn-cancelar').style.display = 'none'
-  }
-  $('#cliente-btn-cancelar').addEventListener('click', resetClienteForm)
-
   async function cargarClientes() {
-    const { data, error } = await supabase.from('clientes').select('*').order('id', { ascending: false })
-    if (error) return console.error(error)
+    const { data } = await supabase.from('clientes').select('*').order('id', { ascending: false })
     clientesCache = data || []
     renderClientes()
   }
 
   function renderClientes() {
-    const busqueda = $('#filtro-clientes-busqueda').value.trim().toLowerCase()
-    const filtrados = clientesCache.filter(c => {
-      if (!busqueda) return true
-      const blob = `${c.codigo_usuario} ${c.rif} ${c.empresa} ${c.email}`.toLowerCase()
-      return blob.includes(busqueda)
-    })
-
-    $('#lista-clientes').innerHTML = filtrados.length
-      ? filtrados.map(c => `
-        <div class="admin-card" style="grid-template-columns: 1fr auto;">
-          <div>
-            <h3>${c.empresa} (${c.codigo_usuario})</h3>
-            <p><strong>RIF:</strong> ${c.rif} · <strong>Email:</strong> ${c.email}</p>
-            <p style="font-size:0.75rem; color:#6b7280; margin-top:2px;">Clave: <code>${c.password_hash || '—'}</code> · Telf: ${c.telefono || '—'}</p>
-          </div>
-          <div class="admin-card__actions">
-            <button class="btn-sm btn-sm--edit" data-edit-cliente='${JSON.stringify(c)}'>Editar</button>
-            <button class="btn-sm btn-sm--danger" data-del-cliente="${c.id}">Eliminar</button>
-          </div>
+    const q = $('#filtro-clientes').value.trim().toLowerCase()
+    const filtrados = clientesCache.filter(c => !q || `${c.codigo_usuario} ${c.rif} ${c.empresa} ${c.email}`.toLowerCase().includes(q))
+    $('#lista-clientes').innerHTML = filtrados.map(c => `
+      <div class="admin-card" style="grid-template-columns: 1fr auto;">
+        <div>
+          <h3>${c.empresa} (${c.codigo_usuario})</h3>
+          <p><strong>RIF:</strong> ${c.rif} · <strong>Email:</strong> ${c.email}</p>
+          <p style="font-size:0.75rem; color:#6b7280;">Clave: <code>${c.password_hash}</code> | Telf: ${c.telefono || '—'}</p>
         </div>
-      `).join('')
-      : '<div class="admin-empty">No se encontraron ópticas con esos criterios.</div>'
+        <div class="admin-card__actions">
+          <button class="btn-sm btn-sm--edit" data-edit-c='${JSON.stringify(c)}'>Editar</button>
+          <button class="btn-sm btn-sm--danger" data-del-c="${c.id}">Eliminar</button>
+        </div>
+      </div>
+    `).join('') || '<div class="admin-empty">Sin ópticas registradas.</div>'
 
-    document.querySelectorAll('[data-edit-cliente]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const c = JSON.parse(btn.dataset.editCliente)
-        $('#cliente-id').value = c.id
-        $('#cliente-codigo').value = c.codigo_usuario
-        $('#cliente-rif').value = c.rif
-        $('#cliente-empresa').value = c.empresa
-        $('#cliente-email').value = c.email
-        $('#cliente-password').value = c.password_hash || ''
-        $('#cliente-telefono').value = c.telefono || ''
-        $('#cliente-fiscal').value = c.direccion_fiscal || ''
-        $('#cliente-envio').value = c.direccion_envio || ''
-        $('#cliente-form-title').textContent = 'Editar Óptica'
-        $('#cliente-btn').textContent = 'Actualizar óptica'
-        $('#cliente-btn-cancelar').style.display = 'block'
-      })
-    })
+    document.querySelectorAll('[data-edit-c]').forEach(btn => btn.addEventListener('click', () => {
+      const c = JSON.parse(btn.dataset.editC)
+      $('#cliente-id').value = c.id; $('#cliente-codigo').value = c.codigo_usuario; $('#cliente-rif').value = c.rif
+      $('#cliente-empresa').value = c.empresa; $('#cliente-email').value = c.email; $('#cliente-password').value = c.password_hash || ''
+      $('#cliente-telefono').value = c.telefono || ''; $('#cliente-fiscal').value = c.direccion_fiscal || ''; $('#cliente-envio').value = c.direccion_envio || ''
+      $('#cliente-title').textContent = 'Editar Óptica'; $('#cliente-btn').textContent = 'Actualizar óptica'; $('#cliente-btn-cancelar').style.display = 'block'
+    }))
 
-    document.querySelectorAll('[data-del-cliente]').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        if (!confirm('¿Eliminar esta óptica? Se desvincularán sus pedidos.')) return
-        const { error } = await supabase.from('clientes').delete().eq('id', btn.dataset.delCliente)
-        if (error) return alert(error.message)
-        cargarClientes()
-      })
-    })
+    document.querySelectorAll('[data-del-c]').forEach(btn => btn.addEventListener('click', async () => {
+      if (confirm('¿Eliminar óptica?')) { await supabase.from('clientes').delete().eq('id', btn.dataset.delC); cargarClientes() }
+    }))
   }
+  $('#filtro-clientes').addEventListener('input', renderClientes)
 
-  $('#filtro-clientes-busqueda').addEventListener('input', renderClientes)
+  $('#cliente-btn-cancelar').addEventListener('click', () => {
+    $('#cliente-id').value = ''; $('#form-cliente').reset(); $('#cliente-title').textContent = 'Nueva Óptica'; $('#cliente-btn').textContent = 'Guardar óptica'; $('#cliente-btn-cancelar').style.display = 'none'
+  })
 
   $('#form-cliente').addEventListener('submit', async (e) => {
     e.preventDefault()
     const id = $('#cliente-id').value
-    const payload = {
+    await supabase.from('clientes').upsert({
+      id: id || undefined,
       codigo_usuario: $('#cliente-codigo').value.trim(),
       rif: $('#cliente-rif').value.trim(),
       empresa: $('#cliente-empresa').value.trim(),
@@ -849,508 +558,392 @@
       telefono: $('#cliente-telefono').value.trim() || null,
       direccion_fiscal: $('#cliente-fiscal').value.trim() || null,
       direccion_envio: $('#cliente-envio').value.trim() || null
-    }
-
-    const btn = $('#cliente-btn')
-    setLoading(btn, true)
-
-    try {
-      const { error } = id
-        ? await supabase.from('clientes').update(payload).eq('id', id)
-        : await supabase.from('clientes').insert(payload)
-
-      if (error) throw error
-      showMsg('cliente-msg', id ? '✓ Óptica actualizada' : '✓ Óptica creada')
-      resetClienteForm()
-      cargarClientes()
-    } catch (err) {
-      showMsg('cliente-msg', 'Error: ' + err.message, 'error')
-    } finally {
-      setLoading(btn, false, id ? 'Actualizar óptica' : 'Guardar óptica')
-    }
+    })
+    $('#cliente-btn-cancelar').click()
+    cargarClientes()
   })
 
-  // Descargar Plantilla Excel Clientes
-  $('#btn-descargar-plantilla-clientes').addEventListener('click', () => {
-    const ws_data = [
-      ["codigo_usuario", "email", "empresa", "rif", "password", "telefono", "direccion_fiscal", "direccion_envio"],
-      ["OPT-101", "ventas@opticasantalucia.com", "Óptica Santa Lucía", "J-12345678-0", "clave123", "0412-1234567", "Caracas, Av. Francisco de Miranda", "Caracas, CC Líder"],
-      ["OPT-102", "compras@visiontotal.com", "Visión Total, C.A.", "J-87654321-9", "pass456", "0212-9876543", "Valencia, Carabobo", "Valencia, CC Sambil"]
-    ]
-    const wb = XLSX.utils.book_new()
-    const ws = XLSX.utils.aoa_to_sheet(ws_data)
-    XLSX.utils.book_append_sheet(wb, ws, "Clientes")
-    XLSX.writeFile(wb, "plantilla_clientes_optiline.xlsx")
-  })
-
-  // Carga Masiva Clientes Excel
-  $('#input-excel-clientes').addEventListener('change', async (e) => {
-    const file = e.target.files[0]
-    if (!file) return
-
-    const reader = new FileReader()
-    reader.onload = async (evt) => {
-      try {
-        const data = new Uint8Array(evt.target.result)
-        const workbook = XLSX.read(data, { type: 'array' })
-        const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]])
-        if (!json.length) throw new Error('El archivo Excel está vacío.')
-
-        showMsg('clientes-excel-msg', `Importando ${json.length} ópticas...`, 'ok')
-        let procesados = 0
-
-        for (const fila of json) {
-          const codigo = String(fila.codigo_usuario || fila.CODIGO || '').trim()
-          const email = String(fila.email || fila.EMAIL || '').trim().toLowerCase()
-          const empresa = String(fila.empresa || fila.EMPRESA || '').trim()
-          const rif = String(fila.rif || fila.RIF || '').trim()
-
-          if (!codigo || !email || !empresa) continue
-
-          const payload = {
-            codigo_usuario: codigo,
-            email,
-            empresa,
-            rif: rif || 'J-00000000-0',
-            password_hash: String(fila.password || 'optiline2026').trim(),
-            telefono: String(fila.telefono || '').trim() || null,
-            direccion_fiscal: String(fila.direccion_fiscal || '').trim() || null,
-            direccion_envio: String(fila.direccion_envio || '').trim() || null
-          }
-
-          const { error } = await supabase.from('clientes').upsert(payload, { onConflict: 'codigo_usuario' })
-          if (!error) procesados++
-        }
-
-        showMsg('clientes-excel-msg', `✓ Se importaron ${procesados} ópticas exitosamente.`, 'ok')
-        cargarClientes()
-      } catch (err) {
-        showMsg('clientes-excel-msg', 'Error al procesar: ' + err.message, 'error')
-      } finally {
-        e.target.value = ''
-      }
-    }
-    reader.readAsArrayBuffer(file)
-  })
-
-  // ================= 2. CONCILIACIÓN DE PAGOS =================
+  // ================= 2. CONCILIACIÓN CON CHECKBOX =================
   let pagosCache = []
-
-  async function cargarPagos() {
-    const { data, error } = await supabase
-      .from('pagos')
-      .select(`
-        *,
-        pedidos (codigo_pedido, total, monto_pagado, saldo_pendiente),
-        clientes (empresa, rif, codigo_usuario)
-      `)
-      .order('id', { ascending: false })
-
-    if (error) return console.error(error)
+  async function cargarConciliacion() {
+    const { data } = await supabase.from('pagos').select('*, pedidos(codigo_pedido), clientes(empresa, rif), cuentas_bancarias(nombre_banco, moneda)').order('id', { ascending: false })
     pagosCache = data || []
-    renderPagos()
+    renderConciliacion()
   }
 
-  function renderPagos() {
-    const busqueda = $('#filtro-pagos-busqueda').value.trim().toLowerCase()
-    const estado = $('#filtro-pagos-estado').value
+  function renderConciliacion() {
+    const q = $('#filtro-concil-busqueda').value.trim().toLowerCase()
+    const bId = $('#filtro-concil-banco').value
+    const est = $('#filtro-concil-estado').value
 
     const filtrados = pagosCache.filter(p => {
-      if (estado && p.estado_conciliacion !== estado) return false
-      if (busqueda) {
-        const blob = `${p.pedidos?.codigo_pedido} ${p.referencia} ${p.clientes?.empresa} ${p.clientes?.rif}`.toLowerCase()
-        if (!blob.includes(busqueda)) return false
-      }
+      if (bId && p.cuenta_id != bId) return false
+      if (est !== '' && String(p.conciliado) !== est) return false
+      if (q && !`${p.pedidos?.codigo_pedido} ${p.referencia} ${p.clientes?.empresa}`.toLowerCase().includes(q)) return false
       return true
     })
 
-    $('#tbody-pagos').innerHTML = filtrados.length
-      ? filtrados.map(p => {
-          let badgeClass = 'badge-status--verificando'
-          if (p.estado_conciliacion === 'Aprobado') badgeClass = 'badge-status--aprobado'
-          if (p.estado_conciliacion === 'Rechazado') badgeClass = 'badge-status--rechazado'
+    $('#tbody-conciliacion').innerHTML = filtrados.map(p => `
+      <tr style="${p.conciliado ? 'background:#f0fdf4;' : ''}">
+        <td>${p.fecha_pago}</td>
+        <td><strong>#${p.pedidos?.codigo_pedido || '—'}</strong></td>
+        <td>${p.clientes?.empresa || '—'}<br><small style="color:#64748b;">${p.clientes?.rif || ''}</small></td>
+        <td><strong>${p.cuentas_bancarias?.moneda || '$'} ${Number(p.monto).toFixed(2)}</strong></td>
+        <td>${p.metodo_pago}</td>
+        <td><strong>${p.cuentas_bancarias?.nombre_banco || p.banco_origen || 'Por asignar'}</strong></td>
+        <td><code>${p.referencia}</code></td>
+        <td>${p.comprobante_url ? `<a href="${p.comprobante_url}" target="_blank" style="color:#0b4d8c;font-weight:700;text-decoration:underline;">Ver Voucher</a>` : '<span style="color:#94a3b8;">Sin archivo</span>'}</td>
+        <td style="text-align:center;">
+          <input type="checkbox" style="width:20px; height:20px; cursor:pointer;" data-check-pago="${p.id}" ${p.conciliado ? 'checked' : ''}>
+        </td>
+      </tr>
+    `).join('') || '<tr><td colspan="9" style="text-align:center;padding:2rem;color:#94a3b8;">Sin pagos para conciliar.</td></tr>'
 
-          return `
-            <tr>
-              <td>${p.fecha_pago}</td>
-              <td><strong>#${p.pedidos?.codigo_pedido || '—'}</strong></td>
-              <td>${p.clientes?.empresa || '—'}<br><small style="color:#6b7280;">${p.clientes?.rif || ''}</small></td>
-              <td><strong>$${Number(p.monto).toFixed(2)}</strong></td>
-              <td>${p.tipo_pago}</td>
-              <td>${p.metodo_pago}</td>
-              <td><code>${p.referencia}</code></td>
-              <td>
-                ${p.comprobante_url ? `<a href="${p.comprobante_url}" target="_blank" style="color:#0b4d8c;font-weight:700;text-decoration:underline;">Ver Voucher</a>` : 'Sin archivo'}
-              </td>
-              <td><span class="badge-status ${badgeClass}">${p.estado_conciliacion}</span></td>
-              <td>
-                ${p.estado_conciliacion === 'En verificación' ? `
-                  <div style="display:flex;gap:4px;">
-                    <button class="btn-sm btn-sm--success" data-aprobar-pago="${p.id}">Aprobar</button>
-                    <button class="btn-sm btn-sm--danger" data-rechazar-pago="${p.id}" data-pedido="${p.pedido_id}" data-monto="${p.monto}">Rechazar</button>
-                  </div>
-                ` : `<span style="font-size:0.75rem;color:#9ca3af;">Conciliado</span>`}
-              </td>
-            </tr>
-          `
-        }).join('')
-      : '<tr><td colspan="10" style="text-align:center;padding:2rem;color:#9ca3af;">No hay reportes de pago registrados.</td></tr>'
+    // Acción Checkbox Conciliado
+    document.querySelectorAll('[data-check-pago]').forEach(chk => {
+      chk.addEventListener('change', async () => {
+        const pId = chk.dataset.checkPago
+        const pago = pagosCache.find(x => x.id == pId)
+        if (!pago) return
 
-    // Aprobar Pago
-    document.querySelectorAll('[data-aprobar-pago]').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        if (!confirm('¿Aprobar y conciliar este pago?')) return
-        const { error } = await supabase.from('pagos').update({ estado_conciliacion: 'Aprobado' }).eq('id', btn.dataset.aprobarPago)
-        if (error) return alert(error.message)
-        cargarPagos()
-      })
-    })
+        const nuevoEstado = chk.checked
 
-    // Rechazar Pago (Ajusta el saldo del pedido)
-    document.querySelectorAll('[data-rechazar-pago]').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        if (!confirm('¿Rechazar comprobante? El monto se restará del abono del pedido.')) return
-        const pagoId = btn.dataset.rechazarPago
-        const pedidoId = btn.dataset.pedido
-        const montoRechazado = parseFloat(btn.dataset.monto)
+        // Actualizar Pago
+        await supabase.from('pagos').update({ conciliado: nuevoEstado, estado_conciliacion: nuevoEstado ? 'Aprobado' : 'En verificación' }).eq('id', pId)
 
-        // 1. Cambiar estado a rechazado
-        await supabase.from('pagos').update({ estado_conciliacion: 'Rechazado' }).eq('id', pagoId)
+        // Impacto en Cuenta Bancaria
+        if (pago.cuenta_id) {
+          const { data: cta } = await supabase.from('cuentas_bancarias').select('*').eq('id', pago.cuenta_id).single()
+          if (cta) {
+            const delta = nuevoEstado ? parseFloat(pago.monto) : -parseFloat(pago.monto)
+            const nuevoSaldo = parseFloat(cta.saldo_actual) + delta
+            await supabase.from('cuentas_bancarias').update({ saldo_actual: nuevoSaldo }).eq('id', cta.id)
 
-        // 2. Revertir saldo del pedido
-        const { data: ped } = await supabase.from('pedidos').select('total, monto_pagado').eq('id', pedidoId).single()
-        if (ped) {
-          const nuevoPagado = Math.max(0, parseFloat(ped.monto_pagado || 0) - montoRechazado)
-          const nuevoEstado = nuevoPagado > 0 ? 'Abonado' : 'Pendiente'
-          await supabase.from('pedidos').update({ monto_pagado: nuevoPagado, estado_pago: nuevoEstado }).eq('id', pedidoId)
+            // Registrar Movimiento
+            if (nuevoEstado) {
+              await supabase.from('movimientos_tesoreria').insert({
+                cuenta_id: cta.id,
+                tipo: 'INGRESO',
+                monto: pago.monto,
+                concepto: `Pago Orden #${pago.pedidos?.codigo_pedido || ''}`,
+                referencia: pago.referencia,
+                pedido_id: pago.pedido_id,
+                pago_id: pago.id,
+                saldo_resultante: nuevoSaldo
+              })
+            }
+          }
         }
-
-        cargarPagos()
+        cargarConciliacion()
+        cargarSaldosBancarios()
       })
     })
   }
+  $('#filtro-concil-busqueda').addEventListener('input', renderConciliacion)
+  $('#filtro-concil-banco').addEventListener('change', renderConciliacion)
+  $('#filtro-concil-estado').addEventListener('change', renderConciliacion)
 
-  $('#filtro-pagos-busqueda').addEventListener('input', renderPagos)
-  $('#filtro-pagos-estado').addEventListener('change', renderPagos)
+  // ================= 3. SALDOS Y BANCOS (TESORERÍA Y RETIROS) =================
+  let cuentasCache = []
+  async function cargarSaldosBancarios() {
+    const { data } = await supabase.from('cuentas_bancarias').select('*').order('id')
+    cuentasCache = data || []
 
-  // ================= 3. INVENTARIO Y EXCEL =================
-  let inventarioCache = []
+    // Tarjetas
+    $('#grid-bancos-saldos').innerHTML = cuentasCache.map(b => `
+      <div class="banco-card ${b.moneda === 'Bs.' ? 'bs' : ''}">
+        <h4>${b.nombre_banco}</h4>
+        <p>${b.titular || 'Sin titular'} · Moneda: <strong>${b.moneda}</strong></p>
+        <div class="banco-card__monto">${b.moneda} ${Number(b.saldo_actual).toLocaleString('es-VE', { minimumFractionDigits: 2 })}</div>
+      </div>
+    `).join('')
 
-  async function cargarInventarioDataTable() {
-    const { data, error } = await supabase
-      .from('inventario_lotes')
-      .select(`
-        id, stock,
-        variantes (
-          id, nombre,
-          productos (
-            id, sku, nombre, precio,
-            categorias (id, nombre)
-          )
-        ),
-        lotes (
-          id, codigo_lote, fecha_vencimiento
-        )
-      `)
-      .order('id', { ascending: false })
+    // Selects
+    const opts = '<option value="">Selecciona banco...</option>' + cuentasCache.map(b => `<option value="${b.id}">${b.nombre_banco} (${b.moneda})</option>`).join('')
+    $('#retiro-banco').innerHTML = opts
+    $('#filtro-mov-banco').innerHTML = opts
+    $('#filtro-concil-banco').innerHTML = '<option value="">Todos los bancos</option>' + cuentasCache.map(b => `<option value="${b.id}">${b.nombre_banco}</option>`).join('')
+    
+    // Lista config
+    $('#lista-cuentas-config').innerHTML = cuentasCache.map(b => `
+      <div class="admin-card" style="grid-template-columns: 1fr auto;">
+        <div>
+          <h3>${b.nombre_banco} (${b.moneda})</h3>
+          <p>Titular: ${b.titular || '—'} · Saldo: <strong>${b.moneda} ${Number(b.saldo_actual).toFixed(2)}</strong></p>
+        </div>
+        <div class="admin-card__actions">
+          <button class="btn-sm btn-sm--danger" data-del-cta="${b.id}">Eliminar</button>
+        </div>
+      </div>
+    `).join('')
 
-    if (error) return console.error(error)
-    inventarioCache = data || []
-    renderTablaInventario()
+    document.querySelectorAll('[data-del-cta]').forEach(btn => btn.addEventListener('click', async () => {
+      if (confirm('¿Eliminar cuenta bancaria?')) { await supabase.from('cuentas_bancarias').delete().eq('id', btn.dataset.delCta); cargarSaldosBancarios() }
+    }))
   }
 
-  function renderTablaInventario() {
-    const busqueda = $('#filtro-busqueda').value.trim().toLowerCase()
-    const catId = $('#filtro-categoria').value
-    const prodId = $('#filtro-producto').value
-    const loteId = $('#filtro-lote').value
+  // Extracto de Movimientos
+  $('#filtro-mov-banco').addEventListener('change', async (e) => {
+    const bId = e.target.value
+    if (!bId) { $('#tbody-movimientos').innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;">Selecciona un banco.</td></tr>'; return }
 
-    const filtrados = inventarioCache.filter(item => {
-      const p = item.variantes?.productos
-      const c = p?.categorias
-      const l = item.lotes
+    const { data } = await supabase.from('movimientos_tesoreria').select('*').eq('cuenta_id', bId).order('id', { ascending: false })
+    const cta = cuentasCache.find(c => c.id == bId)
 
-      if (catId && c?.id != catId) return false
-      if (prodId && p?.id != prodId) return false
-      if (loteId && l?.id != loteId) return false
+    $('#tbody-movimientos').innerHTML = (data && data.length) ? data.map(m => `
+      <tr>
+        <td>${new Date(m.fecha).toLocaleDateString()}</td>
+        <td><strong>${m.concepto}</strong><br><small style="color:#64748b;">Ref: ${m.referencia || '—'}</small></td>
+        <td>${m.tipo === 'INGRESO' ? 'Abono Cliente' : 'Egreso / Retiro'}</td>
+        <td style="color:${m.tipo === 'INGRESO' ? '#03543f' : '#991b1b'}; font-weight:800;">
+          ${m.tipo === 'INGRESO' ? '+' : '-'} ${cta?.moneda} ${Number(m.monto).toFixed(2)}
+        </td>
+        <td><strong>${cta?.moneda} ${Number(m.saldo_resultante).toFixed(2)}</strong></td>
+      </tr>
+    `).join('') : '<tr><td colspan="5" style="text-align:center;padding:2rem;color:#9ca3af;">Sin movimientos en este banco.</td></tr>'
+  })
 
-      if (busqueda) {
-        const blob = `${p?.sku} ${p?.nombre} ${item.variantes?.nombre} ${l?.codigo_lote}`.toLowerCase()
-        if (!blob.includes(busqueda)) return false
-      }
+  // Form Retiro
+  $('#form-retiro').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const ctaId = $('#retiro-banco').value
+    const monto = parseFloat($('#retiro-monto').value)
+    const cta = cuentasCache.find(c => c.id == ctaId)
+    if (!cta) return
+
+    const nuevoSaldo = parseFloat(cta.saldo_actual) - monto
+
+    // 1. Guardar Retiro
+    await supabase.from('retiros').insert({
+      cuenta_id: ctaId,
+      fecha: $('#retiro-fecha').value,
+      monto,
+      concepto: $('#retiro-concepto').value.trim(),
+      referencia: $('#retiro-referencia').value.trim() || null
+    })
+
+    // 2. Registrar Movimiento
+    await supabase.from('movimientos_tesoreria').insert({
+      cuenta_id: ctaId,
+      tipo: 'EGRESO',
+      monto,
+      concepto: $('#retiro-concepto').value.trim(),
+      referencia: $('#retiro-referencia').value.trim() || null,
+      saldo_resultante: nuevoSaldo
+    })
+
+    // 3. Descontar Saldo del Banco
+    await supabase.from('cuentas_bancarias').update({ saldo_actual: nuevoSaldo }).eq('id', ctaId)
+
+    showMsg('retiro-msg', '✓ Egreso registrado con éxito.')
+    $('#form-retiro').reset()
+    cargarSaldosBancarios()
+  })
+
+  $('#form-cuenta-banco').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    await supabase.from('cuentas_bancarias').insert({
+      nombre_banco: $('#banco-nombre').value.trim(),
+      titular: $('#banco-titular').value.trim() || null,
+      moneda: $('#banco-moneda').value,
+      saldo_actual: parseFloat($('#banco-saldo-inicial').value) || 0
+    })
+    $('#form-cuenta-banco').reset()
+    cargarSaldosBancarios()
+  })
+
+  // ================= 4. INVENTARIO Y FÓRMULAS (REACTIVO) =================
+  let prodsCache = [], lotesCache = [], catsCache = [], invCache = []
+
+  async function cargarInventarioData() {
+    const { data: inv } = await supabase.from('inventario_lotes').select('id, stock, precio, variantes(id, nombre, productos(id, sku, nombre, precio, categorias(id, nombre))), lotes(id, codigo_lote, fecha_vencimiento)').order('id', { ascending: false })
+    invCache = inv || []
+    renderInventario()
+  }
+
+  function renderInventario() {
+    const q = $('#filtro-inv-busqueda').value.trim().toLowerCase()
+    const cId = $('#filtro-inv-categoria').value
+    const pId = $('#filtro-inv-producto').value
+
+    const filtrados = invCache.filter(i => {
+      const p = i.variantes?.productos
+      if (cId && p?.categorias?.id != cId) return false
+      if (pId && p?.id != pId) return false
+      if (q && !`${p?.sku} ${p?.nombre} ${i.variantes?.nombre} ${i.lotes?.codigo_lote}`.toLowerCase().includes(q)) return false
       return true
     })
 
-    $('#tbody-inventario').innerHTML = filtrados.length
-      ? filtrados.map(i => {
-          const prod = i.variantes?.productos
-          return `
-            <tr>
-              <td><strong>${prod?.sku || '—'}</strong></td>
-              <td>${prod?.nombre || '—'}</td>
-              <td>${prod?.categorias?.nombre || '—'}</td>
-              <td>${i.variantes?.nombre || '—'}</td>
-              <td><strong>${i.lotes?.codigo_lote || '—'}</strong></td>
-              <td>${i.lotes?.fecha_vencimiento || '—'}</td>
-              <td><strong>${i.stock} unids</strong></td>
-              <td>$${Number(prod?.precio || 0).toFixed(2)}</td>
-              <td>
-                <button class="btn-sm btn-sm--edit" data-edit-stock="${i.id}" data-current="${i.stock}">Ajustar</button>
-              </td>
-            </tr>
-          `
-        }).join('')
-      : '<tr><td colspan="9" style="text-align:center;padding:2rem;color:#94a3b8;">Sin registros de inventario.</td></tr>'
+    $('#tbody-inventario').innerHTML = filtrados.map(i => {
+      const p = i.variantes?.productos
+      const precioFinal = i.precio ? Number(i.precio) : Number(p?.precio || 0)
+      return `
+        <tr>
+          <td><strong>${p?.sku || '—'}</strong></td>
+          <td>${p?.nombre || '—'}</td>
+          <td>${p?.categorias?.nombre || '—'}</td>
+          <td>${i.variantes?.nombre || '—'}</td>
+          <td><strong>${i.lotes?.codigo_lote || '—'}</strong></td>
+          <td><strong style="color:${i.stock > 0 ? '#0b4d8c' : '#991b1b'};">${i.stock} unids</strong></td>
+          <td>$${precioFinal.toFixed(2)}</td>
+          <td><button class="btn-sm btn-sm--danger" data-del-inv="${i.id}">Borrar</button></td>
+        </tr>
+      `
+    }).join('') || '<tr><td colspan="8" style="text-align:center;padding:2rem;">Sin inventario cargado.</td></tr>'
 
-    document.querySelectorAll('[data-edit-stock]').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const nuevoStock = prompt('Nuevo stock disponible:', btn.dataset.current)
-        if (nuevoStock === null || isNaN(parseInt(nuevoStock))) return
-        const { error } = await supabase.from('inventario_lotes').update({ stock: parseInt(nuevoStock) }).eq('id', btn.dataset.editStock)
-        if (error) return alert(error.message)
-        cargarInventarioDataTable()
-      })
-    })
+    document.querySelectorAll('[data-del-inv]').forEach(btn => btn.addEventListener('click', async () => {
+      if (confirm('¿Eliminar variante de inventario?')) { await supabase.from('inventario_lotes').delete().eq('id', btn.dataset.delInv); cargarInventarioData() }
+    }))
   }
+  $('#filtro-inv-busqueda').addEventListener('input', renderInventario)
+  $('#filtro-inv-categoria').addEventListener('change', renderInventario)
+  $('#filtro-inv-producto').addEventListener('change', renderInventario)
 
-  ['filtro-busqueda', 'filtro-categoria', 'filtro-producto', 'filtro-lote'].forEach(id => {
-    $('#' + id).addEventListener('input', renderTablaInventario)
+  // Reactividad del formulario manual de inventario
+  $('#manual-producto').addEventListener('change', (e) => {
+    const p = prodsCache.find(x => x.id == e.target.value)
+    $('#tag-prod-info').textContent = p ? `SKU: ${p.sku || 'Sin SKU'} | Categoría: ${p.categorias?.nombre || '—'}` : 'SKU: — | Cat: —'
+    if (p && !$('#manual-precio').value) $('#manual-precio').value = p.precio || ''
   })
 
-  $('#btn-descargar-plantilla').addEventListener('click', () => {
-    const ws_data = [
-      ["sku_producto", "variable", "lote", "cantidad"],
-      ["FORM-HDX2", "-1.00 / -0.75 x 90", "OPT-2026-A1", 24],
-      ["COSM-MQF", "Verde Esmeralda", "OPT-2026-B2", 30]
-    ]
-    const wb = XLSX.utils.book_new()
-    const ws = XLSX.utils.aoa_to_sheet(ws_data)
-    XLSX.utils.book_append_sheet(wb, ws, "Inventario")
-    XLSX.writeFile(wb, "plantilla_inventario_optiline.xlsx")
+  $('#manual-lote').addEventListener('change', (e) => {
+    const l = lotesCache.find(x => x.id == e.target.value)
+    $('#tag-lote-info').textContent = l ? `Lote: ${l.codigo_lote} | Vence: ${l.fecha_vencimiento}` : 'Lote: — | Vence: —'
   })
 
-  $('#input-excel-file').addEventListener('change', async (e) => {
+  $('#form-formula-manual').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const pId = parseInt($('#manual-producto').value)
+    const lId = parseInt($('#manual-lote').value)
+    const formula = $('#manual-formula').value.trim()
+    const stock = parseInt($('#manual-stock').value) || 0
+    const precio = parseFloat($('#manual-precio').value) || 0
+
+    // 1. Obtener o crear variante
+    let { data: varData } = await supabase.from('variantes').select('id').eq('producto_id', pId).eq('nombre', formula).maybeSingle()
+    let vId = varData?.id
+    if (!vId) {
+      const { data: nv } = await supabase.from('variantes').insert({ producto_id: pId, nombre: formula }).select('id').single()
+      if (nv) vId = nv.id
+    }
+
+    // 2. Guardar en Inventario_lotes
+    await supabase.from('inventario_lotes').upsert({ variante_id: vId, lote_id: lId, stock, precio }, { onConflict: 'variante_id,lote_id' })
+    $('#manual-formula').value = ''
+    $('#manual-stock').value = '0'
+    showMsg('inv-msg', '✓ Fórmula guardada en inventario.')
+    cargarInventarioData()
+  })
+
+  // Excel Inventario
+  $('#btn-plantilla-inventario').addEventListener('click', () => {
+    const ws = XLSX.utils.aoa_to_sheet([["sku_producto", "variable", "lote", "cantidad", "precio"], ["FORM-HDX2", "-1.00 / -0.75 x 90", "OPT-2026-A1", 24, 25.00]])
+    const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Inventario"); XLSX.writeFile(wb, "plantilla_inventario_optiline.xlsx")
+  })
+
+  $('#input-excel-inv').addEventListener('change', async (e) => {
     const file = e.target.files[0]
     if (!file) return
-
     const reader = new FileReader()
     reader.onload = async (evt) => {
-      try {
-        const data = new Uint8Array(evt.target.result)
-        const workbook = XLSX.read(data, { type: 'array' })
-        const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]])
-        if (!json.length) throw new Error('El archivo está vacío.')
+      const workbook = XLSX.read(new Uint8Array(evt.target.result), { type: 'array' })
+      const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]])
+      const prodMap = new Map(prodsCache.map(p => [p.sku?.trim().toUpperCase(), p.id]))
+      const loteMap = new Map(lotesCache.map(l => [l.codigo_lote?.trim().toUpperCase(), l.id]))
 
-        showMsg('excel-msg', `Procesando ${json.length} registros...`, 'ok')
-        const { data: dbProductos } = await supabase.from('productos').select('id, sku')
-        const prodMap = new Map((dbProductos || []).map(p => [p.sku?.trim().toUpperCase(), p.id]))
+      let proc = 0
+      for (const f of json) {
+        const sku = String(f.sku_producto || f.SKU || '').trim().toUpperCase()
+        const variable = String(f.variable || f.formula || '').trim()
+        const lote = String(f.lote || '').trim().toUpperCase()
+        const cant = parseInt(f.cantidad || f.stock) || 0
+        const precio = parseFloat(f.precio) || null
 
-        const { data: dbLotes } = await supabase.from('lotes').select('id, codigo_lote')
-        const loteMap = new Map((dbLotes || []).map(l => [l.codigo_lote?.trim().toUpperCase(), l.id]))
+        const pId = prodMap.get(sku)
+        if (!pId || !variable || !lote) continue
 
-        let procesados = 0
-        for (const fila of json) {
-          const sku = String(fila.sku_producto || fila.SKU || '').trim().toUpperCase()
-          const variable = String(fila.variable || fila.formula || '').trim()
-          const lote = String(fila.lote || fila.codigo_lote || '').trim().toUpperCase()
-          const cantidad = parseInt(fila.cantidad || fila.stock) || 0
-
-          const productoId = prodMap.get(sku)
-          if (!productoId || !variable || !lote) continue
-
-          let loteId = loteMap.get(lote)
-          if (!loteId) {
-            const { data: nl } = await supabase.from('lotes').insert({ codigo_lote: lote, fecha_vencimiento: '2028-12-31' }).select('id').single()
-            if (nl) { loteId = nl.id; loteMap.set(lote, loteId) }
-          }
-
-          let { data: varData } = await supabase.from('variantes').select('id').eq('producto_id', productoId).eq('nombre', variable).maybeSingle()
-          let varianteId = varData?.id
-          if (!varianteId) {
-            const { data: nv } = await supabase.from('variantes').insert({ producto_id: productoId, nombre: variable }).select('id').single()
-            if (nv) varianteId = nv.id
-          }
-
-          if (varianteId && loteId) {
-            await supabase.from('inventario_lotes').upsert({ variante_id: varianteId, lote_id: loteId, stock: cantidad }, { onConflict: 'variante_id,lote_id' })
-            procesados++
-          }
+        let lId = loteMap.get(lote)
+        if (!lId) {
+          const { data: nl } = await supabase.from('lotes').insert({ codigo_lote: lote, fecha_vencimiento: '2028-12-31' }).select('id').single()
+          if (nl) { lId = nl.id; loteMap.set(lote, lId) }
         }
 
-        showMsg('excel-msg', `✓ Se actualizaron ${procesados} registros de stock.`, 'ok')
-        cargarInventarioDataTable()
-      } catch (err) {
-        showMsg('excel-msg', 'Error al leer Excel: ' + err.message, 'error')
-      } finally {
-        e.target.value = ''
+        let { data: varData } = await supabase.from('variantes').select('id').eq('producto_id', pId).eq('nombre', variable).maybeSingle()
+        let vId = varData?.id
+        if (!vId) {
+          const { data: nv } = await supabase.from('variantes').insert({ producto_id: pId, nombre: variable }).select('id').single()
+          if (nv) vId = nv.id
+        }
+
+        if (vId && lId) {
+          await supabase.from('inventario_lotes').upsert({ variante_id: vId, lote_id: lId, stock: cant, precio }, { onConflict: 'variante_id,lote_id' })
+          proc++
+        }
       }
+      showMsg('inv-msg', `✓ Se procesaron ${proc} ítems por Excel.`)
+      cargarInventarioData()
     }
     reader.readAsArrayBuffer(file)
   })
 
-  // ================= 4. PRODUCTOS, LOTES Y CATEGORÍAS =================
-  let prodFile = null, prodImgActual = null
-  let catFile = null, catImgActual = null
+  // ================= 5, 6, 7. PRODUCTOS, LOTES Y CATEGORÍAS =================
+  let prodFile = null, catFile = null
+  $('#prod-imagen').addEventListener('change', (e) => { prodFile = e.target.files[0]; if (prodFile) { const r = new FileReader(); r.onload = (ev) => $('#prod-preview').innerHTML = `<img src="${ev.target.result}">`; r.readAsDataURL(prodFile) } })
+  $('#cat-imagen').addEventListener('change', (e) => { catFile = e.target.files[0]; if (catFile) { const r = new FileReader(); r.onload = (ev) => $('#cat-preview').innerHTML = `<img src="${ev.target.result}">`; r.readAsDataURL(catFile) } })
 
-  $('#prod-imagen').addEventListener('change', (e) => {
-    prodFile = e.target.files[0]
-    if (prodFile) {
-      const reader = new FileReader()
-      reader.onload = (ev) => $('#prod-preview').innerHTML = `<img src="${ev.target.result}">`
-      reader.readAsDataURL(prodFile)
-    }
-  })
+  async function cargarCatalogos() {
+    const { data: p } = await supabase.from('productos').select('*, categorias(nombre)').order('id', { ascending: false })
+    prodsCache = p || []
+    const { data: l } = await supabase.from('lotes').select('*').order('fecha_vencimiento', { ascending: true })
+    lotesCache = l || []
+    const { data: c } = await supabase.from('categorias').select('*').order('id')
+    catsCache = c || []
 
-  $('#cat-imagen').addEventListener('change', (e) => {
-    catFile = e.target.files[0]
-    if (catFile) {
-      const reader = new FileReader()
-      reader.onload = (ev) => $('#cat-preview').innerHTML = `<img src="${ev.target.result}">`
-      reader.readAsDataURL(catFile)
-    }
-  })
+    // Rellenar selects
+    $('#manual-producto').innerHTML = '<option value="">Seleccionar producto...</option>' + prodsCache.map(x => `<option value="${x.id}">${x.nombre} (${x.sku || 'Sin SKU'})</option>`).join('')
+    $('#manual-lote').innerHTML = '<option value="">Seleccionar lote...</option>' + lotesCache.map(x => `<option value="${x.id}">${x.codigo_lote} (Vence: ${x.fecha_vencimiento})</option>`).join('')
+    $('#filtro-inv-categoria').innerHTML = '<option value="">Todas las categorías</option>' + catsCache.map(x => `<option value="${x.id}">${x.nombre}</option>`).join('')
+    $('#filtro-inv-producto').innerHTML = '<option value="">Todos los productos</option>' + prodsCache.map(x => `<option value="${x.id}">${x.nombre}</option>`).join('')
+    $('#prod-categoria').innerHTML = '<option value="">Selecciona categoría</option>' + catsCache.map(x => `<option value="${x.id}">${x.nombre}</option>`).join('')
 
-  function resetProdForm() {
-    $('#prod-id').value = ''; $('#prod-sku').value = ''; $('#prod-precio').value = ''; $('#prod-nombre').value = ''; $('#prod-categoria').value = ''; $('#prod-desc').value = ''; $('#prod-imagen').value = ''
-    prodFile = null; prodImgActual = null; $('#prod-preview').innerHTML = '<span>Sin imagen</span>'; $('#prod-form-title').textContent = 'Nuevo producto'; $('#prod-btn').textContent = 'Guardar producto'; $('#prod-btn-cancelar').style.display = 'none'
-  }
-  $('#prod-btn-cancelar').addEventListener('click', resetProdForm)
+    // Render listados
+    $('#lista-productos').innerHTML = prodsCache.map(x => `<div class="admin-card"><div><h3>${x.nombre}</h3><p>SKU: ${x.sku} · $${Number(x.precio).toFixed(2)}</p></div><button class="btn-sm btn-sm--danger" data-del-p="${x.id}">Eliminar</button></div>`).join('')
+    $('#lista-categorias').innerHTML = catsCache.map(x => `<div class="admin-card"><div><h3>${x.nombre}</h3><p>Slug: ${x.slug}</p></div><button class="btn-sm btn-sm--danger" data-del-cat="${x.id}">Eliminar</button></div>`).join('')
+    $('#lista-lotes').innerHTML = lotesCache.map(x => `<div class="admin-card"><div><h3>Lote: ${x.codigo_lote}</h3><p>Vence: ${x.fecha_vencimiento}</p></div><button class="btn-sm btn-sm--danger" data-del-lot="${x.id}">Eliminar</button></div>`).join('')
 
-  function resetLoteForm() {
-    $('#lote-id').value = ''; $('#lote-codigo').value = ''; $('#lote-vencimiento').value = ''; $('#lote-form-title').textContent = 'Nuevo lote'; $('#lote-btn').textContent = 'Guardar lote'; $('#lote-btn-cancelar').style.display = 'none'
-  }
-  $('#lote-btn-cancelar').addEventListener('click', resetLoteForm)
-
-  function resetCatForm() {
-    $('#cat-id').value = ''; $('#cat-sku').value = ''; $('#cat-nombre').value = ''; $('#cat-slug').value = ''; $('#cat-imagen').value = ''
-    catFile = null; catImgActual = null; $('#cat-preview').innerHTML = '<span>Sin imagen</span>'; $('#cat-form-title').textContent = 'Nueva categoría'; $('#cat-btn').textContent = 'Guardar categoría'; $('#cat-btn-cancelar').style.display = 'none'
-  }
-  $('#cat-btn-cancelar').addEventListener('click', resetCatForm)
-
-  async function cargarCategorias() {
-    const { data } = await supabase.from('categorias').select('*').order('id')
-    $('#prod-categoria').innerHTML = '<option value="">Selecciona categoría</option>' + (data || []).map(c => `<option value="${c.id}">${c.nombre}</option>`).join('')
-    $('#filtro-categoria').innerHTML = '<option value="">Todas las categorías</option>' + (data || []).map(c => `<option value="${c.id}">${c.nombre}</option>`).join('')
-
-    $('#lista-categorias').innerHTML = (data && data.length) ? data.map(c => `
-      <div class="admin-card">
-        <div class="admin-card__thumb">${c.imagen_url ? `<img src="${c.imagen_url}">` : '<span>Sin img</span>'}</div>
-        <div><h3>${c.nombre}</h3><p><strong>SKU:</strong> ${c.sku_prefijo || '—'} · <strong>Slug:</strong> ${c.slug}</p></div>
-        <div class="admin-card__actions">
-          <button class="btn-sm btn-sm--edit" data-edit-cat='${JSON.stringify(c)}'>Editar</button>
-          <button class="btn-sm btn-sm--danger" data-del-cat="${c.id}">Eliminar</button>
-        </div>
-      </div>
-    `).join('') : '<div class="admin-empty">Sin categorías registradas.</div>'
-
-    document.querySelectorAll('[data-edit-cat]').forEach(btn => btn.addEventListener('click', () => {
-      const c = JSON.parse(btn.dataset.editCat)
-      $('#cat-id').value = c.id; $('#cat-sku').value = c.sku_prefijo || ''; $('#cat-nombre').value = c.nombre; $('#cat-slug').value = c.slug
-      catImgActual = c.imagen_url; $('#cat-preview').innerHTML = c.imagen_url ? `<img src="${c.imagen_url}">` : '<span>Sin imagen</span>'
-      $('#cat-form-title').textContent = 'Editar categoría'; $('#cat-btn').textContent = 'Actualizar categoría'; $('#cat-btn-cancelar').style.display = 'block'
-    }))
-
-    document.querySelectorAll('[data-del-cat]').forEach(btn => btn.addEventListener('click', async () => {
-      if (confirm('¿Eliminar categoría?')) { await supabase.from('categorias').delete().eq('id', btn.dataset.delCat); cargarCategorias() }
-    }))
-  }
-
-  $('#form-categoria').addEventListener('submit', async (e) => {
-    e.preventDefault()
-    const id = $('#cat-id').value
-    setLoading($('#cat-btn'), true)
-    let imagen_url = catImgActual
-    if (catFile) imagen_url = await subirImagen(catFile, 'categorias')
-    await supabase.from('categorias').upsert({ id: id || undefined, sku_prefijo: $('#cat-sku').value.trim(), nombre: $('#cat-nombre').value.trim(), slug: $('#cat-slug').value.trim().toLowerCase(), imagen_url })
-    setLoading($('#cat-btn'), false, 'Guardar categoría')
-    resetCatForm(); cargarCategorias()
-  })
-
-  async function cargarLotes() {
-    const { data } = await supabase.from('lotes').select('*').order('fecha_vencimiento', { ascending: true })
-    $('#filtro-lote').innerHTML = '<option value="">Todos los lotes</option>' + (data || []).map(l => `<option value="${l.id}">${l.codigo_lote}</option>`).join('')
-
-    $('#lista-lotes').innerHTML = (data && data.length) ? data.map(l => `
-      <div class="admin-card" style="grid-template-columns: 1fr auto;">
-        <div><h3>Lote: ${l.codigo_lote}</h3><p>Vence: ${l.fecha_vencimiento}</p></div>
-        <div class="admin-card__actions">
-          <button class="btn-sm btn-sm--edit" data-edit-lote='${JSON.stringify(l)}'>Editar</button>
-          <button class="btn-sm btn-sm--danger" data-del-lote="${l.id}">Eliminar</button>
-        </div>
-      </div>
-    `).join('') : '<div class="admin-empty">Sin lotes registrados.</div>'
-
-    document.querySelectorAll('[data-edit-lote]').forEach(btn => btn.addEventListener('click', () => {
-      const l = JSON.parse(btn.dataset.editLote)
-      $('#lote-id').value = l.id; $('#lote-codigo').value = l.codigo_lote; $('#lote-vencimiento').value = l.fecha_vencimiento
-      $('#lote-form-title').textContent = 'Editar lote'; $('#lote-btn').textContent = 'Actualizar lote'; $('#lote-btn-cancelar').style.display = 'block'
-    }))
-
-    document.querySelectorAll('[data-del-lote]').forEach(btn => btn.addEventListener('click', async () => {
-      if (confirm('¿Eliminar lote?')) { await supabase.from('lotes').delete().eq('id', btn.dataset.delLote); cargarLotes() }
-    }))
-  }
-
-  $('#form-lote').addEventListener('submit', async (e) => {
-    e.preventDefault()
-    const id = $('#lote-id').value
-    setLoading($('#lote-btn'), true)
-    await supabase.from('lotes').upsert({ id: id || undefined, codigo_lote: $('#lote-codigo').value.trim(), fecha_vencimiento: $('#lote-vencimiento').value })
-    setLoading($('#lote-btn'), false, 'Guardar lote')
-    resetLoteForm(); cargarLotes()
-  })
-
-  async function cargarProductos() {
-    const { data } = await supabase.from('productos').select('*, categorias(nombre)').order('id', { ascending: false })
-    $('#filtro-producto').innerHTML = '<option value="">Todos los productos</option>' + (data || []).map(p => `<option value="${p.id}">${p.nombre} (${p.sku || 'Sin SKU'})</option>`).join('')
-
-    $('#lista-productos').innerHTML = (data && data.length) ? data.map(p => `
-      <div class="admin-card">
-        <div class="admin-card__thumb">${p.imagen_url ? `<img src="${p.imagen_url}">` : '<span>Sin img</span>'}</div>
-        <div><h3>${p.nombre}</h3><p><strong>SKU:</strong> ${p.sku || '—'} · <strong>Precio:</strong> $${Number(p.precio).toFixed(2)}</p></div>
-        <div class="admin-card__actions">
-          <button class="btn-sm btn-sm--edit" data-edit-prod='${JSON.stringify(p)}'>Editar</button>
-          <button class="btn-sm btn-sm--danger" data-del-prod="${p.id}">Eliminar</button>
-        </div>
-      </div>
-    `).join('') : '<div class="admin-empty">Sin productos registrados.</div>'
-
-    document.querySelectorAll('[data-edit-prod]').forEach(btn => btn.addEventListener('click', () => {
-      const p = JSON.parse(btn.dataset.editProd)
-      $('#prod-id').value = p.id; $('#prod-sku').value = p.sku || ''; $('#prod-precio').value = p.precio || '0.00'; $('#prod-nombre').value = p.nombre
-      $('#prod-categoria').value = p.categoria_id || ''; $('#prod-desc').value = p.descripcion || ''; prodImgActual = p.imagen_url
-      $('#prod-preview').innerHTML = p.imagen_url ? `<img src="${p.imagen_url}">` : '<span>Sin imagen</span>'
-      $('#prod-form-title').textContent = 'Editar producto'; $('#prod-btn').textContent = 'Actualizar producto'; $('#prod-btn-cancelar').style.display = 'block'
-    }))
-
-    document.querySelectorAll('[data-del-prod]').forEach(btn => btn.addEventListener('click', async () => {
-      if (confirm('¿Eliminar producto?')) { await supabase.from('productos').delete().eq('id', btn.dataset.delProd); cargarProductos() }
-    }))
+    document.querySelectorAll('[data-del-p]').forEach(b => b.addEventListener('click', async () => { if (confirm('¿Eliminar producto?')) { await supabase.from('productos').delete().eq('id', b.dataset.delP); cargarCatalogos() } }))
+    document.querySelectorAll('[data-del-cat]').forEach(b => b.addEventListener('click', async () => { if (confirm('¿Eliminar categoría?')) { await supabase.from('categorias').delete().eq('id', b.dataset.delCat); cargarCatalogos() } }))
+    document.querySelectorAll('[data-del-lot]').forEach(b => b.addEventListener('click', async () => { if (confirm('¿Eliminar lote?')) { await supabase.from('lotes').delete().eq('id', b.dataset.delLot); cargarCatalogos() } }))
   }
 
   $('#form-producto').addEventListener('submit', async (e) => {
     e.preventDefault()
-    const id = $('#prod-id').value
-    setLoading($('#prod-btn'), true)
-    let imagen_url = prodImgActual
-    if (prodFile) imagen_url = await subirImagen(prodFile, 'productos')
-    await supabase.from('productos').upsert({
-      id: id || undefined, sku: $('#prod-sku').value.trim(), precio: parseFloat($('#prod-precio').value) || 0,
-      nombre: $('#prod-nombre').value.trim(), categoria_id: parseInt($('#prod-categoria').value),
-      descripcion: $('#prod-desc').value.trim() || null, imagen_url
-    })
-    setLoading($('#prod-btn'), false, 'Guardar producto')
-    resetProdForm(); cargarProductos()
+    let img = null
+    if (prodFile) img = await subirImagen(prodFile, 'productos')
+    await supabase.from('productos').insert({ sku: $('#prod-sku').value.trim(), precio: parseFloat($('#prod-precio').value), nombre: $('#prod-nombre').value.trim(), categoria_id: parseInt($('#prod-categoria').value), descripcion: $('#prod-desc').value.trim() || null, imagen_url: img })
+    $('#form-producto').reset(); $('#prod-preview').innerHTML = '<span>Sin imagen</span>'; cargarCatalogos()
   })
 
-  // Inicialización global
+  $('#form-categoria').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    let img = null
+    if (catFile) img = await subirImagen(catFile, 'categorias')
+    await supabase.from('categorias').insert({ sku_prefijo: $('#cat-sku').value.trim(), nombre: $('#cat-nombre').value.trim(), slug: $('#cat-slug').value.trim().toLowerCase(), imagen_url: img })
+    $('#form-categoria').reset(); $('#cat-preview').innerHTML = '<span>Sin imagen</span>'; cargarCatalogos()
+  })
+
+  $('#form-lote').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    await supabase.from('lotes').insert({ codigo_lote: $('#lote-codigo').value.trim(), fecha_vencimiento: $('#lote-vencimiento').value })
+    $('#form-lote').reset(); cargarCatalogos()
+  })
+
   async function cargarTodo() {
-    await cargarCategorias()
-    await cargarLotes()
-    await cargarProductos()
-    await cargarInventarioDataTable()
+    await cargarCatalogos()
     await cargarClientes()
-    await cargarPagos()
+    await cargarSaldosBancarios()
+    await cargarConciliacion()
+    await cargarInventarioData()
   }
 </script>
 
