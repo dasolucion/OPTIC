@@ -199,15 +199,7 @@
         <div class="table-responsive">
           <table class="data-table">
             <thead>
-              <tr>
-                <th>Código</th>
-                <th>Razón Social</th>
-                <th>RIF</th>
-                <th>Contacto</th>
-                <th>Estado</th>
-                <th>Clave Actual</th>
-                <th>Acciones</th>
-              </tr>
+              <tr><th>Código</th><th>Razón Social</th><th>RIF</th><th>Contacto</th><th>Estado</th><th>Clave Actual</th><th>Acciones</th></tr>
             </thead>
             <tbody id="tbody-clientes"></tbody>
           </table>
@@ -215,11 +207,11 @@
       </div>
     </section>
 
-    <!-- 2. PEDIDOS (DESPACHO CON CHECKS INTERACTIVOS) -->
+    <!-- 2. PEDIDOS (CHECKS AUTOMÁTICOS AL CONCILIAR Y MANUALES PARA CRÉDITO) -->
     <section class="tab-content" id="tab-pedidos">
       <div class="main-header">
         <h1>2. Pedidos Realizados (Consecutivo y Despacho)</h1>
-        <p>Control histórico de órdenes. Marca con un check el avance de despacho.</p>
+        <p>Control de despacho. "En preparación" se activa al conciliar o de forma manual para créditos.</p>
       </div>
 
       <div class="admin-panel-box">
@@ -227,6 +219,7 @@
           <input type="text" id="filtro-pedidos-busqueda" placeholder="🔍 Buscar por Nro de Orden (#OPT) o RIF...">
           <select id="filtro-pedidos-estado">
             <option value="">Todos los estados de despacho</option>
+            <option value="Pendiente">Pendiente (Sin despachar)</option>
             <option value="En preparación">En preparación</option>
             <option value="Enviado">Enviado</option>
             <option value="Anulado">Anulado</option>
@@ -243,7 +236,7 @@
                 <th>Total</th>
                 <th>Saldo Pendiente</th>
                 <th>Pago</th>
-                <th>Control de Despacho (Checks)</th>
+                <th>Despacho (Checks Manual/Auto)</th>
                 <th>Acciones</th>
               </tr>
             </thead>
@@ -257,7 +250,7 @@
     <section class="tab-content" id="tab-conciliacion">
       <div class="main-header">
         <h1>3. Conciliación Bancaria</h1>
-        <p>Valida los abonos reportados y acredita el saldo a la cuenta bancaria específica.</p>
+        <p>Valida pagos reportados, acredita el banco físico y activa "En preparación" en la orden.</p>
       </div>
 
       <div class="admin-panel-box">
@@ -649,7 +642,7 @@
     cargarTodo()
   }
 
-  // Sidebar Tabs
+  // Tabs
   document.querySelectorAll('.sidebar-item').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.sidebar-item').forEach(t => t.classList.remove('activo'))
@@ -749,7 +742,7 @@
   $('#filtro-clientes').addEventListener('input', renderClientes)
   $('#filtro-clientes-estado').addEventListener('change', renderClientes)
 
-  // ================= 2. PEDIDOS (DESPACHO CON CHECKS) =================
+  // ================= 2. PEDIDOS (DESPACHO MANUAL O AUTOMÁTICO AL CONCILIAR) =================
   let pedidosCache = []
   async function cargarPedidosAdmin() {
     const { data } = await supabase.from('pedidos').select('*, clientes(empresa, rif)').order('id', { ascending: false })
@@ -770,6 +763,8 @@
     $('#tbody-pedidos-admin').innerHTML = filtrados.map(p => {
       const esAnulado = p.estado_despacho === 'Anulado'
       const mon = p.moneda_pago === 'USD' ? '$' : 'Bs.'
+      
+      // En preparación está tildado si es 'En preparación', 'Enviado' o 'Entregado'
       const esPreparando = p.estado_despacho === 'En preparación' || p.estado_despacho === 'Enviado' || p.estado_despacho === 'Entregado'
       const esEnviado = p.estado_despacho === 'Enviado' || p.estado_despacho === 'Entregado'
 
@@ -782,7 +777,7 @@
           <td><strong style="color:${Number(p.saldo_pendiente) > 0 ? '#f39200' : '#03543f'};">${mon} ${Number(p.saldo_pendiente).toFixed(2)}</strong></td>
           <td><span class="badge-status ${p.estado_pago === 'Pagado' ? 'badge-status--aprobado' : 'badge-status--verificando'}">${p.estado_pago}</span></td>
           
-          <!-- CHECKS INTERACTIVOS DE DESPACHO -->
+          <!-- AMBOS CHECKS INTERACTIVOS Y MANUALES (Y AUTO DESDE CONCILIACIÓN) -->
           <td>
             ${esAnulado ? `<span class="badge-status badge-status--rechazado">Anulado</span>` : `
               <div style="display:flex; flex-direction:column; gap:0.35rem; font-size:0.75rem;">
@@ -807,7 +802,7 @@
       `
     }).join('') || '<tr><td colspan="8" style="text-align:center;padding:2rem;">Sin pedidos registrados.</td></tr>'
 
-    // Listener para los checks de despacho
+    // Control interactivo de checks de despacho (admite créditos y manual)
     document.querySelectorAll('.check-despacho').forEach(chk => {
       chk.addEventListener('change', async () => {
         const pId = chk.dataset.pedId
@@ -815,12 +810,14 @@
         const pedido = pedidosCache.find(x => x.id == pId)
         if (!pedido) return
 
-        let nuevoEstado = 'En preparación'
+        let nuevoEstado = pedido.estado_despacho
 
         if (tipo === 'enviado') {
+          // Si marca enviado, pasa a Enviado. Si desmarca, pasa a En preparación
           nuevoEstado = chk.checked ? 'Enviado' : 'En preparación'
         } else if (tipo === 'preparacion') {
-          nuevoEstado = chk.checked ? 'En preparación' : 'En preparación'
+          // Si desmarca preparación, vuelve a Pendiente (en blanco)
+          nuevoEstado = chk.checked ? 'En preparación' : 'Pendiente'
         }
 
         await supabase.from('pedidos').update({ estado_despacho: nuevoEstado }).eq('id', pId)
@@ -855,7 +852,7 @@
   $('#filtro-pedidos-busqueda').addEventListener('input', renderPedidosAdmin)
   $('#filtro-pedidos-estado').addEventListener('change', renderPedidosAdmin)
 
-  // ================= 3. CONCILIACIÓN =================
+  // ================= 3. CONCILIACIÓN (CON DISPARO A "EN PREPARACIÓN") =================
   let pagosCache = []
   async function cargarConciliacion() {
     const { data } = await supabase.from('pagos').select('*, pedidos(codigo_pedido), clientes(empresa, rif), cuentas_bancarias(nombre_banco, moneda)').order('id', { ascending: false })
@@ -900,6 +897,13 @@
         const nuevoEstado = chk.checked
         await supabase.from('pagos').update({ conciliado: nuevoEstado, estado_conciliacion: nuevoEstado ? 'Aprobado' : 'En verificación' }).eq('id', pId)
 
+        // IMPACTO AUTOMÁTICO EN PEDIDO: TILDA EN PREPARACIÓN AL CONCILIAR
+        if (pago.pedido_id) {
+          const nuevoDespacho = nuevoEstado ? 'En preparación' : 'Pendiente'
+          await supabase.from('pedidos').update({ estado_despacho: nuevoDespacho }).eq('id', pago.pedido_id)
+        }
+
+        // IMPACTO EN SALDO BANCARIO
         if (pago.cuenta_id) {
           const { data: cta } = await supabase.from('cuentas_bancarias').select('*').eq('id', pago.cuenta_id).single()
           if (cta) {
@@ -921,7 +925,9 @@
             }
           }
         }
+
         cargarConciliacion()
+        cargarPedidosAdmin()
         cargarSaldosBancarios()
       })
     })
