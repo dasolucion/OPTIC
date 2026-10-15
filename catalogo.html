@@ -33,12 +33,110 @@
     .btn-admin-key:hover { color: var(--naranja); background: #fef3c7; }
     .btn-admin-key svg { width: 22px; height: 22px; }
 
+    /* ESTRUCTURA CORREGIDA ANTI-SOLAPAMIENTO */
     .grid-catalogo-productos {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
       gap: 1.5rem;
     }
 
+    .catalogo-producto {
+      display: flex !important;
+      flex-direction: column !important;
+      background: #fff;
+      border: 1px solid var(--gris-200);
+      border-radius: var(--radio-borde);
+      overflow: hidden;
+      position: relative;
+      height: 100%;
+      box-sizing: border-box;
+    }
+
+    .catalogo-producto__media {
+      width: 100%;
+      height: 200px;
+      min-height: 180px;
+      max-height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      background: #fff;
+      box-sizing: border-box;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .catalogo-producto__media img {
+      max-height: 100%;
+      max-width: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+    }
+
+    .catalogo-producto__cuerpo {
+      padding: 1rem 1.25rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      position: relative;
+      background: #fff;
+      box-sizing: border-box;
+    }
+
+    .catalogo-producto__titulo {
+      font-family: var(--fuente-titulos);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--gris-900);
+      line-height: 1.3;
+      margin-bottom: 0.35rem;
+    }
+
+    .catalogo-producto__precio-desc {
+      font-size: 0.85rem;
+      color: var(--gris-700);
+      margin-bottom: 0.5rem;
+    }
+
+    .catalogo-producto__precio {
+      font-family: var(--fuente-titulos);
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--azul);
+      margin-top: auto;
+      padding-top: 0.5rem;
+    }
+
+    /* Botones de acción guest (Registro + Login) */
+    .catalogo-acciones-guest {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      padding: 0.75rem 1.25rem 1.25rem;
+      margin-top: auto;
+    }
+
+    .btn-login-compacto {
+      background: var(--naranja);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 0.35rem 0.8rem;
+      font-size: 0.72rem;
+      font-family: var(--fuente-titulos);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      width: 100%;
+      text-align: center;
+      transition: background 0.2s;
+    }
+    .btn-login-compacto:hover { background: var(--naranja-osc); }
+
+    /* Drawer */
     .cart-drawer-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; display: none; }
     .cart-drawer-backdrop.activo { display: block; }
     .cart-drawer {
@@ -56,16 +154,17 @@
     .cart-summary-line.total { font-size: 1.15rem; font-weight: 800; color: #111827; border-top: 1px solid #d1d5db; padding-top: 0.6rem; margin-top: 0.6rem; }
     .cart-summary-line.divisa { font-size: 1.2rem; font-weight: 900; color: var(--azul); }
 
+    /* Modales */
     .modal-backdrop-custom { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1100; padding: 1rem; }
     .modal-backdrop-custom.activo { display: flex; }
     .modal-box-custom { background: #fff; border-radius: 8px; max-width: 440px; width: 100%; padding: 2rem; }
 
     @media (max-width: 640px) {
-      .logo__img { max-width: 125px; }
+      .logo__img { max-width: 120px; }
       .header-tools { gap: 0.5rem; }
       #nav-btn-cuenta { padding: 0.4rem 0.75rem; font-size: 0.75rem; }
-      .grid-catalogo-productos { grid-template-columns: 1fr; gap: 1rem; }
-      .catalogo-producto__media { height: 160px; }
+      .grid-catalogo-productos { grid-template-columns: 1fr; gap: 1.25rem; }
+      .catalogo-producto__media { height: 180px; }
       .cart-drawer { max-width: 100%; }
     }
   </style>
@@ -190,6 +289,31 @@
     </div>
   </div>
 
+  <!-- MODAL: LOGIN RÁPIDO EMBEBIDO (SIN SALIR DE LA PANTALLA) -->
+  <div class="modal-backdrop-custom" id="modal-fast-login">
+    <div class="modal-box-custom">
+      <h3 style="font-family:var(--fuente-titulos); font-size:1.2rem; font-weight:800; margin-bottom:0.4rem;">Acceso de Ópticas</h3>
+      <p style="font-size:0.85rem; color:var(--gris-700); margin-bottom:1rem;">Inicia sesión con tu código o correo para desbloquear precios y disponibilidad.</p>
+      
+      <div id="fast-login-error" style="display:none; color:#b91c1c; background:#fee2e2; padding:0.65rem; border-radius:6px; font-size:0.82rem; margin-bottom:0.75rem;"></div>
+
+      <form id="form-fast-login">
+        <div class="campo">
+          <label>Usuario o Correo:</label>
+          <input type="text" id="fast-credencial" required style="width:100%; padding:0.7rem; border:1px solid #d1d5db; border-radius:6px;">
+        </div>
+        <div class="campo" style="margin-top:0.75rem;">
+          <label>Contraseña:</label>
+          <input type="password" id="fast-password" required style="width:100%; padding:0.7rem; border:1px solid #d1d5db; border-radius:6px;">
+        </div>
+        <div style="display:flex; gap:0.75rem; margin-top:1.5rem;">
+          <button type="submit" class="boton boton--primario boton--bloque" id="btn-fast-login">Iniciar Sesión</button>
+          <button type="button" class="boton boton--contorno" id="btn-fast-cancel" style="border-color:var(--gris-400); color:var(--gris-900);">Cerrar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- SCRIPT -->
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
@@ -206,9 +330,9 @@
     let tasaBcv = 900.00
     let telefonoWhatsapp = '584120000000'
 
-    // Estado B2B del Cliente
+    // Estado B2B
     let clienteActivo = JSON.parse(localStorage.getItem('optiline_cliente') || 'null')
-    const esClienteVerificado = clienteActivo && clienteActivo.estado_verificado && !clienteActivo.inactivo
+    let esClienteVerificado = clienteActivo && clienteActivo.estado_verificado && !clienteActivo.inactivo
 
     if (clienteActivo) {
       $('#nav-btn-cuenta').textContent = clienteActivo.empresa || 'Mi Cuenta'
@@ -259,44 +383,52 @@
         return `
           <article class="catalogo-producto">
             <div class="catalogo-producto__media">
-              ${p.imagen_url ? `<img src="${p.imagen_url}" alt="${p.nombre}">` : '<div style="height:100%; display:grid; place-items:center; color:#9ca3af;">Sin imagen</div>'}
+              ${p.imagen_url ? `<img src="${p.imagen_url}" alt="${p.nombre}">` : '<div style="color:#9ca3af; font-size:0.8rem;">Sin imagen</div>'}
             </div>
+            
             <div class="catalogo-producto__cuerpo">
               <h3 class="catalogo-producto__titulo">${p.nombre}</h3>
               <p class="catalogo-producto__precio-desc">${p.categorias?.nombre || 'General'}</p>
               
-              <!-- PROTECCIÓN B2B DE PRECIOS Y STOCK -->
               ${esClienteVerificado ? `
-                <div style="margin: 0.5rem 0;">
+                <div style="margin-bottom:0.5rem;">
                   ${tieneStock ? `
-                    <span style="font-size:0.8rem; font-weight:700; color:#03543f; background:#def7ec; padding:0.2rem 0.5rem; border-radius:4px; display:inline-block;">
+                    <span style="font-size:0.78rem; font-weight:700; color:#03543f; background:#def7ec; padding:0.2rem 0.5rem; border-radius:4px; display:inline-block;">
                       Stock: ${stockTotal} unids
                     </span>
                   ` : `
-                    <span style="font-size:0.8rem; font-weight:700; color:#991b1b; background:#fee2e2; padding:0.2rem 0.5rem; border-radius:4px; display:inline-block;">
+                    <span style="font-size:0.78rem; font-weight:700; color:#991b1b; background:#fee2e2; padding:0.2rem 0.5rem; border-radius:4px; display:inline-block;">
                       Agotado (0 unids)
                     </span>
                   `}
                 </div>
                 <div class="catalogo-producto__precio">${formatoBs(precioBs)}</div>
               ` : `
-                <div style="margin: 0.8rem 0; font-size:0.85rem; color:#64748b; font-style:italic;">
+                <div style="margin-top:auto; padding-top:0.5rem; font-size:0.82rem; color:#64748b; font-style:italic;">
                   Precios mayoristas protegidos
                 </div>
               `}
             </div>
 
+            <!-- BOTONES DE ACCIÓN SEGÚN AUTENTICACIÓN -->
             ${esClienteVerificado ? `
-              <button type="button" 
-                class="catalogo-producto__opciones ${tieneStock ? 'catalogo-producto__opciones--destacado' : ''}" 
-                data-abrir-prod="${p.id}"
-                ${!tieneStock ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>
-                ${tieneStock ? 'Seleccionar Unidades' : 'Sin Stock'}
-              </button>
+              <div style="padding: 0 1.25rem 1.25rem;">
+                <button type="button" 
+                  class="boton boton--primario boton--bloque ${tieneStock ? '' : 'disabled'}" 
+                  data-abrir-prod="${p.id}"
+                  ${!tieneStock ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>
+                  ${tieneStock ? 'Seleccionar Unidades' : 'Sin Stock'}
+                </button>
+              </div>
             ` : `
-              <a href="index.html#registro" class="catalogo-producto__opciones" style="display:block; text-align:center; background:#0b4d8c; color:#fff;">
-                Ver Precios (Requiere Registro)
-              </a>
+              <div class="catalogo-acciones-guest">
+                <a href="index.html#registro" class="boton boton--primario boton--bloque" style="font-size:0.75rem; padding:0.7rem 0.5rem;">
+                  Ver Precios (Requiere Registro)
+                </a>
+                <button type="button" class="btn-login-compacto btn-fast-login-trigger">
+                  Iniciar Sesión
+                </button>
+              </div>
             `}
           </article>
         `
@@ -304,6 +436,13 @@
 
       document.querySelectorAll('[data-abrir-prod]').forEach(btn => {
         btn.addEventListener('click', () => abrirModalUnidades(parseInt(btn.dataset.abrirProd)))
+      })
+
+      // Listener para el botón compacto de Iniciar Sesión en tarjetas
+      document.querySelectorAll('.btn-fast-login-trigger').forEach(btn => {
+        btn.addEventListener('click', () => {
+          $('#modal-fast-login').classList.add('activo')
+        })
       })
     }
 
@@ -369,6 +508,7 @@
       abrirDrawerCarrito()
     })
 
+    // Carrito
     function actualizarBadgeCarrito() {
       $('#cart-counter').textContent = carrito.reduce((sum, item) => sum + item.cantidad, 0)
     }
@@ -453,13 +593,46 @@
       })
     }
 
-    // ================= CONFIRMAR PEDIDO, DEDUCIR STOCK Y DISPARAR WHATSAPP =================
+    // Modal Login Embebido (In-Situ sin salir de pantalla)
+    $('#btn-fast-cancel').addEventListener('click', () => $('#modal-fast-login').classList.remove('activo'))
+
+    $('#form-fast-login').addEventListener('submit', async (e) => {
+      e.preventDefault()
+      const cred = $('#fast-credencial').value.trim()
+      const pass = $('#fast-password').value.trim()
+      const errBox = $('#fast-login-error')
+      errBox.style.display = 'none'
+
+      const { data: c, error } = await supabase.from('clientes').select('*').or(`codigo_usuario.eq.${cred},email.eq.${cred}`).maybeSingle()
+      if (error || !c || (c.password_hash && c.password_hash !== pass)) {
+        errBox.textContent = 'Credenciales no válidas.'
+        errBox.style.display = 'block'
+        return
+      }
+
+      if (!c.estado_verificado || c.inactivo) {
+        errBox.textContent = 'Su cuenta está en proceso de verificación o se encuentra inactiva. Contacte a ventas.'
+        errBox.style.display = 'block'
+        return
+      }
+
+      // Guardar y refrescar reactivamente
+      localStorage.setItem('optiline_cliente', JSON.stringify(c))
+      clienteActivo = c
+      esClienteVerificado = true
+      $('#nav-btn-cuenta').textContent = c.empresa || 'Mi Cuenta'
+      $('#modal-fast-login').classList.remove('activo')
+      
+      // Re-renderizado inmediato del catálogo sin recargar la web
+      renderCatalogo()
+    })
+
+    // Confirmar Pedido
     $('#btn-confirmar-pedido').addEventListener('click', async () => {
       if (!carrito.length) return alert('El carrito está vacío.')
 
       if (!esClienteVerificado) {
-        alert('Debes iniciar sesión con una cuenta de óptica verificada para confirmar el pedido.')
-        window.location.href = 'cuenta.html'
+        $('#modal-fast-login').classList.add('activo')
         return
       }
 
@@ -468,7 +641,7 @@
       btn.textContent = 'Procesando orden y stock...'
 
       try {
-        // 1. Deducir stock atómicamente de inventario_lotes
+        // Deducir stock
         for (const item of carrito) {
           const { data: invItem, error: errFetch } = await supabase
             .from('inventario_lotes')
@@ -488,7 +661,6 @@
           if (errUpdate) throw errUpdate
         }
 
-        // 2. Registrar orden
         const moneda = $('#cart-moneda-pago').value
         const totalUSD = carrito.reduce((sum, item) => sum + (item.cantidad * item.precioUSD), 0)
         const subtotalBs = totalUSD * tasaCatalogo
@@ -514,10 +686,8 @@
 
         if (errPed) throw errPed
 
-        // 3. Actualizar fecha de última compra para regla de inactividad
         await supabase.from('clientes').update({ ultima_compra: new Date().toISOString() }).eq('id', clienteActivo.id)
 
-        // 4. Armar mensaje de WhatsApp pre-estructurado
         let listaTexto = carrito.map(i => `• ${i.cantidad}x ${i.nombre} [${i.variante}]`).join('\n')
         let totalTexto = moneda === 'USD' ? `$${totalFinal.toFixed(2)}` : formatoBs(totalFinal)
 
@@ -534,13 +704,11 @@ ${listaTexto}
 
 _Quedo a la espera de confirmación de despacho._`
 
-        // 5. Vaciar carrito
         carrito = []
         localStorage.removeItem('optiline_cart')
         actualizarBadgeCarrito()
         cerrarDrawerCarrito()
 
-        // 6. Abrir WhatsApp automáticamente con el teléfono configurado
         const urlWapp = `https://wa.me/${telefonoWhatsapp}?text=${encodeURIComponent(mensajeWapp)}`
         window.open(urlWapp, '_blank')
 
