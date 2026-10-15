@@ -112,6 +112,9 @@
     .btn-sm--warning { background: #fef08a; color: #713f12; }
 
     .badge-status { display: inline-block; padding: 0.2rem 0.55rem; font-size: 0.75rem; font-weight: 800; border-radius: 4px; text-transform: uppercase; }
+    .badge-status--verificando { background: #fef08a; color: #713f12; }
+    .badge-status--aprobado    { background: #def7ec; color: #03543f; }
+    .badge-status--rechazado   { background: #fee2e2; color: #991b1b; }
 
     @media (max-width: 768px) {
       .mobile-header-bar { display: flex; }
@@ -175,7 +178,7 @@
 
   <main class="admin-main">
 
-    <!-- 1. CLIENTES (CON APROBACIÓN Y REGLA DE INACTIVIDAD) -->
+    <!-- 1. CLIENTES -->
     <section class="tab-content activo" id="tab-clientes">
       <div class="main-header">
         <h1>1. Gestión y Aprobación de Ópticas</h1>
@@ -212,11 +215,11 @@
       </div>
     </section>
 
-    <!-- 2. PEDIDOS (CONSECUTIVO, DESPACHO Y ANULACIÓN CON REINTEGRO) -->
+    <!-- 2. PEDIDOS (DESPACHO CON CHECKS INTERACTIVOS) -->
     <section class="tab-content" id="tab-pedidos">
       <div class="main-header">
         <h1>2. Pedidos Realizados (Consecutivo y Despacho)</h1>
-        <p>Control histórico de órdenes generadas por la web. Los pedidos no se eliminan para no alterar el correlativo.</p>
+        <p>Control histórico de órdenes. Marca con un check el avance de despacho.</p>
       </div>
 
       <div class="admin-panel-box">
@@ -226,7 +229,6 @@
             <option value="">Todos los estados de despacho</option>
             <option value="En preparación">En preparación</option>
             <option value="Enviado">Enviado</option>
-            <option value="Entregado">Entregado</option>
             <option value="Anulado">Anulado</option>
           </select>
         </div>
@@ -241,7 +243,7 @@
                 <th>Total</th>
                 <th>Saldo Pendiente</th>
                 <th>Pago</th>
-                <th>Despacho</th>
+                <th>Control de Despacho (Checks)</th>
                 <th>Acciones</th>
               </tr>
             </thead>
@@ -347,6 +349,7 @@
       <div class="admin-grid">
         <form class="admin-form" id="form-formula-manual">
           <h3>Asignar Fórmula / Inventario</h3>
+          
           <label>Producto *</label><select id="manual-producto" required><option value="">Seleccionar producto...</option></select>
           <div class="info-tag" id="tag-prod-info">SKU: — | Cat: — | Precio Base: —</div>
 
@@ -544,7 +547,7 @@
       </div>
     </section>
 
-    <!-- 10. PARÁMETROS (INCLUYE TELÉFONO WHATSAPP) -->
+    <!-- 10. PARÁMETROS -->
     <section class="tab-content" id="tab-parametros">
       <div class="main-header">
         <h1>10. Parámetros Cambiarios y Notificaciones</h1>
@@ -555,10 +558,9 @@
         <form class="admin-form" id="form-parametros" style="position:static;">
           <div class="msg msg--ok" id="param-msg"></div>
 
-          <!-- Teléfono WhatsApp de Ventas -->
           <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:1.2rem; margin-bottom:1.25rem;">
             <label style="color:#03543f; font-size:0.9rem; margin-bottom:0.4rem;">Número de WhatsApp para Alertas de Pedidos *</label>
-            <p style="font-size:0.78rem; color:#64748b; margin-bottom:0.6rem;">Incluye el código de país sin el signo '+' ni espacios (Ejemplo: <code>584121234567</code>).</p>
+            <p style="font-size:0.78rem; color:#64748b; margin-bottom:0.6rem;">Código de país sin el signo '+' ni espacios (Ejemplo: <code>584121234567</code>).</p>
             <input type="text" id="param-whatsapp" required style="font-size:1.1rem; font-weight:800;" placeholder="584120000000">
           </div>
 
@@ -585,7 +587,7 @@
   </main>
 </div>
 
-<!-- SCRIPT COMPLETO DE PRODUCCIÓN -->
+<!-- SCRIPT COMPLETO -->
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
@@ -659,7 +661,7 @@
     })
   })
 
-  // ================= 1. CLIENTES (CON APROBACIÓN Y REGLA DE INACTIVIDAD) =================
+  // ================= 1. CLIENTES =================
   let clientesCache = []
   async function cargarClientes() {
     const { data } = await supabase.from('clientes').select('*').order('id', { ascending: false })
@@ -672,12 +674,10 @@
     if (c.inactivo) return { estado: 'Inactivo', color: 'badge-status--rechazado' }
 
     const ahora = new Date()
-    // Regla 1: 3 días tras aprobación sin compras
     if (c.fecha_aprobacion && !c.ultima_compra) {
       const diasAprobado = (ahora - new Date(c.fecha_aprobacion)) / (1000 * 60 * 60 * 24)
       if (diasAprobado >= 3) return { estado: 'Inactivo (3d sin orden)', color: 'badge-status--rechazado', marcarInactivo: true }
     }
-    // Regla 2: 30 días tras última compra
     if (c.ultima_compra) {
       const diasSinComprar = (ahora - new Date(c.ultima_compra)) / (1000 * 60 * 60 * 24)
       if (diasSinComprar >= 30) return { estado: 'Inactivo (30d sin comprar)', color: 'badge-status--rechazado', marcarInactivo: true }
@@ -722,7 +722,6 @@
       `
     }).join('') || '<tr><td colspan="7" style="text-align:center;padding:2rem;">Sin clientes.</td></tr>'
 
-    // Aprobar y asignar clave
     document.querySelectorAll('[data-aprobar-c]').forEach(btn => btn.addEventListener('click', async () => {
       const id = btn.dataset.aprobarC
       const clave = prompt(`Asignar contraseña inicial para ${btn.dataset.empresa}:`, 'optiline2026')
@@ -739,7 +738,6 @@
       cargarClientes()
     }))
 
-    // Switch Reactivar / Desactivar
     document.querySelectorAll('[data-toggle-c]').forEach(btn => btn.addEventListener('click', async () => {
       const id = btn.dataset.toggleC
       const isInactivo = btn.dataset.inactivo === 'true'
@@ -751,7 +749,7 @@
   $('#filtro-clientes').addEventListener('input', renderClientes)
   $('#filtro-clientes-estado').addEventListener('change', renderClientes)
 
-  // ================= 2. PEDIDOS (CONSECUTIVO Y ANULACIÓN) =================
+  // ================= 2. PEDIDOS (DESPACHO CON CHECKS) =================
   let pedidosCache = []
   async function cargarPedidosAdmin() {
     const { data } = await supabase.from('pedidos').select('*, clientes(empresa, rif)').order('id', { ascending: false })
@@ -772,6 +770,8 @@
     $('#tbody-pedidos-admin').innerHTML = filtrados.map(p => {
       const esAnulado = p.estado_despacho === 'Anulado'
       const mon = p.moneda_pago === 'USD' ? '$' : 'Bs.'
+      const esPreparando = p.estado_despacho === 'En preparación' || p.estado_despacho === 'Enviado' || p.estado_despacho === 'Entregado'
+      const esEnviado = p.estado_despacho === 'Enviado' || p.estado_despacho === 'Entregado'
 
       return `
         <tr style="${esAnulado ? 'background:#fef2f2; opacity:0.75;' : ''}">
@@ -781,15 +781,23 @@
           <td><strong>${mon} ${Number(p.total).toFixed(2)}</strong></td>
           <td><strong style="color:${Number(p.saldo_pendiente) > 0 ? '#f39200' : '#03543f'};">${mon} ${Number(p.saldo_pendiente).toFixed(2)}</strong></td>
           <td><span class="badge-status ${p.estado_pago === 'Pagado' ? 'badge-status--aprobado' : 'badge-status--verificando'}">${p.estado_pago}</span></td>
+          
+          <!-- CHECKS INTERACTIVOS DE DESPACHO -->
           <td>
             ${esAnulado ? `<span class="badge-status badge-status--rechazado">Anulado</span>` : `
-              <select class="select-estado-despacho" data-ped-id="${p.id}" style="padding:0.3rem; border:1px solid #d1d5db; border-radius:4px; font-size:0.78rem;">
-                <option value="En preparación" ${p.estado_despacho === 'En preparación' ? 'selected' : ''}>En preparación</option>
-                <option value="Enviado" ${p.estado_despacho === 'Enviado' ? 'selected' : ''}>Enviado</option>
-                <option value="Entregado" ${p.estado_despacho === 'Entregado' ? 'selected' : ''}>Entregado</option>
-              </select>
+              <div style="display:flex; flex-direction:column; gap:0.35rem; font-size:0.75rem;">
+                <label style="display:inline-flex; align-items:center; gap:0.35rem; cursor:pointer;">
+                  <input type="checkbox" class="check-despacho" data-ped-id="${p.id}" data-tipo="preparacion" ${esPreparando ? 'checked' : ''}>
+                  <span>En preparación</span>
+                </label>
+                <label style="display:inline-flex; align-items:center; gap:0.35rem; cursor:pointer;">
+                  <input type="checkbox" class="check-despacho" data-ped-id="${p.id}" data-tipo="enviado" ${esEnviado ? 'checked' : ''}>
+                  <span>Enviado</span>
+                </label>
+              </div>
             `}
           </td>
+
           <td>
             ${!esAnulado ? `
               <button class="btn-sm btn-sm--danger" data-anular-ped="${p.id}" data-codigo="${p.codigo_pedido}" data-detalles='${JSON.stringify(p.detalles || [])}'>Anular</button>
@@ -799,19 +807,34 @@
       `
     }).join('') || '<tr><td colspan="8" style="text-align:center;padding:2rem;">Sin pedidos registrados.</td></tr>'
 
-    // Cambio de estado de despacho
-    document.querySelectorAll('.select-estado-despacho').forEach(sel => sel.addEventListener('change', async (e) => {
-      await supabase.from('pedidos').update({ estado_despacho: e.target.value }).eq('id', sel.dataset.pedId)
-    }))
+    // Listener para los checks de despacho
+    document.querySelectorAll('.check-despacho').forEach(chk => {
+      chk.addEventListener('change', async () => {
+        const pId = chk.dataset.pedId
+        const tipo = chk.dataset.tipo
+        const pedido = pedidosCache.find(x => x.id == pId)
+        if (!pedido) return
 
-    // Anular pedido con reintegro automático de stock
+        let nuevoEstado = 'En preparación'
+
+        if (tipo === 'enviado') {
+          nuevoEstado = chk.checked ? 'Enviado' : 'En preparación'
+        } else if (tipo === 'preparacion') {
+          nuevoEstado = chk.checked ? 'En preparación' : 'En preparación'
+        }
+
+        await supabase.from('pedidos').update({ estado_despacho: nuevoEstado }).eq('id', pId)
+        cargarPedidosAdmin()
+      })
+    })
+
+    // Anular pedido y reintegrar stock
     document.querySelectorAll('[data-anular-ped]').forEach(btn => btn.addEventListener('click', async () => {
       if (!confirm(`¿Anular pedido #${btn.dataset.codigo}? El stock reservado se devolverá automáticamente al inventario.`)) return
 
       const pId = btn.dataset.anularPed
       const items = JSON.parse(btn.dataset.detalles || '[]')
 
-      // 1. Reintegrar stock a inventario_lotes
       for (const item of items) {
         if (item.invId && item.cantidad) {
           const { data: inv } = await supabase.from('inventario_lotes').select('stock').eq('id', item.invId).single()
@@ -821,7 +844,6 @@
         }
       }
 
-      // 2. Marcar pedido como Anulado (preservando correlativo)
       await supabase.from('pedidos').update({ estado_despacho: 'Anulado', saldo_pendiente: 0.00 }).eq('id', pId)
 
       alert('✓ Pedido anulado y stock devuelto al inventario.')
@@ -1211,7 +1233,7 @@
     cargarSaldosBancarios()
   })
 
-  // ================= 10. PARÁMETROS, WHATSAPP Y BCV =================
+  // ================= 10. PARÁMETROS =================
   async function cargarParametros() {
     const { data } = await supabase.from('parametros').select('*').eq('id', 1).maybeSingle()
     if (data) {
