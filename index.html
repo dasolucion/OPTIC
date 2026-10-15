@@ -233,66 +233,177 @@
     <header class="seccion__cabecera seccion__cabecera--centrada">
       <h2 class="seccion__titulo">Registra tu óptica</h2>
       <p class="seccion__texto">
-        Completa el formulario para formar parte de nuestros clientes.
-        Una vez verificados tus datos, recibirás por correo tu usuario y contraseña
-        para acceder a nuestra tienda y realizar pedidos.
+        Completa el formulario para formar parte de nuestra red mayorista.
+        Una vez verificado tu RIF por nuestro departamento comercial, recibirás vía WhatsApp tus credenciales de acceso a precios y catálogo.
       </p>
     </header>
 
-    <form class="formulario--registro" novalidate>
+    <div class="msg msg--ok" id="registro-msg-ok" style="max-width:720px; margin:0 auto 1.5rem; text-align:center;"></div>
+    <div class="msg msg--error" id="registro-msg-err" style="max-width:720px; margin:0 auto 1.5rem; text-align:center;"></div>
+
+    <form class="formulario--registro" id="form-registro-publico" novalidate>
 
       <div class="campo">
-        <label for="nombre">Nombre y Apellido:</label>
-        <input type="text" id="nombre" name="nombre">
+        <label for="reg-empresa">Razón Social / Nombre de la Óptica *</label>
+        <input type="text" id="reg-empresa" placeholder="Ej: Óptica Visión Real, C.A." required>
       </div>
 
       <div class="campo">
-        <label for="empresa">Empresa:</label>
-        <input type="text" id="empresa" name="empresa">
+        <label for="reg-rif">RIF Fiscal (Validado con Módulo 11) *</label>
+        <input type="text" id="reg-rif" placeholder="Ej: J-30200326-1 o V-12345678-0" required>
+        <small id="reg-rif-val" style="display:block; font-size:0.75rem; margin-top:0.25rem; font-weight:700;"></small>
       </div>
 
       <div class="campo">
-        <label for="rif">RIF:</label>
-        <input type="text" id="rif" name="rif">
+        <label for="reg-nombre">Nombre y Apellido del Contacto *</label>
+        <input type="text" id="reg-nombre" placeholder="Persona autorizada para compras" required>
       </div>
 
       <div class="campo">
-        <label for="telefono">Teléfono:</label>
-        <input type="tel" id="telefono" name="telefono">
+        <label for="reg-telefono">Teléfono / WhatsApp de Contacto *</label>
+        <input type="tel" id="reg-telefono" placeholder="Ej: 0414-1234567" required>
       </div>
 
       <div class="campo">
-        <label for="direccion">Dirección fiscal:</label>
-        <textarea id="direccion" name="direccion" rows="4"></textarea>
+        <label for="reg-correo">Correo Electrónico *</label>
+        <input type="email" id="reg-correo" placeholder="correo@tuoptica.com" required>
       </div>
 
       <div class="campo">
-        <label for="correo">Correo:</label>
-        <input type="email" id="correo" name="correo">
-      </div>
-
-      <div class="campo--radios">
-        <span class="campo__label">¿Cómo nos conoció?</span>
-        <div class="radios">
-          <label class="radio"><input type="radio" name="conocio" value="google"> Google</label>
-          <label class="radio"><input type="radio" name="conocio" value="instagram"> Instagram</label>
-          <label class="radio"><input type="radio" name="conocio" value="facebook"> Facebook</label>
-          <label class="radio"><input type="radio" name="conocio" value="referido"> Referido</label>
-          <label class="radio"><input type="radio" name="conocio" value="vendedor"> Vendedor Optiline</label>
-        </div>
+        <label for="reg-direccion">Dirección Fiscal / Despacho *</label>
+        <textarea id="reg-direccion" rows="3" placeholder="Estado, Ciudad, Centro Comercial / Local" required></textarea>
       </div>
 
       <p class="formulario__nota">
-        Luego de confirmar sus datos le enviaremos a su correo un usuario y contraseña
-        para poder acceder a nuestra tienda y poder realizar pedidos.
+        <strong>Importante:</strong> Al registrarse, sus datos quedan en proceso de verificación. No se genera contraseña automática hasta que nuestro equipo confirme la autenticidad de su establecimiento.
       </p>
 
-      <button type="submit" class="boton boton--naranja">Enviar</button>
-
+      <button type="submit" class="boton boton--naranja" id="btn-registro-submit">Enviar Solicitud de Registro</button>
     </form>
 
   </div>
 </section>
+
+  <!-- SCRIPT DE VALIDACIÓN RIF SENIAT Y REGISTRO SUPABASE -->
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+  const SUPABASE_URL = 'https://fdkdzyjrrtuaotiumbym.supabase.co'
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZka2R6eWpycnR1YW90aXVtYnltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0MDc1MzAsImV4cCI6MjEwNjk4MzUzMH0.RC_ueLB8le0c95RMemtkQf4Yj-bFTrfYLaAcbdRDbXs'
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  const $ = (s) => document.querySelector(s)
+
+  // Algoritmo Oficial Módulo 11 de RIF Venezolano
+  function validarRifVenezolano(rifInput) {
+    const clean = rifInput.toUpperCase().trim().replace(/[-\s]/g, '')
+    if (!/^[VJEGP][0-9]{8,9}$/.test(clean)) return false
+
+    const tipo = clean[0]
+    const cuerpo = clean.slice(1, -1).padStart(8, '0')
+    const digitoVerificador = parseInt(clean.slice(-1))
+
+    let factorTipo = 0
+    if (tipo === 'V') factorTipo = 1
+    else if (tipo === 'E') factorTipo = 2
+    else if (tipo === 'J') factorTipo = 3
+    else if (tipo === 'P') factorTipo = 4
+    else if (tipo === 'G') factorTipo = 5
+
+    const constantes = [4, 3, 2, 7, 6, 5, 4, 3, 2]
+    const numeros = [factorTipo, ...cuerpo.split('').map(Number)]
+
+    let suma = 0
+    for (let i = 0; i < 9; i++) {
+      suma += numeros[i] * constantes[i]
+    }
+
+    const resto = suma % 11
+    let digitoEsperado = 11 - resto
+    if (digitoEsperado >= 10) digitoEsperado = 0
+
+    return digitoVerificador === digitoEsperado
+  }
+
+  // Validación reactiva mientras escribe el RIF
+  $('#reg-rif').addEventListener('input', (e) => {
+    const val = e.target.value.trim()
+    const msg = $('#reg-rif-val')
+    if (!val) { msg.textContent = ''; return }
+
+    if (validarRifVenezolano(val)) {
+      msg.textContent = '✓ RIF con formato y dígito verificador válido'
+      msg.style.color = '#03543f'
+    } else {
+      msg.textContent = '⚠ RIF inválido (compruebe letra y dígito verificador)'
+      msg.style.color = '#991b1b'
+    }
+  })
+
+  // Envío del Formulario
+  $('#form-registro-publico').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const errBox = $('#registro-msg-err')
+    const okBox = $('#registro-msg-ok')
+    const btn = $('#btn-registro-submit')
+    
+    errBox.style.display = 'none'
+    okBox.style.display = 'none'
+
+    const rif = $('#reg-rif').value.trim().toUpperCase()
+    if (!validarRifVenezolano(rif)) {
+      errBox.textContent = 'El RIF ingresado no es válido según el algoritmo del SENIAT. Verifique los dígitos.'
+      errBox.style.display = 'block'
+      return
+    }
+
+    btn.disabled = true
+    btn.textContent = 'Enviando solicitud...'
+
+    const empresa = $('#reg-empresa').value.trim()
+    const nombre = $('#reg-nombre').value.trim()
+    const telefono = $('#reg-telefono').value.trim()
+    const email = $('#reg-correo').value.trim().toLowerCase()
+    const direccion = $('#reg-direccion').value.trim()
+    const codigoUsuario = `OPT-${Date.now().toString().slice(-4)}`
+
+    try {
+      // 1. Validar que no exista el RIF o correo
+      const { data: existe } = await supabase.from('clientes').select('id').or(`rif.eq.${rif},email.eq.${email}`).maybeSingle()
+      if (existe) {
+        throw new Error('Ya existe una solicitud o cuenta con este RIF o correo electrónico.')
+      }
+
+      // 2. Insertar con estado_verificado: false
+      const { error } = await supabase.from('clientes').insert({
+        codigo_usuario: codigoUsuario,
+        rif: rif,
+        empresa: empresa,
+        nombre_completo: nombre,
+        telefono: telefono,
+        email: email,
+        direccion_fiscal: direccion,
+        direccion_envio: direccion,
+        estado_verificado: false,
+        inactivo: false,
+        password_hash: null
+      })
+
+      if (error) throw error
+
+      okBox.innerHTML = `<strong>¡Solicitud recibida con éxito!</strong><br>Su código de trámite es <code>${codigoUsuario}</code>. Nuestro equipo validará sus datos y se comunicará vía WhatsApp al <strong>${telefono}</strong> para asignarle sus credenciales.`
+      okBox.style.display = 'block'
+      $('#form-registro-publico').reset()
+      $('#reg-rif-val').textContent = ''
+
+    } catch (err) {
+      errBox.textContent = err.message
+      errBox.style.display = 'block'
+    } finally {
+      btn.disabled = false
+      btn.textContent = 'Enviar Solicitud de Registro'
+    }
+  })
+</script>
 
 <!-- ================= FOOTER ================= -->
 <footer class="footer">
