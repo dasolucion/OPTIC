@@ -11,117 +11,31 @@
   <link rel="stylesheet" href="css/style.css">
   <style>
     body { background-color: #f8fafc; color: var(--gris-900); }
-
-    /* Login Box */
-    .auth-card {
-      max-width: 440px;
-      margin: 4rem auto;
-      background: #fff;
-      border: 1px solid var(--gris-200);
-      border-radius: 8px;
-      padding: 2.5rem;
-      box-shadow: var(--sombra-md);
-    }
-    .auth-card h1 { font-family: var(--fuente-titulos); font-size: 1.4rem; font-weight: 800; margin-bottom: 0.4rem; }
-    .auth-card p { font-size: 0.88rem; color: var(--gris-700); margin-bottom: 1.5rem; }
-
-    /* Dashboard Layout */
+    .auth-card { max-width: 440px; margin: 4rem auto; background: #fff; border: 1px solid var(--gris-200); border-radius: 8px; padding: 2.5rem; box-shadow: var(--sombra-md); }
     .portal-wrap { padding: 3rem 0; display: none; }
     .portal-wrap.activo { display: block; }
-    
-    .perfil-header {
-      background: #fff;
-      border: 1px solid var(--gris-200);
-      border-radius: 8px;
-      padding: 1.5rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-    .perfil-header h2 { font-family: var(--fuente-titulos); font-size: 1.35rem; font-weight: 800; }
-    .perfil-header p { font-size: 0.85rem; color: var(--gris-700); }
-
-    /* Tabs */
+    .perfil-header { background: #fff; border: 1px solid var(--gris-200); border-radius: 8px; padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
     .portal-tabs { display: flex; gap: 0.5rem; border-bottom: 2px solid var(--gris-200); margin-bottom: 2rem; }
-    .portal-tab {
-      padding: 0.75rem 1.5rem;
-      font-family: var(--fuente-titulos);
-      font-size: 0.82rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      background: none;
-      border: none;
-      border-bottom: 3px solid transparent;
-      color: var(--gris-700);
-      cursor: pointer;
-      margin-bottom: -2px;
-    }
+    .portal-tab { padding: 0.75rem 1.5rem; font-family: var(--fuente-titulos); font-size: 0.82rem; font-weight: 700; text-transform: uppercase; background: none; border: none; border-bottom: 3px solid transparent; color: var(--gris-700); cursor: pointer; margin-bottom: -2px; }
     .portal-tab.activo { color: var(--azul); border-bottom-color: var(--azul); }
     .tab-pane { display: none; }
     .tab-pane.activo { display: block; }
-
-    /* Pedidos Cards */
-    .pedido-card {
-      background: #fff;
-      border: 1px solid var(--gris-200);
-      border-radius: 8px;
-      padding: 1.5rem;
-      margin-bottom: 1.25rem;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 1.5rem;
-      align-items: center;
-      box-shadow: var(--sombra-sm);
-    }
+    .pedido-card { background: #fff; border: 1px solid var(--gris-200); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.25rem; display: grid; grid-template-columns: 1fr auto; gap: 1.5rem; align-items: center; }
     @media(max-width: 768px) { .pedido-card { grid-template-columns: 1fr; } }
-    
-    .badge {
-      display: inline-block;
-      padding: 0.25rem 0.65rem;
-      font-size: 0.75rem;
-      font-weight: 700;
-      border-radius: 4px;
-      text-transform: uppercase;
-    }
+    .badge { display: inline-block; padding: 0.25rem 0.65rem; font-size: 0.75rem; font-weight: 700; border-radius: 4px; text-transform: uppercase; }
     .badge--pendiente { background: #fee2e2; color: #991b1b; }
     .badge--abonado   { background: #fef08a; color: #713f12; }
     .badge--pagado    { background: #def7ec; color: #03543f; }
-
-    /* Modal de Pagos */
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.6);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      padding: 1rem;
-    }
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
     .modal-backdrop.activo { display: flex; }
-    .modal-box {
-      background: #fff;
-      border-radius: 8px;
-      max-width: 520px;
-      width: 100%;
-      padding: 2rem;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-    .modal-box h3 { font-family: var(--fuente-titulos); font-size: 1.25rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .modal-box { background: #fff; border-radius: 8px; max-width: 520px; width: 100%; padding: 2rem; max-height: 90vh; overflow-y: auto; }
   </style>
 </head>
 <body>
 
-  <!-- HEADER -->
   <header class="header">
     <div class="contenedor header__inner">
-      <a href="index.html" class="logo">
-        <img src="img/logo.png" alt="Optiline" class="logo__img">
-      </a>
+      <a href="index.html" class="logo"><img src="img/logo.png" alt="Optiline" class="logo__img"></a>
       <nav class="nav">
         <ul class="nav__lista">
           <li><a href="index.html">Inicio</a></li>
@@ -132,225 +46,170 @@
     </div>
   </header>
 
-  <!-- VISTA 1: INICIO DE SESIÓN B2B (EMAIL O CÓDIGO WOOCOMMERCE) -->
   <section class="contenedor" id="vista-login">
     <div class="auth-card">
-      <h1>Portal de Ópticas</h1>
-      <p>Ingresa con tu código de usuario de WooCommerce o tu correo registrado.</p>
-      
-      <div id="login-error" class="formulario__nota" style="display:none; border-color:#b91c1c; color:#b91c1c; margin-bottom:1rem;"></div>
+      <h1 style="font-family:var(--fuente-titulos); font-size:1.35rem; font-weight:800; margin-bottom:0.4rem;">Portal de Ópticas</h1>
+      <p style="font-size:0.85rem; color:#6b7280; margin-bottom:1.5rem;">Ingresa con tu código de usuario de WooCommerce o correo.</p>
+      <div id="login-error" style="display:none; color:#b91c1c; background:#fee2e2; padding:0.75rem; border-radius:6px; font-size:0.85rem; margin-bottom:1rem;"></div>
 
       <form id="form-login">
         <div class="campo">
-          <label for="credencial">Usuario o Correo:</label>
-          <input type="text" id="credencial" placeholder="Ej: OPT-045 o ventas@tuoptica.com" required>
+          <label>Usuario o Correo:</label>
+          <input type="text" id="credencial" required style="width:100%; padding:0.75rem; border:1px solid #d1d5db; border-radius:6px;">
         </div>
-        <div class="campo">
-          <label for="password">Contraseña:</label>
-          <input type="password" id="password" required>
+        <div class="campo" style="margin-top:0.75rem;">
+          <label>Contraseña:</label>
+          <input type="password" id="password" required style="width:100%; padding:0.75rem; border:1px solid #d1d5db; border-radius:6px;">
         </div>
-        <button type="submit" class="boton boton--primario boton--bloque" id="btn-login">Ingresar a mi cuenta</button>
+        <button type="submit" class="boton boton--primario boton--bloque" id="btn-login" style="margin-top:1.25rem;">Ingresar a mi cuenta</button>
       </form>
     </div>
   </section>
 
-  <!-- VISTA 2: PANEL DE LA ÓPTICA AUTENTICADA -->
   <main class="contenedor portal-wrap" id="vista-portal">
-    
     <div class="perfil-header">
       <div>
-        <h2 id="txt-empresa">Óptica Cliente</h2>
-        <p><strong id="txt-rif">RIF: J-00000000-0</strong> · Código: <span id="txt-codigo">WOO-00</span></p>
-        <p id="txt-fiscal" style="font-size:0.8rem; margin-top:0.3rem;">Dirección fiscal registrada</p>
+        <h2 id="txt-empresa" style="font-family:var(--fuente-titulos); font-size:1.3rem; font-weight:800;"></h2>
+        <p><strong id="txt-rif"></strong> · Código: <span id="txt-codigo"></span></p>
+        <p id="txt-fiscal" style="font-size:0.8rem; color:#6b7280; margin-top:0.3rem;"></p>
       </div>
-      <button type="button" class="boton boton--contorno" id="btn-logout" style="border-color:var(--gris-400); color:var(--gris-700);">Cerrar sesión</button>
+      <button type="button" class="boton boton--contorno" id="btn-logout" style="border-color:#94a3b8; color:#475569;">Cerrar sesión</button>
     </div>
 
     <div class="portal-tabs">
       <button class="portal-tab activo" data-target="tab-pedidos">Mis Pedidos y Pagos</button>
-      <button class="portal-tab" data-target="tab-datos">Datos de Envío y Fiscales</button>
+      <button class="portal-tab" data-target="tab-datos">Datos de Despacho</button>
     </div>
 
-    <!-- PESTAÑA: PEDIDOS -->
     <section class="tab-pane activo" id="tab-pedidos">
-      <div id="contenedor-pedidos">
-        <p style="text-align:center; padding:2rem; color:var(--gris-400);">Cargando pedidos de la óptica...</p>
-      </div>
+      <div id="contenedor-pedidos"></div>
     </section>
 
-    <!-- PESTAÑA: DATOS -->
     <section class="tab-pane" id="tab-datos">
       <div class="formulario--registro" style="max-width:100%; margin:0;">
-        <div class="campo">
-          <label>Dirección Fiscal:</label>
-          <textarea id="perfil-dir-fiscal" rows="3" readonly></textarea>
-        </div>
-        <div class="campo">
-          <label>Dirección de Envío / Despacho:</label>
-          <textarea id="perfil-dir-envio" rows="3"></textarea>
-        </div>
-        <div class="campo">
-          <label>Teléfono de Contacto:</label>
-          <input type="text" id="perfil-telefono">
-        </div>
+        <div class="campo"><label>Dirección Fiscal:</label><textarea id="perfil-dir-fiscal" rows="3" readonly></textarea></div>
+        <div class="campo"><label>Dirección de Envío:</label><textarea id="perfil-dir-envio" rows="3"></textarea></div>
+        <div class="campo"><label>Teléfono:</label><input type="text" id="perfil-telefono"></div>
         <button type="button" class="boton boton--primario" id="btn-guardar-datos">Actualizar datos de envío</button>
       </div>
     </section>
-
   </main>
 
-  <!-- MODAL: NOTIFICACIÓN DE PAGO (TOTAL O PARCIAL) -->
+  <!-- MODAL: NOTIFICACIÓN DE PAGO -->
   <div class="modal-backdrop" id="modal-pago">
     <div class="modal-box">
-      <h3>Notificar Pago</h3>
-      <p id="modal-pedido-info" style="font-size:0.85rem; color:var(--gris-700); margin-bottom:1.25rem;"></p>
+      <h3 style="font-family:var(--fuente-titulos); font-size:1.2rem; font-weight:800; margin-bottom:0.4rem;">Notificar Pago</h3>
+      <p id="modal-pedido-info" style="font-size:0.85rem; color:#4b5563; margin-bottom:1.25rem;"></p>
 
       <form id="form-notificar-pago">
         <input type="hidden" id="pago-pedido-id">
 
         <div class="campo">
           <label>Tipo de Pago:</label>
-          <select id="pago-tipo" style="width:100%; padding:0.75rem; border:1px solid var(--gris-200); border-radius:6px;" required>
+          <select id="pago-tipo" style="width:100%; padding:0.75rem; border:1px solid #d1d5db; border-radius:6px;" required>
             <option value="Total">Pago Total (Cancelar saldo completo)</option>
             <option value="Parcial">Abono Parcial</option>
           </select>
         </div>
 
+        <!-- ETIQUETA NEUTRA SIN SIGLAS FIJAS -->
         <div class="campo">
-          <label for="pago-monto">Monto a Reportar (USD):</label>
-          <input type="number" id="pago-monto" step="0.01" min="1" required>
+          <label for="pago-monto" id="lbl-monto-reportar">Monto a Reportar:</label>
+          <input type="number" id="pago-monto" step="0.01" min="0.01" required style="width:100%; padding:0.75rem; border:1px solid #d1d5db; border-radius:6px;">
         </div>
 
         <div class="campo">
-          <label for="pago-metodo">Método Utilizado:</label>
-          <select id="pago-metodo" style="width:100%; padding:0.75rem; border:1px solid var(--gris-200); border-radius:6px;" required>
-            <option value="Pago Móvil">Pago Móvil (Tasa Oficial)</option>
-            <option value="Transferencia Bs.">Transferencia Bancaria Bs.</option>
-            <option value="Zelle">Zelle</option>
-            <option value="Banesco Panamá">Banesco Panamá</option>
-            <option value="Efectivo USD">Efectivo USD (Entrega en oficina)</option>
-          </select>
+          <label>Canal / Método de Pago:</label>
+          <select id="pago-metodo" style="width:100%; padding:0.75rem; border:1px solid #d1d5db; border-radius:6px;" required></select>
         </div>
 
         <div class="campo">
-          <label for="pago-banco">Banco de Origen / Titular:</label>
-          <input type="text" id="pago-banco" placeholder="Ej: Banesco / Juan Pérez" required>
+          <label>Banco Físico Destino:</label>
+          <select id="pago-cuenta-id" style="width:100%; padding:0.75rem; border:1px solid #d1d5db; border-radius:6px;" required></select>
         </div>
 
         <div class="campo">
           <label for="pago-referencia">Número de Referencia:</label>
-          <input type="text" id="pago-referencia" placeholder="Últimos 6 a 8 dígitos" required>
+          <input type="text" id="pago-referencia" placeholder="Últimos dígitos" required style="width:100%; padding:0.75rem; border:1px solid #d1d5db; border-radius:6px;">
         </div>
 
         <div class="campo">
           <label for="pago-fecha">Fecha del Pago:</label>
-          <input type="date" id="pago-fecha" required>
+          <input type="date" id="pago-fecha" required style="width:100%; padding:0.75rem; border:1px solid #d1d5db; border-radius:6px;">
         </div>
 
         <div class="campo">
-          <label for="pago-comprobante">Comprobante de Pago (Captura o PDF):</label>
-          <input type="file" id="pago-comprobante" accept="image/*,application/pdf" required>
+          <label for="pago-comprobante">Comprobante de Pago (Opcional):</label>
+          <input type="file" id="pago-comprobante" accept="image/*,application/pdf" style="width:100%; padding:0.6rem; border:1px solid #d1d5db; border-radius:6px;">
         </div>
 
         <div style="display:flex; gap:0.75rem; margin-top:1.5rem;">
           <button type="submit" class="boton boton--naranja boton--bloque" id="btn-enviar-pago">Registrar Pago</button>
-          <button type="button" class="boton boton--contorno" id="btn-cerrar-modal" style="border-color:var(--gris-400); color:var(--gris-900);">Cancelar</button>
+          <button type="button" class="boton boton--contorno" id="btn-cerrar-modal" style="border-color:#94a3b8; color:#111827;">Cancelar</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- SCRIPT SUPABASE Y GESTIÓN -->
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
     const SUPABASE_URL = 'https://fdkdzyjrrtuaotiumbym.supabase.co'
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZka2R6eWpycnR1YW90aXVtYnltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0MDc1MzAsImV4cCI6MjEwNjk4MzUzMH0.RC_ueLB8le0c95RMemtkQf4Yj-bFTrfYLaAcbdRDbXs'
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-
     const $ = (s) => document.querySelector(s)
+
     let clienteSesion = JSON.parse(localStorage.getItem('optiline_cliente') || 'null')
 
-    // Inicialización de estado
-    if (clienteSesion) {
-      mostrarPortal(clienteSesion)
-    } else {
-      $('#vista-login').style.display = 'block'
-    }
+    if (clienteSesion) mostrarPortal(clienteSesion)
+    else $('#vista-login').style.display = 'block'
 
-    // ================= LOGIN B2B (USUARIO O EMAIL WOOCOMMERCE) =================
     $('#form-login').addEventListener('submit', async (e) => {
       e.preventDefault()
-      const credencial = $('#credencial').value.trim()
-      const password = $('#password').value.trim()
+      const cred = $('#credencial').value.trim()
+      const pass = $('#password').value.trim()
       const errorBox = $('#login-error')
-      const btn = $('#btn-login')
-
       errorBox.style.display = 'none'
-      btn.disabled = true
-      btn.textContent = 'Verificando credenciales...'
 
-      try {
-        // Busca al cliente por su código de usuario de WooCommerce o por su email
-        const { data: cliente, error } = await supabase
-          .from('clientes')
-          .select('*')
-          .or(`codigo_usuario.eq.${credencial},email.eq.${credencial}`)
-          .maybeSingle()
-
-        if (error || !cliente) {
-          throw new Error('El usuario o correo no coincide con ninguna óptica registrada.')
-        }
-
-        // Validación de contraseña migrada
-        if (cliente.password_hash && cliente.password_hash !== password) {
-          throw new Error('Contraseña incorrecta.')
-        }
-
-        // Guardar sesión activa localmente
-        localStorage.setItem('optiline_cliente', JSON.stringify(cliente))
-        clienteSesion = cliente
-        mostrarPortal(cliente)
-
-      } catch (err) {
-        errorBox.textContent = err.message
+      const { data: c, error } = await supabase.from('clientes').select('*').or(`codigo_usuario.eq.${cred},email.eq.${cred}`).maybeSingle()
+      if (error || !c || (c.password_hash && c.password_hash !== pass)) {
+        errorBox.textContent = 'Credenciales incorrectas.'
         errorBox.style.display = 'block'
-      } finally {
-        btn.disabled = false
-        btn.textContent = 'Ingresar a mi cuenta'
+        return
       }
+
+      localStorage.setItem('optiline_cliente', JSON.stringify(c))
+      clienteSesion = c
+      mostrarPortal(c)
     })
 
-    // Cerrar Sesión
     $('#btn-logout').addEventListener('click', () => {
       localStorage.removeItem('optiline_cliente')
       location.reload()
     })
 
-    // ================= DASHBOARD DEL CLIENTE =================
     function mostrarPortal(c) {
       $('#vista-login').style.display = 'none'
       $('#vista-portal').classList.add('activo')
-
       $('#txt-empresa').textContent = c.empresa
       $('#txt-rif').textContent = `RIF: ${c.rif}`
       $('#txt-codigo').textContent = c.codigo_usuario
       $('#txt-fiscal').textContent = c.direccion_fiscal || 'Sin dirección fiscal registrada'
-
       $('#perfil-dir-fiscal').value = c.direccion_fiscal || ''
       $('#perfil-dir-envio').value = c.direccion_envio || ''
       $('#perfil-telefono').value = c.telefono || ''
-
       cargarPedidos(c.id)
-
-      // Si la URL venía con ?tab=pagos, posiciona directamente en pedidos
-      const urlParams = new URLSearchParams(window.location.search)
-      if (urlParams.get('tab') === 'pagos') {
-        document.querySelector('[data-target="tab-pedidos"]').click()
-      }
+      cargarSelectsPago()
     }
 
-    // Tabs del Portal
+    async function cargarSelectsPago() {
+      const { data: met } = await supabase.from('metodos_pago').select('*').eq('activo', true)
+      $('#pago-metodo').innerHTML = (met || []).map(m => `<option value="${m.nombre}">${m.nombre}</option>`).join('')
+
+      const { data: ctas } = await supabase.from('cuentas_bancarias').select('*').eq('activo', true)
+      $('#pago-cuenta-id').innerHTML = (ctas || []).map(b => `<option value="${b.id}">${b.nombre_banco} (${b.moneda})</option>`).join('')
+    }
+
     document.querySelectorAll('.portal-tab').forEach(tab => {
       tab.addEventListener('click', () => {
         document.querySelectorAll('.portal-tab').forEach(t => t.classList.remove('activo'))
@@ -360,24 +219,19 @@
       })
     })
 
-    // Cargar Historial de Pedidos y Saldos
     async function cargarPedidos(clienteId) {
-      const { data: pedidos, error } = await supabase
-        .from('pedidos')
-        .select('*')
-        .eq('cliente_id', clienteId)
-        .order('id', { ascending: false })
-
+      const { data: pedidos } = await supabase.from('pedidos').select('*').eq('cliente_id', clienteId).order('id', { ascending: false })
       const contenedor = $('#contenedor-pedidos')
 
-      if (error || !pedidos || !pedidos.length) {
-        contenedor.innerHTML = '<div style="background:#fff; padding:3rem; text-align:center; border:1px dashed var(--gris-200); border-radius:8px;">No posee pedidos registrados actualmente.</div>'
+      if (!pedidos || !pedidos.length) {
+        contenedor.innerHTML = '<div style="background:#fff; padding:3rem; text-align:center; border:1px dashed #d1d5db; border-radius:8px;">No posee pedidos registrados actualmente.</div>'
         return
       }
 
       contenedor.innerHTML = pedidos.map(p => {
         const badgeClass = p.estado_pago === 'Pagado' ? 'badge--pagado' : (p.estado_pago === 'Abonado' ? 'badge--abonado' : 'badge--pendiente')
         const saldo = Number(p.saldo_pendiente || 0).toFixed(2)
+        const mon = p.moneda_pago === 'USD' ? '$' : 'Bs.'
 
         return `
           <article class="pedido-card">
@@ -385,144 +239,113 @@
               <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.4rem;">
                 <h4 style="font-family:var(--fuente-titulos); font-size:1.1rem; font-weight:800;">Orden #${p.codigo_pedido}</h4>
                 <span class="badge ${badgeClass}">${p.estado_pago}</span>
-                <span style="font-size:0.78rem; color:var(--gris-700);">· Despacho: <strong>${p.estado_despacho}</strong></span>
+                <span style="font-size:0.78rem; color:#6b7280;">· Despacho: <strong>${p.estado_despacho}</strong></span>
               </div>
-              <p style="font-size:0.88rem; color:var(--gris-700);">Fecha: ${new Date(p.fecha).toLocaleDateString()}</p>
+              <p style="font-size:0.85rem; color:#6b7280;">Fecha: ${new Date(p.fecha).toLocaleDateString()}</p>
               <p style="font-size:0.95rem; margin-top:0.4rem;">
-                Total: <strong>$${Number(p.total).toFixed(2)}</strong> | 
-                Abonado: <strong style="color:var(--azul);">$${Number(p.monto_pagado).toFixed(2)}</strong> | 
-                Saldo Pendiente: <strong style="color:var(--naranja);">$${saldo}</strong>
+                Total: <strong>${mon} ${Number(p.total).toFixed(2)}</strong> | 
+                Abonado: <strong style="color:var(--azul);">${mon} ${Number(p.monto_pagado).toFixed(2)}</strong> | 
+                Saldo Pendiente: <strong style="color:var(--naranja);">${mon} ${saldo}</strong>
               </p>
             </div>
             <div>
               ${Number(saldo) > 0 ? `
-                <button type="button" class="boton boton--naranja" data-abrir-pago='${JSON.stringify(p)}'>
-                  Notificar Pago
-                </button>
+                <button type="button" class="boton boton--naranja" data-abrir-pago='${JSON.stringify(p)}'>Notificar Pago</button>
               ` : `
-                <span style="font-family:var(--fuente-titulos); font-size:0.85rem; font-weight:700; color:#03543f;">✓ Saldo Solventado</span>
+                <span style="font-family:var(--fuente-titulos); font-size:0.85rem; font-weight:700; color:#03543f;">✓ Solvente</span>
               `}
             </div>
           </article>
         `
       }).join('')
 
-      // Eventos para abrir modal
       document.querySelectorAll('[data-abrir-pago]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const pedido = JSON.parse(btn.dataset.abrirPago)
-          abrirModalPago(pedido)
-        })
+        btn.addEventListener('click', () => abrirModalPago(JSON.parse(btn.dataset.abrirPago)))
       })
     }
 
-    // ================= MODAL Y REGISTRO DE PAGOS =================
-    let pedidoSeleccionado = null
-
-    function abrirModalPago(pedido) {
-      pedidoSeleccionado = pedido
-      $('#pago-pedido-id').value = pedido.id
-      $('#modal-pedido-info').innerHTML = `Abonando a orden <strong>#${pedido.codigo_pedido}</strong> · Saldo pendiente: <strong>$${Number(pedido.saldo_pendiente).toFixed(2)}</strong>`
-      
+    let pedidoActual = null
+    function abrirModalPago(p) {
+      pedidoActual = p
+      const mon = p.moneda_pago === 'USD' ? '$' : 'Bs.'
+      $('#pago-pedido-id').value = p.id
+      $('#modal-pedido-info').innerHTML = `Abonando a orden <strong>#${p.codigo_pedido}</strong> · Saldo pendiente: <strong>${mon} ${Number(p.saldo_pendiente).toFixed(2)}</strong>`
+      $('#lbl-monto-reportar').textContent = `Monto a Reportar (${mon}):`
       $('#pago-tipo').value = 'Total'
-      $('#pago-monto').value = Number(pedido.saldo_pendiente).toFixed(2)
+      $('#pago-monto').value = Number(p.saldo_pendiente).toFixed(2)
       $('#pago-fecha').value = new Date().toISOString().split('T')[0]
       $('#modal-pago').classList.add('activo')
     }
 
     $('#pago-tipo').addEventListener('change', (e) => {
-      if (!pedidoSeleccionado) return
-      if (e.target.value === 'Total') {
-        $('#pago-monto').value = Number(pedidoSeleccionado.saldo_pendiente).toFixed(2)
-      } else {
-        $('#pago-monto').value = ''
-        $('#pago-monto').focus()
-      }
+      if (!pedidoActual) return
+      if (e.target.value === 'Total') $('#pago-monto').value = Number(pedidoActual.saldo_pendiente).toFixed(2)
+      else { $('#pago-monto').value = ''; $('#pago-monto').focus() }
     })
+    $('#btn-cerrar-modal').addEventListener('click', () => $('#modal-pago').classList.remove('activo'))
 
-    $('#btn-cerrar-modal').addEventListener('click', () => {
-      $('#modal-pago').classList.remove('activo')
-    })
-
-    // Envío del Comprobante
     $('#form-notificar-pago').addEventListener('submit', async (e) => {
       e.preventDefault()
       const btn = $('#btn-enviar-pago')
       const file = $('#pago-comprobante').files[0]
       const monto = parseFloat($('#pago-monto').value)
+      const saldoMax = parseFloat(pedidoActual.saldo_pendiente)
 
-      if (monto <= 0 || monto > parseFloat(pedidoSeleccionado.saldo_pendiente)) {
-        alert('El monto a reportar no puede ser mayor al saldo pendiente de la orden.')
-        return
-      }
+      if (monto <= 0 || monto > saldoMax) return alert('El monto a reportar no puede superar el saldo pendiente.')
 
       btn.disabled = true
-      btn.textContent = 'Subiendo comprobante...'
+      btn.textContent = 'Enviando notificación...'
 
       try {
-        // 1. Subir captura al storage de Supabase
-        const ext = file.name.split('.').pop()
-        const rutaArchivo = `comp-${pedidoSeleccionado.codigo_pedido}-${Date.now()}.${ext}`
-        
-        const { data: uploadData, error: errUpload } = await supabase.storage
-          .from('comprobantes')
-          .upload(rutaArchivo, file, { cacheControl: '3600', upsert: false })
+        let publicUrl = null
+        if (file) {
+          const ext = file.name.split('.').pop()
+          const ruta = `comp-${pedidoActual.codigo_pedido}-${Date.now()}.${ext}`
+          const { data: up, error: upErr } = await supabase.storage.from('comprobantes').upload(ruta, file, { upsert: false })
+          if (upErr) throw upErr
+          publicUrl = supabase.storage.from('comprobantes').getPublicUrl(up.path).data.publicUrl
+        }
 
-        if (errUpload) throw errUpload
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('comprobantes')
-          .getPublicUrl(uploadData.path)
-
-        // 2. Registrar el pago en la tabla
         const { error: errPago } = await supabase.from('pagos').insert({
-          pedido_id: pedidoSeleccionado.id,
+          pedido_id: pedidoActual.id,
           cliente_id: clienteSesion.id,
+          cuenta_id: parseInt($('#pago-cuenta-id').value),
           fecha_pago: $('#pago-fecha').value,
           monto: monto,
           tipo_pago: $('#pago-tipo').value,
           metodo_pago: $('#pago-metodo').value,
-          banco_origen: $('#pago-banco').value.trim(),
+          banco_origen: $('#pago-cuenta-id').selectedOptions[0]?.text || null,
           referencia: $('#pago-referencia').value.trim(),
           comprobante_url: publicUrl,
+          conciliado: false,
           estado_conciliacion: 'En verificación'
         })
-
         if (errPago) throw errPago
 
-        // 3. Actualizar el saldo del pedido
-        const nuevoPagado = parseFloat(pedidoSeleccionado.monto_pagado || 0) + monto
-        const total = parseFloat(pedidoSeleccionado.total)
-        const nuevoEstado = nuevoPagado >= total ? 'Pagado' : 'Abonado'
-
+        const nuevoPagado = parseFloat(pedidoActual.monto_pagado || 0) + monto
+        const total = parseFloat(pedidoActual.total)
         await supabase.from('pedidos').update({
           monto_pagado: nuevoPagado,
-          estado_pago: nuevoEstado
-        }).eq('id', pedidoSeleccionado.id)
+          estado_pago: nuevoPagado >= total ? 'Pagado' : 'Abonado'
+        }).eq('id', pedidoActual.id)
 
-        alert('✓ Pago reportado con éxito. El equipo de administración conciliará su referencia.')
+        alert('✓ Pago reportado con éxito. Se enviará a conciliación en administración.')
         $('#modal-pago').classList.remove('activo')
         cargarPedidos(clienteSesion.id)
 
       } catch (err) {
-        alert('Error al reportar pago: ' + err.message)
+        alert('Error: ' + err.message)
       } finally {
         btn.disabled = false
         btn.textContent = 'Registrar Pago'
       }
     })
 
-    // Actualización de datos de despacho
     $('#btn-guardar-datos').addEventListener('click', async () => {
-      const envio = $('#perfil-dir-envio').value.trim()
-      const telf = $('#perfil-telefono').value.trim()
-
-      const { error } = await supabase.from('clientes').update({
-        direccion_envio: envio,
-        telefono: telf
+      await supabase.from('clientes').update({
+        direccion_envio: $('#perfil-dir-envio').value.trim(),
+        telefono: $('#perfil-telefono').value.trim()
       }).eq('id', clienteSesion.id)
-
-      if (error) return alert(error.message)
       alert('✓ Datos de envío actualizados.')
     })
   </script>
