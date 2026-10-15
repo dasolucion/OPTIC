@@ -13,7 +13,7 @@
 
   <style>
     :root {
-      --sidebar-width: 260px;
+      --sidebar-width: 250px;
       --sidebar-bg: #0b4d8c;
       --sidebar-hover: #083a6b;
       --sidebar-active: #f39200;
@@ -39,6 +39,31 @@
     .admin-layout { display: none; min-height: 100vh; }
     .admin-layout.activo { display: flex; }
 
+    /* Botón hamburguesa móvil */
+    .mobile-header-bar {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 60px;
+      background: var(--sidebar-bg);
+      color: #fff;
+      padding: 0 1rem;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 60;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .btn-hamburguesa {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.6rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      padding: 0.3rem;
+    }
+
     .admin-sidebar {
       width: var(--sidebar-width);
       background: var(--sidebar-bg);
@@ -49,32 +74,58 @@
       top: 0; bottom: 0; left: 0;
       z-index: 50;
       box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
     }
-    .sidebar-brand { padding: 1.5rem 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.12); display: flex; align-items: center; gap: 0.75rem; }
-    .sidebar-brand img { height: 32px; filter: brightness(0) invert(1); }
-    .sidebar-brand span { font-family: 'Montserrat', sans-serif; font-size: 0.95rem; font-weight: 800; letter-spacing: 0.05em; }
 
-    .sidebar-nav { list-style: none; padding: 1rem 0; margin: 0; flex-grow: 1; overflow-y: auto; }
+    /* Logo y Branding ajustado */
+    .sidebar-brand {
+      padding: 1.25rem 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 0.35rem;
+    }
+    .sidebar-brand img { height: 34px; max-width: 150px; object-fit: contain; filter: brightness(0) invert(1); }
+    .sidebar-brand span {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      color: #cbd5e1;
+      text-transform: uppercase;
+    }
+
+    .sidebar-nav { list-style: none; padding: 0.8rem 0; margin: 0; flex-grow: 1; overflow-y: auto; }
     .sidebar-item {
-      display: flex; align-items: center; gap: 0.85rem; padding: 0.8rem 1.5rem; color: #e2e8f0; font-size: 0.82rem; font-weight: 700;
+      display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.25rem; color: #e2e8f0; font-size: 0.8rem; font-weight: 700;
       cursor: pointer; border-left: 4px solid transparent; transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.04em;
     }
     .sidebar-item:hover { background: var(--sidebar-hover); color: #fff; }
     .sidebar-item.activo { background: var(--sidebar-hover); color: #fff; border-left-color: var(--sidebar-active); }
 
-    .sidebar-footer { padding: 1.25rem 1.5rem; border-top: 1px solid rgba(255,255,255,0.12); font-size: 0.8rem; }
-    .sidebar-footer small { display: block; color: #cbd5e1; margin-bottom: 0.65rem; word-break: break-all; }
+    .sidebar-footer { padding: 1rem 1.25rem; border-top: 1px solid rgba(255,255,255,0.15); font-size: 0.75rem; }
+    .sidebar-footer small { display: block; color: #cbd5e1; margin-bottom: 0.5rem; word-break: break-all; }
 
-    .admin-main { margin-left: var(--sidebar-width); flex-grow: 1; padding: 2.5rem; min-width: 0; }
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 45;
+    }
+
+    .admin-main { margin-left: var(--sidebar-width); flex-grow: 1; padding: 2.5rem; min-width: 0; box-sizing: border-box; }
     .main-header { margin-bottom: 2rem; }
-    .main-header h1 { font-family: 'Montserrat', sans-serif; font-size: 1.6rem; font-weight: 900; color: #111827; margin: 0; }
+    .main-header h1 { font-family: 'Montserrat', sans-serif; font-size: 1.55rem; font-weight: 900; color: #111827; margin: 0; }
     .main-header p { font-size: 0.85rem; color: #6b7280; margin-top: 0.25rem; }
 
     .tab-content { display: none; }
     .tab-content.activo { display: block; }
 
     .admin-grid { display: grid; grid-template-columns: 340px 1fr; gap: 1.8rem; align-items: start; }
-    @media (max-width: 1200px) { .admin-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 1100px) { .admin-grid { grid-template-columns: 1fr; } }
 
     .admin-form { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: sticky; top: 1.5rem; }
     .admin-form h3 { font-family: 'Montserrat', sans-serif; font-size: 1.05rem; font-weight: 800; color: #111827; margin-bottom: 1rem; padding-bottom: .6rem; border-bottom: 1px solid #f3f4f6; }
@@ -101,7 +152,7 @@
     .table-thumb { width: 44px; height: 44px; border-radius: 4px; border: 1px solid #e2e8f0; background: #fff; display: grid; place-items: center; overflow: hidden; }
     .table-thumb img { width: 100%; height: 100%; object-fit: contain; }
 
-    .bancos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .bancos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
     .banco-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 1.25rem; border-left: 5px solid #0b4d8c; }
     .banco-card.bs { border-left-color: #f39200; }
     .banco-card h4 { font-family: 'Montserrat', sans-serif; font-size: 0.95rem; font-weight: 800; margin-bottom: 0.2rem; }
@@ -116,6 +167,21 @@
     .btn-sm--danger { background: #fee2e2; color: #991b1b; }
     .btn-sm--edit   { background: #e0f2fe; color: #0369a1; }
     .info-tag { font-size: 0.78rem; color: #64748b; background: #f1f5f9; padding: 0.25rem 0.5rem; border-radius: 4px; display: inline-block; margin-bottom: 0.65rem; }
+
+    /* RESPONSIVE MÓVIL */
+    @media (max-width: 768px) {
+      .mobile-header-bar { display: flex; }
+      .admin-sidebar {
+        transform: translateX(-100%);
+        top: 60px;
+        width: 260px;
+      }
+      .admin-sidebar.abierto { transform: translateX(0); }
+      .sidebar-overlay.abierto { display: block; }
+      .admin-main { margin-left: 0; padding: 5rem 1rem 2rem; width: 100%; }
+      .admin-form { position: static; }
+      .bancos-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -134,10 +200,18 @@
   </div>
 </div>
 
-<!-- PANEL ERP CON SIDEBAR -->
+<!-- BARRA MÓVIL -->
+<div class="mobile-header-bar">
+  <button type="button" class="btn-hamburguesa" id="btn-toggle-menu" aria-label="Abrir Menú">☰</button>
+  <span style="font-family:'Montserrat',sans-serif; font-weight:800; font-size:0.9rem;">OPTILINE ADMIN</span>
+  <div style="width:24px;"></div>
+</div>
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<!-- PANEL ERP -->
 <div class="admin-layout" id="panel-view">
 
-  <aside class="admin-sidebar">
+  <aside class="admin-sidebar" id="admin-sidebar">
     <div class="sidebar-brand">
       <img src="img/logo.png" alt="Optiline">
       <span>ADMIN</span>
@@ -163,20 +237,20 @@
 
   <main class="admin-main">
 
-    <!-- ================= 1. CLIENTES ================= -->
+    <!-- 1. CLIENTES -->
     <section class="tab-content activo" id="tab-clientes">
       <div class="main-header">
         <h1>1. Gestión de Ópticas y Clientes</h1>
-        <p>Administra los códigos de acceso de WooCommerce, datos fiscales y migración masiva.</p>
+        <p>Administra accesos de WooCommerce, RIF y direcciones de despacho.</p>
       </div>
 
       <div class="excel-zone">
         <div>
-          <h4>Importar Clientes de WooCommerce (Excel / CSV)</h4>
+          <h4>Importar Clientes (Excel / CSV)</h4>
           <p>Columnas: <strong>codigo_usuario | email | empresa | rif | password | telefono | direccion_fiscal | direccion_envio</strong></p>
         </div>
         <div style="display:flex; gap:.8rem;">
-          <button type="button" class="btn-sm btn-sm--edit" id="btn-plantilla-clientes">📥 Plantilla Clientes</button>
+          <button type="button" class="btn-sm btn-sm--edit" id="btn-plantilla-clientes">📥 Plantilla</button>
           <label class="boton boton--primario" style="margin:0; cursor:pointer;">
             📤 Cargar Excel
             <input type="file" id="input-excel-clientes" accept=".xlsx, .xls, .csv" style="display:none;">
@@ -214,15 +288,7 @@
           <div class="table-responsive">
             <table class="data-table">
               <thead>
-                <tr>
-                  <th>Código</th>
-                  <th>Razón Social</th>
-                  <th>RIF</th>
-                  <th>Correo</th>
-                  <th>Clave Woo</th>
-                  <th>Teléfono</th>
-                  <th>Acciones</th>
-                </tr>
+                <tr><th>Código</th><th>Razón Social</th><th>RIF</th><th>Correo</th><th>Clave</th><th>Teléfono</th><th>Acciones</th></tr>
               </thead>
               <tbody id="tbody-clientes"></tbody>
             </table>
@@ -231,11 +297,11 @@
       </div>
     </section>
 
-    <!-- ================= 2. CONCILIACIÓN ================= -->
+    <!-- 2. CONCILIACIÓN -->
     <section class="tab-content" id="tab-conciliacion">
       <div class="main-header">
         <h1>2. Conciliación Bancaria</h1>
-        <p>Valida los abonos reportados y acredita el saldo a la cuenta bancaria específica.</p>
+        <p>Acredita pagos de clientes y alimenta los saldos de cada banco.</p>
       </div>
 
       <div class="admin-panel-box">
@@ -253,15 +319,7 @@
           <table class="data-table">
             <thead>
               <tr>
-                <th>Fecha</th>
-                <th>Nro Pedido</th>
-                <th>Cliente / Óptica</th>
-                <th>Monto</th>
-                <th>Método Usado</th>
-                <th>Banco Físico</th>
-                <th>Referencia</th>
-                <th>Comprobante</th>
-                <th style="text-align:center;">Conciliado (Check)</th>
+                <th>Fecha</th><th>Nro Pedido</th><th>Cliente</th><th>Monto</th><th>Método</th><th>Banco Físico</th><th>Referencia</th><th>Voucher</th><th style="text-align:center;">Conciliado</th>
               </tr>
             </thead>
             <tbody id="tbody-conciliacion"></tbody>
@@ -270,25 +328,24 @@
       </div>
     </section>
 
-    <!-- ================= 3. SALDOS Y BANCOS (AGRUPADO ESTRICTO POR BANCO) ================= -->
+    <!-- 3. SALDOS Y BANCOS -->
     <section class="tab-content" id="tab-saldos">
       <div class="main-header">
-        <h1>3. Saldos y Cuentas Bancarias</h1>
-        <p>Control independiente por entidad bancaria en su moneda original (USD o Bs.).</p>
+        <h1>3. Saldos por Banco Físico</h1>
+        <p>Control exacto en divisas (USD) y bolívares (Bs.) por entidad bancaria.</p>
       </div>
 
-      <!-- Tarjetas agrupadas exclusivamente por Banco -->
       <div class="bancos-grid" id="grid-bancos-saldos"></div>
 
       <div class="admin-grid">
         <form class="admin-form" id="form-retiro">
-          <h3>Registrar Retiro / Egreso</h3>
+          <h3>Registrar Egreso / Retiro</h3>
           <div class="msg msg--ok" id="retiro-msg"></div>
 
           <label>Banco de Salida *</label><select id="retiro-banco" required></select>
           <label>Fecha *</label><input type="date" id="retiro-fecha" required>
           <label>Monto a Retirar *</label><input type="number" id="retiro-monto" step="0.01" min="0.01" required>
-          <label>Concepto / Motivo *</label><input type="text" id="retiro-concepto" placeholder="Ej: Pago a proveedor / Retiro" required>
+          <label>Concepto / Motivo *</label><input type="text" id="retiro-concepto" required>
           <label>Referencia Bancaria</label><input type="text" id="retiro-referencia" placeholder="Opcional">
           <button type="submit" class="boton boton--naranja boton--bloque" id="retiro-btn">Registrar Egreso</button>
         </form>
@@ -300,13 +357,7 @@
           <div class="table-responsive">
             <table class="data-table">
               <thead>
-                <tr>
-                  <th>Fecha</th>
-                  <th>Concepto / Pedido</th>
-                  <th>Método / Detalle</th>
-                  <th>Monto</th>
-                  <th>Saldo Resultante</th>
-                </tr>
+                <tr><th>Fecha</th><th>Concepto</th><th>Canal / Detalle</th><th>Monto</th><th>Saldo Resultante</th></tr>
               </thead>
               <tbody id="tbody-movimientos">
                 <tr><td colspan="5" style="text-align:center; padding:2rem; color:#9ca3af;">Selecciona un banco físico arriba.</td></tr>
@@ -317,20 +368,20 @@
       </div>
     </section>
 
-    <!-- ================= 4. INVENTARIO Y FÓRMULAS ================= -->
+    <!-- 4. INVENTARIO Y FÓRMULAS (SIN PRECIO, TOMA EL DEL PRODUCTO) -->
     <section class="tab-content" id="tab-inventario">
       <div class="main-header">
         <h1>4. Inventario y Graduaciones</h1>
-        <p>Asigna fórmulas a productos con control de stock por lote y precios en USD base.</p>
+        <p>Asigna fórmulas y stock a productos. El precio base proviene del producto.</p>
       </div>
 
       <div class="excel-zone">
         <div>
-          <h4>Carga Masiva de Fórmulas e Inventario</h4>
-          <p>Columnas: <strong>sku_producto | variable | lote | cantidad | precio</strong></p>
+          <h4>Carga Masiva de Fórmulas (Excel / CSV)</h4>
+          <p>Columnas: <strong>sku_producto | variable | lote | cantidad</strong></p>
         </div>
         <div style="display:flex; gap:.8rem;">
-          <button type="button" class="btn-sm btn-sm--edit" id="btn-plantilla-inventario">📥 Plantilla Excel</button>
+          <button type="button" class="btn-sm btn-sm--edit" id="btn-plantilla-inventario">📥 Plantilla</button>
           <label class="boton boton--primario" style="margin:0; cursor:pointer;">
             📤 Cargar Excel
             <input type="file" id="input-excel-inv" accept=".xlsx, .xls, .csv" style="display:none;">
@@ -344,7 +395,7 @@
           <h3>Asignar Fórmula / Inventario</h3>
           
           <label>Producto *</label><select id="manual-producto" required><option value="">Seleccionar producto...</option></select>
-          <div class="info-tag" id="tag-prod-info">SKU: — | Cat: —</div>
+          <div class="info-tag" id="tag-prod-info">SKU: — | Cat: — | Precio Base: —</div>
 
           <label>Lote *</label><select id="manual-lote" required><option value="">Seleccionar lote...</option></select>
           <div class="info-tag" id="tag-lote-info">Lote: — | Vence: —</div>
@@ -352,10 +403,8 @@
           <label>Variable / Fórmula *</label>
           <input type="text" id="manual-formula" placeholder="Ej: -2.00 / -0.75 x 90" required>
 
-          <div class="admin-form__row">
-            <div><label>Stock *</label><input type="number" id="manual-stock" min="0" value="0" required></div>
-            <div><label>Precio Base ($) *</label><input type="number" id="manual-precio" step="0.01" min="0" required></div>
-          </div>
+          <label>Stock Disponible *</label>
+          <input type="number" id="manual-stock" min="0" value="0" required>
 
           <button type="submit" class="boton boton--primario boton--bloque" id="manual-btn">Guardar en Inventario</button>
         </form>
@@ -369,16 +418,7 @@
           <div class="table-responsive">
             <table class="data-table">
               <thead>
-                <tr>
-                  <th>SKU</th>
-                  <th>Producto</th>
-                  <th>Categoría</th>
-                  <th>Fórmula / Variable</th>
-                  <th>Lote</th>
-                  <th>Stock</th>
-                  <th>Precio USD</th>
-                  <th>Acciones</th>
-                </tr>
+                <tr><th>SKU</th><th>Producto</th><th>Categoría</th><th>Fórmula</th><th>Lote</th><th>Stock</th><th>Precio Base USD</th><th>Acciones</th></tr>
               </thead>
               <tbody id="tbody-inventario"></tbody>
             </table>
@@ -387,11 +427,11 @@
       </div>
     </section>
 
-    <!-- ================= 5. PRODUCTOS ================= -->
+    <!-- 5. PRODUCTOS -->
     <section class="tab-content" id="tab-productos">
       <div class="main-header">
         <h1>5. Maestro de Productos</h1>
-        <p>Catálogo base con SKU, categoría y precio en USD.</p>
+        <p>Configura el SKU, categoría y Precio Base en USD de cada artículo.</p>
       </div>
 
       <div class="admin-grid">
@@ -421,14 +461,7 @@
           <div class="table-responsive">
             <table class="data-table">
               <thead>
-                <tr>
-                  <th>Imagen</th>
-                  <th>SKU</th>
-                  <th>Nombre</th>
-                  <th>Categoría</th>
-                  <th>Precio Base ($)</th>
-                  <th>Acciones</th>
-                </tr>
+                <tr><th>Imagen</th><th>SKU</th><th>Nombre</th><th>Categoría</th><th>Precio Base ($)</th><th>Acciones</th></tr>
               </thead>
               <tbody id="tbody-productos"></tbody>
             </table>
@@ -437,11 +470,11 @@
       </div>
     </section>
 
-    <!-- ================= 6. CATEGORÍAS ================= -->
+    <!-- 6. CATEGORÍAS -->
     <section class="tab-content" id="tab-categorias">
       <div class="main-header">
         <h1>6. Categorías de Productos</h1>
-        <p>Clasificación de catálogo e imágenes de sección.</p>
+        <p>Estructura de catálogo e imágenes de categoría.</p>
       </div>
 
       <div class="admin-grid">
@@ -449,14 +482,12 @@
           <h3 id="cat-form-title">Nueva categoría</h3>
           <input type="hidden" id="cat-id" value="">
           <div class="msg msg--ok" id="cat-msg"></div>
-
           <label>Prefijo SKU *</label><input type="text" id="cat-sku" placeholder="Ej: FORM" required>
           <label>Nombre *</label><input type="text" id="cat-nombre" required>
           <label>Slug *</label><input type="text" id="cat-slug" required>
           <label>Imagen</label>
           <div class="admin-form__preview" id="cat-preview"><span>Sin imagen</span></div>
           <label class="admin-form__file" for="cat-imagen">📷 Subir Imagen<input type="file" id="cat-imagen" accept="image/*"></label>
-
           <div class="btn-group">
             <button type="submit" class="boton boton--primario boton--bloque" id="cat-btn">Guardar categoría</button>
             <button type="button" class="boton btn-cancelar" id="cat-btn-cancelar">Cancelar</button>
@@ -467,13 +498,7 @@
           <div class="table-responsive">
             <table class="data-table">
               <thead>
-                <tr>
-                  <th>Imagen</th>
-                  <th>Prefijo SKU</th>
-                  <th>Nombre</th>
-                  <th>Slug</th>
-                  <th>Acciones</th>
-                </tr>
+                <tr><th>Imagen</th><th>Prefijo SKU</th><th>Nombre</th><th>Slug</th><th>Acciones</th></tr>
               </thead>
               <tbody id="tbody-categorias"></tbody>
             </table>
@@ -482,11 +507,11 @@
       </div>
     </section>
 
-    <!-- ================= 7. LOTES ================= -->
+    <!-- 7. LOTES -->
     <section class="tab-content" id="tab-lotes">
       <div class="main-header">
         <h1>7. Catálogo de Lotes</h1>
-        <p>Control de lotes y fechas de expiración técnica.</p>
+        <p>Códigos de fabricación y fechas de vencimiento.</p>
       </div>
 
       <div class="admin-grid">
@@ -494,10 +519,8 @@
           <h3 id="lote-form-title">Nuevo lote</h3>
           <input type="hidden" id="lote-id" value="">
           <div class="msg msg--ok" id="lote-msg"></div>
-
-          <label>Número de Lote *</label><input type="text" id="lote-codigo" placeholder="Ej: OPT-2026-A1" required>
+          <label>Número de Lote *</label><input type="text" id="lote-codigo" required>
           <label>Fecha de Vencimiento *</label><input type="date" id="lote-vencimiento" required>
-
           <div class="btn-group">
             <button type="submit" class="boton boton--primario boton--bloque" id="lote-btn">Guardar lote</button>
             <button type="button" class="boton btn-cancelar" id="lote-btn-cancelar">Cancelar</button>
@@ -508,11 +531,7 @@
           <div class="table-responsive">
             <table class="data-table">
               <thead>
-                <tr>
-                  <th>Código de Lote</th>
-                  <th>Fecha de Vencimiento</th>
-                  <th>Acciones</th>
-                </tr>
+                <tr><th>Código de Lote</th><th>Fecha de Vencimiento</th><th>Acciones</th></tr>
               </thead>
               <tbody id="tbody-lotes"></tbody>
             </table>
@@ -521,58 +540,50 @@
       </div>
     </section>
 
-    <!-- ================= 8. MÉTODOS Y CUENTAS ================= -->
+    <!-- 8. MÉTODOS Y CUENTAS -->
     <section class="tab-content" id="tab-bancos-config">
       <div class="main-header">
         <h1>8. Métodos de Pago y Cuentas Bancarias</h1>
         <p>Configuración de pasarelas y entidades físicas donde ingresan fondos.</p>
       </div>
 
-      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap:2rem;">
-        <!-- Métodos -->
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap:2rem;">
         <div class="admin-panel-box">
           <h3 style="font-family:var(--fuente-titulos); font-size:1.1rem; margin-bottom:1rem;">Métodos de Pago</h3>
           <form id="form-metodo-pago" style="display:flex; gap:0.5rem; margin-bottom:1.5rem;">
-            <input type="text" id="metodo-nombre" placeholder="Nuevo método (ej: Pago Móvil, Zelle)" style="flex-grow:1; padding:.65rem; border:1px solid #d1d5db; border-radius:6px;" required>
+            <input type="text" id="metodo-nombre" placeholder="Ej: Pago Móvil, Zelle" required style="flex-grow:1; padding:.65rem; border:1px solid #d1d5db; border-radius:6px;">
             <button type="submit" class="boton boton--primario" style="padding:.65rem 1.25rem;">Agregar</button>
           </form>
-
           <div class="table-responsive">
             <table class="data-table">
-              <thead>
-                <tr><th>Método</th><th>Estado</th><th>Acciones</th></tr>
-              </thead>
+              <thead><tr><th>Método</th><th>Estado</th><th>Acciones</th></tr></thead>
               <tbody id="tbody-metodos"></tbody>
             </table>
           </div>
         </div>
 
-        <!-- Cuentas -->
         <div class="admin-panel-box">
           <h3 style="font-family:var(--fuente-titulos); font-size:1.1rem; margin-bottom:1rem;">Cuentas Bancarias Físicas</h3>
           <form id="form-cuenta-banco" style="margin-bottom:1.5rem;">
             <div class="admin-form__row">
-              <div><label>Nombre del Banco *</label><input type="text" id="banco-nombre" placeholder="Banesco / Zelle" required style="width:100%; padding:.65rem; border:1px solid #d1d5db; border-radius:6px;"></div>
+              <div><label>Nombre del Banco *</label><input type="text" id="banco-nombre" placeholder="Banesco / Zelle" required style="padding:.65rem; border:1px solid #d1d5db; border-radius:6px;"></div>
               <div>
                 <label>Moneda *</label>
-                <select id="banco-moneda" required style="width:100%; padding:.65rem; border:1px solid #d1d5db; border-radius:6px;">
+                <select id="banco-moneda" required style="padding:.65rem; border:1px solid #d1d5db; border-radius:6px;">
                   <option value="USD">Dólares (USD)</option>
                   <option value="Bs.">Bolívares (Bs.)</option>
                 </select>
               </div>
             </div>
             <div class="admin-form__row">
-              <div><label>Titular</label><input type="text" id="banco-titular" placeholder="Razón Social" style="width:100%; padding:.65rem; border:1px solid #d1d5db; border-radius:6px;"></div>
-              <div><label>Saldo Inicial</label><input type="number" id="banco-saldo-inicial" step="0.01" value="0.00" style="width:100%; padding:.65rem; border:1px solid #d1d5db; border-radius:6px;"></div>
+              <div><label>Titular</label><input type="text" id="banco-titular" placeholder="Razón Social" style="padding:.65rem; border:1px solid #d1d5db; border-radius:6px;"></div>
+              <div><label>Saldo Inicial</label><input type="number" id="banco-saldo-inicial" step="0.01" value="0.00" style="padding:.65rem; border:1px solid #d1d5db; border-radius:6px;"></div>
             </div>
             <button type="submit" class="boton boton--primario boton--bloque">Crear Cuenta</button>
           </form>
-
           <div class="table-responsive">
             <table class="data-table">
-              <thead>
-                <tr><th>Banco</th><th>Titular</th><th>Moneda</th><th>Saldo</th><th>Acciones</th></tr>
-              </thead>
+              <thead><tr><th>Banco</th><th>Titular</th><th>Moneda</th><th>Saldo</th><th>Acciones</th></tr></thead>
               <tbody id="tbody-cuentas"></tbody>
             </table>
           </div>
@@ -580,27 +591,30 @@
       </div>
     </section>
 
-    <!-- ================= 9. PARÁMETROS DEL SISTEMA (TASA CATÁLOGO Y BCV) ================= -->
+    <!-- 9. PARÁMETROS CAMBIARIOS (CON BCV AUTOMÁTICO) -->
     <section class="tab-content" id="tab-parametros">
       <div class="main-header">
-        <h1>9. Parámetros Cambiarios y Reglas de Venta</h1>
-        <p>Configura la tasa de marcaje del catálogo y la tasa oficial BCV del día.</p>
+        <h1>9. Parámetros Cambiarios y Tasa BCV</h1>
+        <p>Configura la tasa de marcaje del catálogo y sincroniza con el BCV oficial.</p>
       </div>
 
       <div style="max-width: 650px;">
         <form class="admin-form" id="form-parametros" style="position:static;">
           <div class="msg msg--ok" id="param-msg"></div>
 
-          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:1rem; margin-bottom:1.25rem;">
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:1.2rem; margin-bottom:1.25rem;">
             <label style="color:#0b4d8c; font-size:0.9rem; margin-bottom:0.4rem;">Tasa de Catálogo (Bs. por USD) *</label>
-            <p style="font-size:0.78rem; color:#64748b; margin-bottom:0.6rem;">Multiplica el precio en dólares para mostrar los precios en Bolívares en el catálogo (Ej: 1000.00).</p>
-            <input type="number" id="param-tasa-catalogo" step="0.01" min="1" required style="font-size:1.1rem; font-weight:800;">
+            <p style="font-size:0.78rem; color:#64748b; margin-bottom:0.6rem;">Multiplica el precio base en $ del producto para mostrar el catálogo en Bolívares.</p>
+            <input type="number" id="param-tasa-catalogo" step="0.01" min="1" required style="font-size:1.15rem; font-weight:800;">
           </div>
 
-          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:1rem; margin-bottom:1.5rem;">
-            <label style="color:#f39200; font-size:0.9rem; margin-bottom:0.4rem;">Tasa BCV del Día (Bs. por USD) *</label>
-            <p style="font-size:0.78rem; color:#64748b; margin-bottom:0.6rem;">Tasa oficial para calcular el descuento exacto cuando el cliente pague en divisas (Ej: 900.00).</p>
-            <input type="number" id="param-tasa-bcv" step="0.01" min="1" required style="font-size:1.1rem; font-weight:800;">
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:1.2rem; margin-bottom:1.5rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+              <label style="color:#f39200; font-size:0.9rem; margin:0;">Tasa Oficial BCV del Día (Bs.) *</label>
+              <button type="button" class="btn-sm btn-sm--edit" id="btn-sync-bcv" style="font-size:0.7rem;">🔄 Sincronizar BCV</button>
+            </div>
+            <p style="font-size:0.78rem; color:#64748b; margin-bottom:0.6rem;" id="txt-bcv-status">Cargando tasa del BCV en vivo...</p>
+            <input type="number" id="param-tasa-bcv" step="0.01" min="1" required style="font-size:1.15rem; font-weight:800;">
           </div>
 
           <button type="submit" class="boton boton--primario boton--bloque" id="btn-save-param">Actualizar Parámetros Cambiarios</button>
@@ -642,6 +656,16 @@
     return publicUrl
   }
 
+  // Toggle Menú Móvil
+  $('#btn-toggle-menu').addEventListener('click', () => {
+    $('#admin-sidebar').classList.toggle('abierto')
+    $('#sidebar-overlay').classList.toggle('abierto')
+  })
+  $('#sidebar-overlay').addEventListener('click', () => {
+    $('#admin-sidebar').classList.remove('abierto')
+    $('#sidebar-overlay').classList.remove('abierto')
+  })
+
   // Auth
   $('#login-form').addEventListener('submit', async (e) => {
     e.preventDefault()
@@ -664,13 +688,16 @@
     cargarTodo()
   }
 
-  // Sidebar Tabs
+  // Tabs
   document.querySelectorAll('.sidebar-item').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.sidebar-item').forEach(t => t.classList.remove('activo'))
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('activo'))
       tab.classList.add('activo')
       $('#tab-' + tab.dataset.tab).classList.add('activo')
+      // Cerrar sidebar en móvil al hacer clic
+      $('#admin-sidebar').classList.remove('abierto')
+      $('#sidebar-overlay').classList.remove('abierto')
     })
   })
 
@@ -809,7 +836,7 @@
   $('#filtro-concil-banco').addEventListener('change', renderConciliacion)
   $('#filtro-concil-estado').addEventListener('change', renderConciliacion)
 
-  // ================= 3. SALDOS Y BANCOS (AGRUPACIÓN PURA POR BANCO) =================
+  // ================= 3. SALDOS Y BANCOS =================
   let cuentasCache = []
   async function cargarSaldosBancarios() {
     const { data } = await supabase.from('cuentas_bancarias').select('*').order('id')
@@ -883,7 +910,7 @@
   let prodsCache = [], lotesCache = [], catsCache = [], invCache = []
 
   async function cargarInventarioData() {
-    const { data: inv } = await supabase.from('inventario_lotes').select('id, stock, precio, variantes(id, nombre, productos(id, sku, nombre, precio, categorias(id, nombre))), lotes(id, codigo_lote, fecha_vencimiento)').order('id', { ascending: false })
+    const { data: inv } = await supabase.from('inventario_lotes').select('id, stock, variantes(id, nombre, productos(id, sku, nombre, precio, categorias(id, nombre))), lotes(id, codigo_lote, fecha_vencimiento)').order('id', { ascending: false })
     invCache = inv || []
     renderInventario()
   }
@@ -903,7 +930,7 @@
 
     $('#tbody-inventario').innerHTML = filtrados.map(i => {
       const p = i.variantes?.productos
-      const precioUSD = i.precio ? Number(i.precio) : Number(p?.precio || 0)
+      const precioBaseUSD = Number(p?.precio || 0)
       return `
         <tr>
           <td><strong>${p?.sku || '—'}</strong></td>
@@ -912,7 +939,7 @@
           <td>${i.variantes?.nombre || '—'}</td>
           <td><strong>${i.lotes?.codigo_lote || '—'}</strong></td>
           <td><strong style="color:${i.stock > 0 ? '#0b4d8c' : '#991b1b'};">${i.stock} unids</strong></td>
-          <td>$${precioUSD.toFixed(2)}</td>
+          <td>$${precioBaseUSD.toFixed(2)}</td>
           <td><button class="btn-sm btn-sm--danger" data-del-inv="${i.id}">Borrar</button></td>
         </tr>
       `
@@ -928,8 +955,7 @@
 
   $('#manual-producto').addEventListener('change', (e) => {
     const p = prodsCache.find(x => x.id == e.target.value)
-    $('#tag-prod-info').textContent = p ? `SKU: ${p.sku || 'Sin SKU'} | Categoría: ${p.categorias?.nombre || '—'}` : 'SKU: — | Cat: —'
-    if (p && !$('#manual-precio').value) $('#manual-precio').value = p.precio || ''
+    $('#tag-prod-info').textContent = p ? `SKU: ${p.sku || 'Sin SKU'} | Cat: ${p.categorias?.nombre || '—'} | Precio Base: $${Number(p.precio).toFixed(2)}` : 'SKU: — | Cat: — | Precio Base: —'
   })
   $('#manual-lote').addEventListener('change', (e) => {
     const l = lotesCache.find(x => x.id == e.target.value)
@@ -942,7 +968,6 @@
     const lId = parseInt($('#manual-lote').value)
     const formula = $('#manual-formula').value.trim()
     const stock = parseInt($('#manual-stock').value) || 0
-    const precio = parseFloat($('#manual-precio').value) || 0
 
     let { data: varData } = await supabase.from('variantes').select('id').eq('producto_id', pId).eq('nombre', formula).maybeSingle()
     let vId = varData?.id
@@ -951,14 +976,14 @@
       if (nv) vId = nv.id
     }
 
-    await supabase.from('inventario_lotes').upsert({ variante_id: vId, lote_id: lId, stock, precio }, { onConflict: 'variante_id,lote_id' })
+    await supabase.from('inventario_lotes').upsert({ variante_id: vId, lote_id: lId, stock }, { onConflict: 'variante_id,lote_id' })
     $('#manual-formula').value = ''
     $('#manual-stock').value = '0'
-    showMsg('inv-msg', '✓ Fórmula guardada.')
+    showMsg('inv-msg', '✓ Fórmula guardada en inventario.')
     cargarInventarioData()
   })
 
-  // ================= 5, 6, 7. PRODUCTOS, LOTES Y CATEGORÍAS (TABLAS) =================
+  // ================= 5, 6, 7. PRODUCTOS, LOTES Y CATEGORÍAS =================
   let prodFile = null, catFile = null
   $('#prod-imagen').addEventListener('change', (e) => { prodFile = e.target.files[0]; if (prodFile) { const r = new FileReader(); r.onload = (ev) => $('#prod-preview').innerHTML = `<img src="${ev.target.result}">`; r.readAsDataURL(prodFile) } })
   $('#cat-imagen').addEventListener('change', (e) => { catFile = e.target.files[0]; if (catFile) { const r = new FileReader(); r.onload = (ev) => $('#cat-preview').innerHTML = `<img src="${ev.target.result}">`; r.readAsDataURL(catFile) } })
@@ -979,7 +1004,7 @@
 
     $('#tbody-productos').innerHTML = prodsCache.map(x => `
       <tr>
-        <td><div class="table-thumb">${x.imagen_url ? `<img src="${x.imagen_url}">` : '<span>Sin img</span>'}</div></td>
+        <td><div class="table-thumb">${x.imagen_url ? `<img src="${x.imagen_url}">` : '<span style="font-size:0.65rem;color:#94a3b8;">Sin img</span>'}</div></td>
         <td><strong>${x.sku}</strong></td>
         <td>${x.nombre}</td>
         <td>${x.categorias?.nombre || '—'}</td>
@@ -993,7 +1018,7 @@
 
     $('#tbody-categorias').innerHTML = catsCache.map(x => `
       <tr>
-        <td><div class="table-thumb">${x.imagen_url ? `<img src="${x.imagen_url}">` : '<span>Sin img</span>'}</div></td>
+        <td><div class="table-thumb">${x.imagen_url ? `<img src="${x.imagen_url}">` : '<span style="font-size:0.65rem;color:#94a3b8;">Sin img</span>'}</div></td>
         <td><strong>${x.sku_prefijo || '—'}</strong></td>
         <td>${x.nombre}</td>
         <td><code>${x.slug}</code></td>
@@ -1114,14 +1139,35 @@
     cargarSaldosBancarios()
   })
 
-  // ================= 9. PARÁMETROS DEL SISTEMA =================
+  // ================= 9. PARÁMETROS Y BCV AUTOMÁTICO =================
   async function cargarParametros() {
     const { data } = await supabase.from('parametros').select('*').eq('id', 1).maybeSingle()
     if (data) {
       $('#param-tasa-catalogo').value = data.tasa_catalogo || 1000.00
       $('#param-tasa-bcv').value = data.tasa_bcv || 900.00
     }
+    consultarBcvEnVivo()
   }
+
+  async function consultarBcvEnVivo() {
+    const statusTxt = $('#txt-bcv-status')
+    statusTxt.textContent = 'Consultando API oficial BCV...'
+    try {
+      const res = await fetch('https://ve.dolarapi.com/v1/dolares/oficial')
+      if (!res.ok) throw new Error('API indisponible')
+      const json = await res.json()
+      if (json && json.promedio) {
+        $('#param-tasa-bcv').value = Number(json.promedio).toFixed(2)
+        statusTxt.textContent = `✓ Tasa BCV oficial obtenida: Bs. ${Number(json.promedio).toFixed(2)} (${new Date(json.fechaActualizacion || Date.now()).toLocaleDateString()})`
+        statusTxt.style.color = '#03543f'
+      }
+    } catch (err) {
+      statusTxt.textContent = 'Nota: No se pudo conectar a la API del BCV en vivo. Usando valor guardado en base de datos.'
+      statusTxt.style.color = '#713f12'
+    }
+  }
+
+  $('#btn-sync-bcv').addEventListener('click', consultarBcvEnVivo)
 
   $('#form-parametros').addEventListener('submit', async (e) => {
     e.preventDefault()
