@@ -21,11 +21,9 @@
 
     body { background: #f4f6f9; min-height: 100vh; color: #374151; font-family: 'Open Sans', sans-serif; margin: 0; }
 
-    /* Login */
     .admin-login { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
     .admin-login__box { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 2.5rem 2rem; width: 100%; max-width: 420px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.08); }
     .admin-login__box h1 { font-family: 'Montserrat', sans-serif; font-size: 1.35rem; font-weight: 800; color: #111827; margin-bottom: .3rem; }
-    .admin-login__box p { font-size: .85rem; color: #6b7280; margin-bottom: 1.5rem; }
     .admin-login__box input { width: 100%; padding: .75rem 1rem; margin-bottom: .9rem; border: 1px solid #d1d5db; border-radius: 6px; font-family: inherit; font-size: .9rem; box-sizing: border-box; }
     .admin-login__box input:focus { outline: none; border-color: #0b4d8c; }
     .admin-login__box .boton { width: 100%; }
@@ -35,67 +33,24 @@
     .msg--ok    { background: #def7ec; color: #03543f; border: 1px solid #bcf0da; }
     .msg.visible { display: block; }
 
-    /* Layout Sidebar */
     .admin-layout { display: none; min-height: 100vh; }
     .admin-layout.activo { display: flex; }
 
-    /* Botón hamburguesa móvil */
     .mobile-header-bar {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      height: 60px;
-      background: var(--sidebar-bg);
-      color: #fff;
-      padding: 0 1rem;
-      align-items: center;
-      justify-content: space-between;
-      z-index: 60;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      display: none; position: fixed; top: 0; left: 0; right: 0; height: 60px;
+      background: var(--sidebar-bg); color: #fff; padding: 0 1rem; align-items: center; justify-content: space-between; z-index: 60;
     }
-    .btn-hamburguesa {
-      background: none;
-      border: none;
-      color: #fff;
-      font-size: 1.6rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      padding: 0.3rem;
-    }
+    .btn-hamburguesa { background: none; border: none; color: #fff; font-size: 1.6rem; cursor: pointer; padding: 0.3rem; }
 
     .admin-sidebar {
-      width: var(--sidebar-width);
-      background: var(--sidebar-bg);
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      position: fixed;
-      top: 0; bottom: 0; left: 0;
-      z-index: 50;
-      box-shadow: 2px 0 8px rgba(0,0,0,0.1);
-      transition: transform 0.3s ease;
+      width: var(--sidebar-width); background: var(--sidebar-bg); color: #fff;
+      display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; left: 0;
+      z-index: 50; box-shadow: 2px 0 8px rgba(0,0,0,0.1); transition: transform 0.3s ease;
     }
 
-    /* Logo y Branding ajustado */
-    .sidebar-brand {
-      padding: 1.25rem 1rem;
-      border-bottom: 1px solid rgba(255,255,255,0.15);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      gap: 0.35rem;
-    }
+    .sidebar-brand { padding: 1.25rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.15); display: flex; flex-direction: column; align-items: center; gap: 0.35rem; }
     .sidebar-brand img { height: 34px; max-width: 150px; object-fit: contain; filter: brightness(0) invert(1); }
-    .sidebar-brand span {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 0.75rem;
-      font-weight: 800;
-      letter-spacing: 0.15em;
-      color: #cbd5e1;
-      text-transform: uppercase;
-    }
+    .sidebar-brand span { font-family: 'Montserrat', sans-serif; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.15em; color: #cbd5e1; }
 
     .sidebar-nav { list-style: none; padding: 0.8rem 0; margin: 0; flex-grow: 1; overflow-y: auto; }
     .sidebar-item {
@@ -106,15 +61,7 @@
     .sidebar-item.activo { background: var(--sidebar-hover); color: #fff; border-left-color: var(--sidebar-active); }
 
     .sidebar-footer { padding: 1rem 1.25rem; border-top: 1px solid rgba(255,255,255,0.15); font-size: 0.75rem; }
-    .sidebar-footer small { display: block; color: #cbd5e1; margin-bottom: 0.5rem; word-break: break-all; }
-
-    .sidebar-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 45;
-    }
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 45; }
 
     .admin-main { margin-left: var(--sidebar-width); flex-grow: 1; padding: 2.5rem; min-width: 0; box-sizing: border-box; }
     .main-header { margin-bottom: 2rem; }
@@ -136,11 +83,6 @@
 
     .admin-form__row { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; margin-bottom: .85rem; }
     .admin-form__row > * { margin-bottom: 0; }
-
-    .admin-form__file { border: 2px dashed #cbd5e1; border-radius: 6px; padding: .85rem; text-align: center; cursor: pointer; margin-bottom: .85rem; display: block; font-size: .82rem; color: #4b5563; font-weight: 600; }
-    .admin-form__file input { display: none; }
-    .admin-form__preview { width: 100%; height: 110px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; display: grid; place-items: center; margin-bottom: .85rem; overflow: hidden; }
-    .admin-form__preview img { width: 100%; height: 100%; object-fit: contain; }
 
     .admin-panel-box { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 1.8rem; }
     .table-responsive { width: 100%; overflow-x: auto; border: 1px solid #e5e7eb; border-radius: 6px; background:#fff; }
@@ -164,18 +106,16 @@
     .btn-group { display: flex; gap: .5rem; }
     .btn-cancelar { display: none; background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; }
     .btn-sm { padding: .4rem .75rem; font-size: .72rem; font-family: 'Montserrat', sans-serif; font-weight: 700; text-transform: uppercase; border-radius: 4px; border: none; cursor: pointer; }
-    .btn-sm--danger { background: #fee2e2; color: #991b1b; }
-    .btn-sm--edit   { background: #e0f2fe; color: #0369a1; }
-    .info-tag { font-size: 0.78rem; color: #64748b; background: #f1f5f9; padding: 0.25rem 0.5rem; border-radius: 4px; display: inline-block; margin-bottom: 0.65rem; }
+    .btn-sm--danger  { background: #fee2e2; color: #991b1b; }
+    .btn-sm--edit    { background: #e0f2fe; color: #0369a1; }
+    .btn-sm--success { background: #def7ec; color: #03543f; }
+    .btn-sm--warning { background: #fef08a; color: #713f12; }
 
-    /* RESPONSIVE MÓVIL */
+    .badge-status { display: inline-block; padding: 0.2rem 0.55rem; font-size: 0.75rem; font-weight: 800; border-radius: 4px; text-transform: uppercase; }
+
     @media (max-width: 768px) {
       .mobile-header-bar { display: flex; }
-      .admin-sidebar {
-        transform: translateX(-100%);
-        top: 60px;
-        width: 260px;
-      }
+      .admin-sidebar { transform: translateX(-100%); top: 60px; width: 260px; }
       .admin-sidebar.abierto { transform: translateX(0); }
       .sidebar-overlay.abierto { display: block; }
       .admin-main { margin-left: 0; padding: 5rem 1rem 2rem; width: 100%; }
@@ -186,7 +126,6 @@
 </head>
 <body>
 
-<!-- LOGIN -->
 <div class="admin-login" id="login-view">
   <div class="admin-login__box">
     <h1>Panel de Control</h1>
@@ -200,15 +139,13 @@
   </div>
 </div>
 
-<!-- BARRA MÓVIL -->
 <div class="mobile-header-bar">
-  <button type="button" class="btn-hamburguesa" id="btn-toggle-menu" aria-label="Abrir Menú">☰</button>
+  <button type="button" class="btn-hamburguesa" id="btn-toggle-menu">☰</button>
   <span style="font-family:'Montserrat',sans-serif; font-weight:800; font-size:0.9rem;">OPTILINE ADMIN</span>
   <div style="width:24px;"></div>
 </div>
 <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
-<!-- PANEL ERP -->
 <div class="admin-layout" id="panel-view">
 
   <aside class="admin-sidebar" id="admin-sidebar">
@@ -218,15 +155,16 @@
     </div>
 
     <ul class="sidebar-nav">
-      <li class="sidebar-item activo" data-tab="clientes">Ópticas / Clientes</li>
-      <li class="sidebar-item" data-tab="conciliacion">Conciliación</li>
-      <li class="sidebar-item" data-tab="saldos">Saldos y Bancos</li>
-      <li class="sidebar-item" data-tab="inventario">Inventario y Fórmulas</li>
-      <li class="sidebar-item" data-tab="productos">Productos</li>
-      <li class="sidebar-item" data-tab="categorias">Categorías</li>
-      <li class="sidebar-item" data-tab="lotes">Lotes</li>
-      <li class="sidebar-item" data-tab="bancos-config">Métodos y Cuentas</li>
-      <li class="sidebar-item" data-tab="parametros" style="color:var(--sidebar-active);">⚙️ Parámetros</li>
+      <li class="sidebar-item activo" data-tab="clientes">1. Ópticas / Clientes</li>
+      <li class="sidebar-item" data-tab="pedidos">2. Pedidos Realizados</li>
+      <li class="sidebar-item" data-tab="conciliacion">3. Conciliación</li>
+      <li class="sidebar-item" data-tab="saldos">4. Saldos y Bancos</li>
+      <li class="sidebar-item" data-tab="inventario">5. Inventario y Fórmulas</li>
+      <li class="sidebar-item" data-tab="productos">6. Productos</li>
+      <li class="sidebar-item" data-tab="categorias">7. Categorías</li>
+      <li class="sidebar-item" data-tab="lotes">8. Lotes</li>
+      <li class="sidebar-item" data-tab="bancos-config">9. Métodos y Cuentas</li>
+      <li class="sidebar-item" data-tab="parametros" style="color:var(--sidebar-active);">10. ⚙️ Parámetros</li>
     </ul>
 
     <div class="sidebar-footer">
@@ -237,79 +175,95 @@
 
   <main class="admin-main">
 
-    <!-- 1. CLIENTES -->
+    <!-- 1. CLIENTES (CON APROBACIÓN Y REGLA DE INACTIVIDAD) -->
     <section class="tab-content activo" id="tab-clientes">
       <div class="main-header">
-        <h1>1. Gestión de Ópticas y Clientes</h1>
-        <p>Administra accesos de WooCommerce, RIF y direcciones de despacho.</p>
-      </div>
-
-      <div class="excel-zone">
-        <div>
-          <h4>Importar Clientes (Excel / CSV)</h4>
-          <p>Columnas: <strong>codigo_usuario | email | empresa | rif | password | telefono | direccion_fiscal | direccion_envio</strong></p>
-        </div>
-        <div style="display:flex; gap:.8rem;">
-          <button type="button" class="btn-sm btn-sm--edit" id="btn-plantilla-clientes">📥 Plantilla</button>
-          <label class="boton boton--primario" style="margin:0; cursor:pointer;">
-            📤 Cargar Excel
-            <input type="file" id="input-excel-clientes" accept=".xlsx, .xls, .csv" style="display:none;">
-          </label>
-        </div>
-      </div>
-      <div class="msg msg--ok" id="clientes-msg"></div>
-
-      <div class="admin-grid">
-        <form class="admin-form" id="form-cliente">
-          <h3 id="cliente-title">Nueva Óptica</h3>
-          <input type="hidden" id="cliente-id" value="">
-          <div class="admin-form__row">
-            <div><label>Código Usuario *</label><input type="text" id="cliente-codigo" required></div>
-            <div><label>RIF *</label><input type="text" id="cliente-rif" required></div>
-          </div>
-          <label>Razón Social *</label><input type="text" id="cliente-empresa" required>
-          <label>Correo Electrónico *</label><input type="email" id="cliente-email" required>
-          <div class="admin-form__row">
-            <div><label>Contraseña *</label><input type="text" id="cliente-password" required></div>
-            <div><label>Teléfono</label><input type="text" id="cliente-telefono"></div>
-          </div>
-          <label>Dirección Fiscal</label><textarea id="cliente-fiscal" rows="2"></textarea>
-          <label>Dirección de Envío</label><textarea id="cliente-envio" rows="2"></textarea>
-          <div class="btn-group">
-            <button type="submit" class="boton boton--primario boton--bloque" id="cliente-btn">Guardar óptica</button>
-            <button type="button" class="boton btn-cancelar" id="cliente-btn-cancelar">Cancelar</button>
-          </div>
-        </form>
-
-        <div class="admin-panel-box">
-          <div class="filtros-bar">
-            <input type="text" id="filtro-clientes" placeholder="🔍 Buscar por RIF, código, empresa o correo...">
-          </div>
-          <div class="table-responsive">
-            <table class="data-table">
-              <thead>
-                <tr><th>Código</th><th>Razón Social</th><th>RIF</th><th>Correo</th><th>Clave</th><th>Teléfono</th><th>Acciones</th></tr>
-              </thead>
-              <tbody id="tbody-clientes"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 2. CONCILIACIÓN -->
-    <section class="tab-content" id="tab-conciliacion">
-      <div class="main-header">
-        <h1>2. Conciliación Bancaria</h1>
-        <p>Acredita pagos de clientes y alimenta los saldos de cada banco.</p>
+        <h1>1. Gestión y Aprobación de Ópticas</h1>
+        <p>Valida solicitudes de registro, aprueba cuentas y audita el estado de inactividad.</p>
       </div>
 
       <div class="admin-panel-box">
         <div class="filtros-bar">
-          <input type="text" id="filtro-concil-busqueda" placeholder="🔍 Buscar por referencia, orden o cliente...">
+          <input type="text" id="filtro-clientes" placeholder="🔍 Buscar por RIF, código, empresa o correo...">
+          <select id="filtro-clientes-estado">
+            <option value="">Todos los Estados</option>
+            <option value="pendientes">Pendientes de Aprobación</option>
+            <option value="activos">Activos</option>
+            <option value="inactivos">Inactivos (Regla 3 días / 30 días)</option>
+          </select>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Razón Social</th>
+                <th>RIF</th>
+                <th>Contacto</th>
+                <th>Estado</th>
+                <th>Clave Actual</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-clientes"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. PEDIDOS (CONSECUTIVO, DESPACHO Y ANULACIÓN CON REINTEGRO) -->
+    <section class="tab-content" id="tab-pedidos">
+      <div class="main-header">
+        <h1>2. Pedidos Realizados (Consecutivo y Despacho)</h1>
+        <p>Control histórico de órdenes generadas por la web. Los pedidos no se eliminan para no alterar el correlativo.</p>
+      </div>
+
+      <div class="admin-panel-box">
+        <div class="filtros-bar">
+          <input type="text" id="filtro-pedidos-busqueda" placeholder="🔍 Buscar por Nro de Orden (#OPT) o RIF...">
+          <select id="filtro-pedidos-estado">
+            <option value="">Todos los estados de despacho</option>
+            <option value="En preparación">En preparación</option>
+            <option value="Enviado">Enviado</option>
+            <option value="Entregado">Entregado</option>
+            <option value="Anulado">Anulado</option>
+          </select>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Orden</th>
+                <th>Fecha</th>
+                <th>Óptica Cliente</th>
+                <th>Total</th>
+                <th>Saldo Pendiente</th>
+                <th>Pago</th>
+                <th>Despacho</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-pedidos-admin"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. CONCILIACIÓN -->
+    <section class="tab-content" id="tab-conciliacion">
+      <div class="main-header">
+        <h1>3. Conciliación Bancaria</h1>
+        <p>Valida los abonos reportados y acredita el saldo a la cuenta bancaria específica.</p>
+      </div>
+
+      <div class="admin-panel-box">
+        <div class="filtros-bar">
+          <input type="text" id="filtro-concil-busqueda" placeholder="🔍 Buscar por referencia o cliente...">
           <select id="filtro-concil-banco"><option value="">Todos los bancos físicos</option></select>
           <select id="filtro-concil-estado">
-            <option value="">Todos los pagos</option>
+            <option value="">Todos los estados</option>
             <option value="false">Pendientes por Conciliar</option>
             <option value="true">Conciliados (Aprobados)</option>
           </select>
@@ -319,7 +273,7 @@
           <table class="data-table">
             <thead>
               <tr>
-                <th>Fecha</th><th>Nro Pedido</th><th>Cliente</th><th>Monto</th><th>Método</th><th>Banco Físico</th><th>Referencia</th><th>Voucher</th><th style="text-align:center;">Conciliado</th>
+                <th>Fecha</th><th>Nro Pedido</th><th>Cliente</th><th>Monto</th><th>Método</th><th>Banco Destino</th><th>Referencia</th><th>Voucher</th><th style="text-align:center;">Conciliado</th>
               </tr>
             </thead>
             <tbody id="tbody-conciliacion"></tbody>
@@ -328,10 +282,10 @@
       </div>
     </section>
 
-    <!-- 3. SALDOS Y BANCOS -->
+    <!-- 4. SALDOS Y BANCOS -->
     <section class="tab-content" id="tab-saldos">
       <div class="main-header">
-        <h1>3. Saldos por Banco Físico</h1>
+        <h1>4. Saldos por Banco Físico</h1>
         <p>Control exacto en divisas (USD) y bolívares (Bs.) por entidad bancaria.</p>
       </div>
 
@@ -368,11 +322,11 @@
       </div>
     </section>
 
-    <!-- 4. INVENTARIO Y FÓRMULAS (SIN PRECIO, TOMA EL DEL PRODUCTO) -->
+    <!-- 5. INVENTARIO Y FÓRMULAS -->
     <section class="tab-content" id="tab-inventario">
       <div class="main-header">
-        <h1>4. Inventario y Graduaciones</h1>
-        <p>Asigna fórmulas y stock a productos. El precio base proviene del producto.</p>
+        <h1>5. Inventario y Graduaciones</h1>
+        <p>Asigna fórmulas y stock a productos. El precio se toma del producto base.</p>
       </div>
 
       <div class="excel-zone">
@@ -393,7 +347,6 @@
       <div class="admin-grid">
         <form class="admin-form" id="form-formula-manual">
           <h3>Asignar Fórmula / Inventario</h3>
-          
           <label>Producto *</label><select id="manual-producto" required><option value="">Seleccionar producto...</option></select>
           <div class="info-tag" id="tag-prod-info">SKU: — | Cat: — | Precio Base: —</div>
 
@@ -427,10 +380,10 @@
       </div>
     </section>
 
-    <!-- 5. PRODUCTOS -->
+    <!-- 6. PRODUCTOS -->
     <section class="tab-content" id="tab-productos">
       <div class="main-header">
-        <h1>5. Maestro de Productos</h1>
+        <h1>6. Maestro de Productos</h1>
         <p>Configura el SKU, categoría y Precio Base en USD de cada artículo.</p>
       </div>
 
@@ -470,10 +423,10 @@
       </div>
     </section>
 
-    <!-- 6. CATEGORÍAS -->
+    <!-- 7. CATEGORÍAS -->
     <section class="tab-content" id="tab-categorias">
       <div class="main-header">
-        <h1>6. Categorías de Productos</h1>
+        <h1>7. Categorías de Productos</h1>
         <p>Estructura de catálogo e imágenes de categoría.</p>
       </div>
 
@@ -482,7 +435,7 @@
           <h3 id="cat-form-title">Nueva categoría</h3>
           <input type="hidden" id="cat-id" value="">
           <div class="msg msg--ok" id="cat-msg"></div>
-          <label>Prefijo SKU *</label><input type="text" id="cat-sku" placeholder="Ej: FORM" required>
+          <label>Prefijo SKU *</label><input type="text" id="cat-sku" required>
           <label>Nombre *</label><input type="text" id="cat-nombre" required>
           <label>Slug *</label><input type="text" id="cat-slug" required>
           <label>Imagen</label>
@@ -507,10 +460,10 @@
       </div>
     </section>
 
-    <!-- 7. LOTES -->
+    <!-- 8. LOTES -->
     <section class="tab-content" id="tab-lotes">
       <div class="main-header">
-        <h1>7. Catálogo de Lotes</h1>
+        <h1>8. Catálogo de Lotes</h1>
         <p>Códigos de fabricación y fechas de vencimiento.</p>
       </div>
 
@@ -540,10 +493,10 @@
       </div>
     </section>
 
-    <!-- 8. MÉTODOS Y CUENTAS -->
+    <!-- 9. MÉTODOS Y CUENTAS -->
     <section class="tab-content" id="tab-bancos-config">
       <div class="main-header">
-        <h1>8. Métodos de Pago y Cuentas Bancarias</h1>
+        <h1>9. Métodos de Pago y Cuentas Bancarias</h1>
         <p>Configuración de pasarelas y entidades físicas donde ingresan fondos.</p>
       </div>
 
@@ -591,33 +544,40 @@
       </div>
     </section>
 
-    <!-- 9. PARÁMETROS CAMBIARIOS (CON BCV AUTOMÁTICO) -->
+    <!-- 10. PARÁMETROS (INCLUYE TELÉFONO WHATSAPP) -->
     <section class="tab-content" id="tab-parametros">
       <div class="main-header">
-        <h1>9. Parámetros Cambiarios y Tasa BCV</h1>
-        <p>Configura la tasa de marcaje del catálogo y sincroniza con el BCV oficial.</p>
+        <h1>10. Parámetros Cambiarios y Notificaciones</h1>
+        <p>Configura las tasas y el número de WhatsApp oficial donde se recibirán los pedidos.</p>
       </div>
 
       <div style="max-width: 650px;">
         <form class="admin-form" id="form-parametros" style="position:static;">
           <div class="msg msg--ok" id="param-msg"></div>
 
+          <!-- Teléfono WhatsApp de Ventas -->
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:1.2rem; margin-bottom:1.25rem;">
+            <label style="color:#03543f; font-size:0.9rem; margin-bottom:0.4rem;">Número de WhatsApp para Alertas de Pedidos *</label>
+            <p style="font-size:0.78rem; color:#64748b; margin-bottom:0.6rem;">Incluye el código de país sin el signo '+' ni espacios (Ejemplo: <code>584121234567</code>).</p>
+            <input type="text" id="param-whatsapp" required style="font-size:1.1rem; font-weight:800;" placeholder="584120000000">
+          </div>
+
           <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:1.2rem; margin-bottom:1.25rem;">
             <label style="color:#0b4d8c; font-size:0.9rem; margin-bottom:0.4rem;">Tasa de Catálogo (Bs. por USD) *</label>
-            <p style="font-size:0.78rem; color:#64748b; margin-bottom:0.6rem;">Multiplica el precio base en $ del producto para mostrar el catálogo en Bolívares.</p>
+            <p style="font-size:0.78rem; color:#64748b; margin-bottom:0.6rem;">Multiplica el precio base en $ para mostrar los precios en Bolívares.</p>
             <input type="number" id="param-tasa-catalogo" step="0.01" min="1" required style="font-size:1.15rem; font-weight:800;">
           </div>
 
           <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:1.2rem; margin-bottom:1.5rem;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
               <label style="color:#f39200; font-size:0.9rem; margin:0;">Tasa Oficial BCV del Día (Bs.) *</label>
-              <button type="button" class="btn-sm btn-sm--edit" id="btn-sync-bcv" style="font-size:0.7rem;">🔄 Sincronizar BCV</button>
+              <button type="button" class="btn-sm btn-sm--edit" id="btn-sync-bcv">🔄 Sincronizar BCV</button>
             </div>
-            <p style="font-size:0.78rem; color:#64748b; margin-bottom:0.6rem;" id="txt-bcv-status">Cargando tasa del BCV en vivo...</p>
+            <p style="font-size:0.78rem; color:#64748b; margin-bottom:0.6rem;" id="txt-bcv-status">Consultando cotización oficial...</p>
             <input type="number" id="param-tasa-bcv" step="0.01" min="1" required style="font-size:1.15rem; font-weight:800;">
           </div>
 
-          <button type="submit" class="boton boton--primario boton--bloque" id="btn-save-param">Actualizar Parámetros Cambiarios</button>
+          <button type="submit" class="boton boton--primario boton--bloque" id="btn-save-param">Actualizar Parámetros del Sistema</button>
         </form>
       </div>
     </section>
@@ -625,7 +585,7 @@
   </main>
 </div>
 
-<!-- SCRIPT SUPABASE -->
+<!-- SCRIPT COMPLETO DE PRODUCCIÓN -->
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
@@ -652,8 +612,7 @@
     const fileName = `${folder}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${ext}`
     const { data, error } = await supabase.storage.from('productos').upload(fileName, file, { cacheControl: '3600', upsert: false })
     if (error) throw error
-    const { data: { publicUrl } } = supabase.storage.from('productos').getPublicUrl(data.path)
-    return publicUrl
+    return supabase.storage.from('productos').getPublicUrl(data.path).data.publicUrl
   }
 
   // Toggle Menú Móvil
@@ -688,20 +647,19 @@
     cargarTodo()
   }
 
-  // Tabs
+  // Sidebar Tabs
   document.querySelectorAll('.sidebar-item').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.sidebar-item').forEach(t => t.classList.remove('activo'))
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('activo'))
       tab.classList.add('activo')
       $('#tab-' + tab.dataset.tab).classList.add('activo')
-      // Cerrar sidebar en móvil al hacer clic
       $('#admin-sidebar').classList.remove('abierto')
       $('#sidebar-overlay').classList.remove('abierto')
     })
   })
 
-  // ================= 1. CLIENTES =================
+  // ================= 1. CLIENTES (CON APROBACIÓN Y REGLA DE INACTIVIDAD) =================
   let clientesCache = []
   async function cargarClientes() {
     const { data } = await supabase.from('clientes').select('*').order('id', { ascending: false })
@@ -709,59 +667,173 @@
     renderClientes()
   }
 
+  function calcularInactividad(c) {
+    if (!c.estado_verificado) return { estado: 'Pendiente', color: 'badge-status--verificando' }
+    if (c.inactivo) return { estado: 'Inactivo', color: 'badge-status--rechazado' }
+
+    const ahora = new Date()
+    // Regla 1: 3 días tras aprobación sin compras
+    if (c.fecha_aprobacion && !c.ultima_compra) {
+      const diasAprobado = (ahora - new Date(c.fecha_aprobacion)) / (1000 * 60 * 60 * 24)
+      if (diasAprobado >= 3) return { estado: 'Inactivo (3d sin orden)', color: 'badge-status--rechazado', marcarInactivo: true }
+    }
+    // Regla 2: 30 días tras última compra
+    if (c.ultima_compra) {
+      const diasSinComprar = (ahora - new Date(c.ultima_compra)) / (1000 * 60 * 60 * 24)
+      if (diasSinComprar >= 30) return { estado: 'Inactivo (30d sin comprar)', color: 'badge-status--rechazado', marcarInactivo: true }
+    }
+
+    return { estado: 'Activo', color: 'badge-status--aprobado' }
+  }
+
   function renderClientes() {
     const q = $('#filtro-clientes').value.trim().toLowerCase()
-    const filtrados = clientesCache.filter(c => !q || `${c.codigo_usuario} ${c.rif} ${c.empresa} ${c.email}`.toLowerCase().includes(q))
-    $('#tbody-clientes').innerHTML = filtrados.map(c => `
-      <tr>
-        <td><strong>${c.codigo_usuario}</strong></td>
-        <td>${c.empresa}</td>
-        <td><code>${c.rif}</code></td>
-        <td>${c.email}</td>
-        <td><code>${c.password_hash || '—'}</code></td>
-        <td>${c.telefono || '—'}</td>
-        <td>
-          <button class="btn-sm btn-sm--edit" data-edit-c='${JSON.stringify(c)}'>Editar</button>
-          <button class="btn-sm btn-sm--danger" data-del-c="${c.id}">Borrar</button>
-        </td>
-      </tr>
-    `).join('') || '<tr><td colspan="7" style="text-align:center;padding:2rem;">Sin clientes.</td></tr>'
+    const filtroEst = $('#filtro-clientes-estado').value
 
-    document.querySelectorAll('[data-edit-c]').forEach(btn => btn.addEventListener('click', () => {
-      const c = JSON.parse(btn.dataset.editC)
-      $('#cliente-id').value = c.id; $('#cliente-codigo').value = c.codigo_usuario; $('#cliente-rif').value = c.rif
-      $('#cliente-empresa').value = c.empresa; $('#cliente-email').value = c.email; $('#cliente-password').value = c.password_hash || ''
-      $('#cliente-telefono').value = c.telefono || ''; $('#cliente-fiscal').value = c.direccion_fiscal || ''; $('#cliente-envio').value = c.direccion_envio || ''
-      $('#cliente-title').textContent = 'Editar Óptica'; $('#cliente-btn').textContent = 'Actualizar óptica'; $('#cliente-btn-cancelar').style.display = 'block'
+    const filtrados = clientesCache.filter(c => {
+      const info = calcularInactividad(c)
+      if (filtroEst === 'pendientes' && c.estado_verificado) return false
+      if (filtroEst === 'activos' && (!c.estado_verificado || c.inactivo || info.marcarInactivo)) return false
+      if (filtroEst === 'inactivos' && (!c.inactivo && !info.marcarInactivo)) return false
+      if (q && !`${c.codigo_usuario} ${c.rif} ${c.empresa} ${c.email}`.toLowerCase().includes(q)) return false
+      return true
+    })
+
+    $('#tbody-clientes').innerHTML = filtrados.map(c => {
+      const info = calcularInactividad(c)
+      return `
+        <tr>
+          <td><strong>${c.codigo_usuario}</strong></td>
+          <td>${c.empresa}</td>
+          <td><code>${c.rif}</code></td>
+          <td>${c.nombre_completo || '—'}<br><small style="color:#64748b;">${c.telefono || ''}</small></td>
+          <td><span class="badge-status ${info.color}">${info.estado}</span></td>
+          <td><code>${c.password_hash || 'Sin clave'}</code></td>
+          <td>
+            ${!c.estado_verificado ? `
+              <button class="btn-sm btn-sm--success" data-aprobar-c="${c.id}" data-empresa="${c.empresa}">Aprobar y Asignar Clave</button>
+            ` : `
+              <button class="btn-sm ${c.inactivo ? 'btn-sm--success' : 'btn-sm--warning'}" data-toggle-c="${c.id}" data-inactivo="${c.inactivo}">
+                ${c.inactivo ? 'Reactivar' : 'Desactivar'}
+              </button>
+            `}
+          </td>
+        </tr>
+      `
+    }).join('') || '<tr><td colspan="7" style="text-align:center;padding:2rem;">Sin clientes.</td></tr>'
+
+    // Aprobar y asignar clave
+    document.querySelectorAll('[data-aprobar-c]').forEach(btn => btn.addEventListener('click', async () => {
+      const id = btn.dataset.aprobarC
+      const clave = prompt(`Asignar contraseña inicial para ${btn.dataset.empresa}:`, 'optiline2026')
+      if (!clave) return
+
+      await supabase.from('clientes').update({
+        estado_verificado: true,
+        inactivo: false,
+        password_hash: clave.trim(),
+        fecha_aprobacion: new Date().toISOString()
+      }).eq('id', id)
+
+      alert('✓ Óptica aprobada. Notifique al cliente su usuario y contraseña vía WhatsApp.')
+      cargarClientes()
     }))
 
-    document.querySelectorAll('[data-del-c]').forEach(btn => btn.addEventListener('click', async () => {
-      if (confirm('¿Eliminar óptica?')) { await supabase.from('clientes').delete().eq('id', btn.dataset.delC); cargarClientes() }
+    // Switch Reactivar / Desactivar
+    document.querySelectorAll('[data-toggle-c]').forEach(btn => btn.addEventListener('click', async () => {
+      const id = btn.dataset.toggleC
+      const isInactivo = btn.dataset.inactivo === 'true'
+      await supabase.from('clientes').update({ inactivo: !isInactivo }).eq('id', id)
+      cargarClientes()
     }))
   }
+
   $('#filtro-clientes').addEventListener('input', renderClientes)
-  $('#cliente-btn-cancelar').addEventListener('click', () => {
-    $('#cliente-id').value = ''; $('#form-cliente').reset(); $('#cliente-title').textContent = 'Nueva Óptica'; $('#cliente-btn').textContent = 'Guardar óptica'; $('#cliente-btn-cancelar').style.display = 'none'
-  })
+  $('#filtro-clientes-estado').addEventListener('change', renderClientes)
 
-  $('#form-cliente').addEventListener('submit', async (e) => {
-    e.preventDefault()
-    await supabase.from('clientes').upsert({
-      id: $('#cliente-id').value || undefined,
-      codigo_usuario: $('#cliente-codigo').value.trim(),
-      rif: $('#cliente-rif').value.trim(),
-      empresa: $('#cliente-empresa').value.trim(),
-      email: $('#cliente-email').value.trim(),
-      password_hash: $('#cliente-password').value.trim(),
-      telefono: $('#cliente-telefono').value.trim() || null,
-      direccion_fiscal: $('#cliente-fiscal').value.trim() || null,
-      direccion_envio: $('#cliente-envio').value.trim() || null
+  // ================= 2. PEDIDOS (CONSECUTIVO Y ANULACIÓN) =================
+  let pedidosCache = []
+  async function cargarPedidosAdmin() {
+    const { data } = await supabase.from('pedidos').select('*, clientes(empresa, rif)').order('id', { ascending: false })
+    pedidosCache = data || []
+    renderPedidosAdmin()
+  }
+
+  function renderPedidosAdmin() {
+    const q = $('#filtro-pedidos-busqueda').value.trim().toLowerCase()
+    const est = $('#filtro-pedidos-estado').value
+
+    const filtrados = pedidosCache.filter(p => {
+      if (est && p.estado_despacho !== est) return false
+      if (q && !`${p.codigo_pedido} ${p.clientes?.empresa} ${p.clientes?.rif}`.toLowerCase().includes(q)) return false
+      return true
     })
-    $('#cliente-btn-cancelar').click()
-    cargarClientes()
-  })
 
-  // ================= 2. CONCILIACIÓN =================
+    $('#tbody-pedidos-admin').innerHTML = filtrados.map(p => {
+      const esAnulado = p.estado_despacho === 'Anulado'
+      const mon = p.moneda_pago === 'USD' ? '$' : 'Bs.'
+
+      return `
+        <tr style="${esAnulado ? 'background:#fef2f2; opacity:0.75;' : ''}">
+          <td><strong>#${p.codigo_pedido}</strong></td>
+          <td>${new Date(p.fecha).toLocaleDateString()}</td>
+          <td>${p.clientes?.empresa || '—'}<br><small style="color:#64748b;">${p.clientes?.rif || ''}</small></td>
+          <td><strong>${mon} ${Number(p.total).toFixed(2)}</strong></td>
+          <td><strong style="color:${Number(p.saldo_pendiente) > 0 ? '#f39200' : '#03543f'};">${mon} ${Number(p.saldo_pendiente).toFixed(2)}</strong></td>
+          <td><span class="badge-status ${p.estado_pago === 'Pagado' ? 'badge-status--aprobado' : 'badge-status--verificando'}">${p.estado_pago}</span></td>
+          <td>
+            ${esAnulado ? `<span class="badge-status badge-status--rechazado">Anulado</span>` : `
+              <select class="select-estado-despacho" data-ped-id="${p.id}" style="padding:0.3rem; border:1px solid #d1d5db; border-radius:4px; font-size:0.78rem;">
+                <option value="En preparación" ${p.estado_despacho === 'En preparación' ? 'selected' : ''}>En preparación</option>
+                <option value="Enviado" ${p.estado_despacho === 'Enviado' ? 'selected' : ''}>Enviado</option>
+                <option value="Entregado" ${p.estado_despacho === 'Entregado' ? 'selected' : ''}>Entregado</option>
+              </select>
+            `}
+          </td>
+          <td>
+            ${!esAnulado ? `
+              <button class="btn-sm btn-sm--danger" data-anular-ped="${p.id}" data-codigo="${p.codigo_pedido}" data-detalles='${JSON.stringify(p.detalles || [])}'>Anular</button>
+            ` : `<span style="font-size:0.75rem; color:#991b1b; font-weight:700;">Sin acción</span>`}
+          </td>
+        </tr>
+      `
+    }).join('') || '<tr><td colspan="8" style="text-align:center;padding:2rem;">Sin pedidos registrados.</td></tr>'
+
+    // Cambio de estado de despacho
+    document.querySelectorAll('.select-estado-despacho').forEach(sel => sel.addEventListener('change', async (e) => {
+      await supabase.from('pedidos').update({ estado_despacho: e.target.value }).eq('id', sel.dataset.pedId)
+    }))
+
+    // Anular pedido con reintegro automático de stock
+    document.querySelectorAll('[data-anular-ped]').forEach(btn => btn.addEventListener('click', async () => {
+      if (!confirm(`¿Anular pedido #${btn.dataset.codigo}? El stock reservado se devolverá automáticamente al inventario.`)) return
+
+      const pId = btn.dataset.anularPed
+      const items = JSON.parse(btn.dataset.detalles || '[]')
+
+      // 1. Reintegrar stock a inventario_lotes
+      for (const item of items) {
+        if (item.invId && item.cantidad) {
+          const { data: inv } = await supabase.from('inventario_lotes').select('stock').eq('id', item.invId).single()
+          if (inv) {
+            await supabase.from('inventario_lotes').update({ stock: inv.stock + item.cantidad }).eq('id', item.invId)
+          }
+        }
+      }
+
+      // 2. Marcar pedido como Anulado (preservando correlativo)
+      await supabase.from('pedidos').update({ estado_despacho: 'Anulado', saldo_pendiente: 0.00 }).eq('id', pId)
+
+      alert('✓ Pedido anulado y stock devuelto al inventario.')
+      cargarPedidosAdmin()
+      cargarInventarioData()
+    }))
+  }
+
+  $('#filtro-pedidos-busqueda').addEventListener('input', renderPedidosAdmin)
+  $('#filtro-pedidos-estado').addEventListener('change', renderPedidosAdmin)
+
+  // ================= 3. CONCILIACIÓN =================
   let pagosCache = []
   async function cargarConciliacion() {
     const { data } = await supabase.from('pagos').select('*, pedidos(codigo_pedido), clientes(empresa, rif), cuentas_bancarias(nombre_banco, moneda)').order('id', { ascending: false })
@@ -836,7 +908,7 @@
   $('#filtro-concil-banco').addEventListener('change', renderConciliacion)
   $('#filtro-concil-estado').addEventListener('change', renderConciliacion)
 
-  // ================= 3. SALDOS Y BANCOS =================
+  // ================= 4. SALDOS Y BANCOS =================
   let cuentasCache = []
   async function cargarSaldosBancarios() {
     const { data } = await supabase.from('cuentas_bancarias').select('*').order('id')
@@ -906,7 +978,7 @@
     cargarSaldosBancarios()
   })
 
-  // ================= 4. INVENTARIO Y FÓRMULAS =================
+  // ================= 5. INVENTARIO Y FÓRMULAS =================
   let prodsCache = [], lotesCache = [], catsCache = [], invCache = []
 
   async function cargarInventarioData() {
@@ -983,7 +1055,7 @@
     cargarInventarioData()
   })
 
-  // ================= 5, 6, 7. PRODUCTOS, LOTES Y CATEGORÍAS =================
+  // ================= 6, 7, 8. PRODUCTOS, LOTES Y CATEGORÍAS =================
   let prodFile = null, catFile = null
   $('#prod-imagen').addEventListener('change', (e) => { prodFile = e.target.files[0]; if (prodFile) { const r = new FileReader(); r.onload = (ev) => $('#prod-preview').innerHTML = `<img src="${ev.target.result}">`; r.readAsDataURL(prodFile) } })
   $('#cat-imagen').addEventListener('change', (e) => { catFile = e.target.files[0]; if (catFile) { const r = new FileReader(); r.onload = (ev) => $('#cat-preview').innerHTML = `<img src="${ev.target.result}">`; r.readAsDataURL(catFile) } })
@@ -1004,7 +1076,7 @@
 
     $('#tbody-productos').innerHTML = prodsCache.map(x => `
       <tr>
-        <td><div class="table-thumb">${x.imagen_url ? `<img src="${x.imagen_url}">` : '<span style="font-size:0.65rem;color:#94a3b8;">Sin img</span>'}</div></td>
+        <td><div class="table-thumb">${x.imagen_url ? `<img src="${x.imagen_url}">` : '<span>Sin img</span>'}</div></td>
         <td><strong>${x.sku}</strong></td>
         <td>${x.nombre}</td>
         <td>${x.categorias?.nombre || '—'}</td>
@@ -1018,7 +1090,7 @@
 
     $('#tbody-categorias').innerHTML = catsCache.map(x => `
       <tr>
-        <td><div class="table-thumb">${x.imagen_url ? `<img src="${x.imagen_url}">` : '<span style="font-size:0.65rem;color:#94a3b8;">Sin img</span>'}</div></td>
+        <td><div class="table-thumb">${x.imagen_url ? `<img src="${x.imagen_url}">` : '<span>Sin img</span>'}</div></td>
         <td><strong>${x.sku_prefijo || '—'}</strong></td>
         <td>${x.nombre}</td>
         <td><code>${x.slug}</code></td>
@@ -1091,7 +1163,7 @@
     $('#lote-btn-cancelar').click(); cargarCatalogos()
   })
 
-  // ================= 8. MÉTODOS Y CUENTAS =================
+  // ================= 9. MÉTODOS Y CUENTAS =================
   let metodosCache = []
   async function cargarMetodosPago() {
     const { data } = await supabase.from('metodos_pago').select('*').order('id')
@@ -1139,30 +1211,31 @@
     cargarSaldosBancarios()
   })
 
-  // ================= 9. PARÁMETROS Y BCV AUTOMÁTICO =================
+  // ================= 10. PARÁMETROS, WHATSAPP Y BCV =================
   async function cargarParametros() {
     const { data } = await supabase.from('parametros').select('*').eq('id', 1).maybeSingle()
     if (data) {
       $('#param-tasa-catalogo').value = data.tasa_catalogo || 1000.00
       $('#param-tasa-bcv').value = data.tasa_bcv || 900.00
+      $('#param-whatsapp').value = data.telefono_whatsapp || '584120000000'
     }
     consultarBcvEnVivo()
   }
 
   async function consultarBcvEnVivo() {
     const statusTxt = $('#txt-bcv-status')
-    statusTxt.textContent = 'Consultando API oficial BCV...'
+    statusTxt.textContent = 'Consultando cotización oficial BCV...'
     try {
       const res = await fetch('https://ve.dolarapi.com/v1/dolares/oficial')
       if (!res.ok) throw new Error('API indisponible')
       const json = await res.json()
       if (json && json.promedio) {
         $('#param-tasa-bcv').value = Number(json.promedio).toFixed(2)
-        statusTxt.textContent = `✓ Tasa BCV oficial obtenida: Bs. ${Number(json.promedio).toFixed(2)} (${new Date(json.fechaActualizacion || Date.now()).toLocaleDateString()})`
+        statusTxt.textContent = `✓ Tasa oficial BCV sincronizada: Bs. ${Number(json.promedio).toFixed(2)} (${new Date(json.fechaActualizacion || Date.now()).toLocaleDateString()})`
         statusTxt.style.color = '#03543f'
       }
     } catch (err) {
-      statusTxt.textContent = 'Nota: No se pudo conectar a la API del BCV en vivo. Usando valor guardado en base de datos.'
+      statusTxt.textContent = 'Nota: Sin conexión a la API BCV. Se mantiene el valor almacenado.'
       statusTxt.style.color = '#713f12'
     }
   }
@@ -1174,23 +1247,26 @@
     setLoading($('#btn-save-param'), true)
     const tasaCat = parseFloat($('#param-tasa-catalogo').value) || 1000.00
     const tasaBcv = parseFloat($('#param-tasa-bcv').value) || 900.00
+    const wapp = $('#param-whatsapp').value.trim().replace(/[^0-9]/g, '')
 
     const { error } = await supabase.from('parametros').upsert({
       id: 1,
       tasa_catalogo: tasaCat,
       tasa_bcv: tasaBcv,
+      telefono_whatsapp: wapp,
       updated_at: new Date().toISOString()
     })
 
-    setLoading($('#btn-save-param'), false, 'Actualizar Parámetros Cambiarios')
+    setLoading($('#btn-save-param'), false, 'Actualizar Parámetros del Sistema')
     if (error) return alert('Error al guardar: ' + error.message)
-    showMsg('param-msg', '✓ Parámetros cambiarios actualizados con éxito.')
+    showMsg('param-msg', '✓ Parámetros actualizados con éxito.')
   })
 
   // INICIALIZACIÓN
   async function cargarTodo() {
     await cargarCatalogos()
     await cargarClientes()
+    await cargarPedidosAdmin()
     await cargarSaldosBancarios()
     await cargarConciliacion()
     await cargarInventarioData()
