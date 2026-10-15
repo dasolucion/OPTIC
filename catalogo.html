@@ -11,11 +11,16 @@
   <link rel="stylesheet" href="css/style.css">
 
   <style>
-    .header-tools { display: flex; align-items: center; gap: 0.85rem; margin-left: 1.5rem; }
+    /* Header Tools */
+    .header__inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .logo { flex-shrink: 0; }
+    .logo__img { max-width: 150px; height: auto; object-fit: contain; flex-shrink: 0; }
+    
+    .header-tools { display: flex; align-items: center; gap: 0.85rem; }
     
     .btn-carrito-toggle {
       background: none; border: none; cursor: pointer; position: relative;
-      display: flex; align-items: center; justify-content: center; color: var(--gris-900); padding: 0.4rem;
+      display: flex; align-items: center; justify-content: center; color: var(--gris-900); padding: 0.4rem; flex-shrink: 0;
     }
     .btn-carrito-toggle:hover { color: var(--azul); }
     .btn-carrito-toggle svg { width: 24px; height: 24px; }
@@ -26,9 +31,16 @@
       display: flex; align-items: center; justify-content: center;
     }
 
-    .btn-admin-key { display: flex; align-items: center; justify-content: center; color: var(--gris-700); padding: 0.4rem; border-radius: 50%; }
+    .btn-admin-key { display: flex; align-items: center; justify-content: center; color: var(--gris-700); padding: 0.4rem; border-radius: 50%; flex-shrink: 0; }
     .btn-admin-key:hover { color: var(--naranja); background: #fef3c7; }
     .btn-admin-key svg { width: 22px; height: 22px; }
+
+    /* Grilla de productos responsiva */
+    .grid-catalogo-productos {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
 
     /* Drawer */
     .cart-drawer-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; display: none; }
@@ -44,14 +56,24 @@
     .cart-item { display: grid; grid-template-columns: 1fr auto; gap: 1rem; padding-bottom: 1rem; margin-bottom: 1rem; border-bottom: 1px solid var(--gris-200); }
     .cart-drawer__footer { padding: 1.5rem; border-top: 1px solid var(--gris-200); background: var(--gris-100); }
 
-    .cart-summary-line { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 0.4rem; color: #4b5563; }
+    .cart-summary-line { display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 0.4rem; color: #4b5563; }
     .cart-summary-line.total { font-size: 1.15rem; font-weight: 800; color: #111827; border-top: 1px solid #d1d5db; padding-top: 0.6rem; margin-top: 0.6rem; }
-    .cart-summary-line.divisa { font-size: 1.25rem; font-weight: 900; color: var(--azul); }
+    .cart-summary-line.divisa { font-size: 1.2rem; font-weight: 900; color: var(--azul); }
 
-    /* Modal */
-    .modal-units-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
-    .modal-units-backdrop.activo { display: flex; }
-    .modal-units-box { background: #fff; border-radius: 8px; max-width: 480px; width: 100%; padding: 2rem; }
+    /* Modales */
+    .modal-backdrop-custom { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1100; padding: 1rem; }
+    .modal-backdrop-custom.activo { display: flex; }
+    .modal-box-custom { background: #fff; border-radius: 8px; max-width: 440px; width: 100%; padding: 2rem; }
+
+    /* AJUSTES MÓVIL */
+    @media (max-width: 640px) {
+      .logo__img { max-width: 125px; }
+      .header-tools { gap: 0.5rem; }
+      #nav-btn-cuenta { padding: 0.4rem 0.75rem; font-size: 0.75rem; }
+      .grid-catalogo-productos { grid-template-columns: 1fr; gap: 1rem; }
+      .catalogo-producto__media { height: 160px; }
+      .cart-drawer { max-width: 100%; }
+    }
   </style>
 </head>
 <body>
@@ -77,7 +99,7 @@
           <span class="carrito-badge" id="cart-counter">0</span>
         </button>
 
-        <a href="cuenta.html" id="nav-btn-cuenta" class="boton boton--primario" style="padding:0.45rem 1.25rem;">Mi Cuenta</a>
+        <a href="cuenta.html" id="nav-btn-cuenta" class="boton boton--primario">Mi Cuenta</a>
 
         <a href="admin.html" class="btn-admin-key" title="Panel Administrativo" aria-label="Acceso Administrador">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/></svg>
@@ -120,7 +142,7 @@
 
     <div class="cart-drawer__footer">
       <div style="margin-bottom:1rem;">
-        <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.35rem;">Moneda / Modalidad de Pago:</label>
+        <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.35rem;">Modalidad de Pago:</label>
         <select id="cart-moneda-pago" style="width:100%; padding:0.65rem; border:1px solid #d1d5db; border-radius:6px; font-size:0.88rem; background:#fff;">
           <option value="Bs">Pago en Bolívares (Pago Móvil / Transferencia)</option>
           <option value="USD">Pago en Divisas (Zelle / Efectivo / Panamá)</option>
@@ -134,7 +156,7 @@
         </div>
         <div class="cart-summary-line total"><span>Total en Bs:</span><span id="txt-total-bs">Bs. 0,00</span></div>
         <div class="cart-summary-line divisa" id="row-total-divisa" style="display:none;">
-          <span>En Divisa:</span><span id="txt-total-divisa">$0.00</span>
+          <span>Total en Divisa:</span><span id="txt-total-divisa">$0.00</span>
         </div>
       </div>
 
@@ -143,8 +165,8 @@
   </aside>
 
   <!-- MODAL: SELECCIÓN DE VARIANTE -->
-  <div class="modal-units-backdrop" id="modal-units">
-    <div class="modal-units-box">
+  <div class="modal-backdrop-custom" id="modal-units">
+    <div class="modal-box-custom">
       <h3 id="modal-prod-nombre" style="font-family:var(--fuente-titulos); font-size:1.2rem; font-weight:800; margin-bottom:0.4rem;"></h3>
       <p id="modal-prod-desc" style="font-size:0.85rem; color:var(--gris-700); margin-bottom:1.25rem;"></p>
 
@@ -172,6 +194,31 @@
     </div>
   </div>
 
+  <!-- MODAL: LOGIN RÁPIDO EMBEBIDO (SIN SALIR DE LA ORDEN) -->
+  <div class="modal-backdrop-custom" id="modal-fast-login">
+    <div class="modal-box-custom">
+      <h3 style="font-family:var(--fuente-titulos); font-size:1.2rem; font-weight:800; margin-bottom:0.4rem;">Identificación de Óptica</h3>
+      <p style="font-size:0.85rem; color:var(--gris-700); margin-bottom:1rem;">Inicia sesión con tu código o correo para procesar la orden inmediatamente.</p>
+      
+      <div id="fast-login-error" style="display:none; color:#b91c1c; background:#fee2e2; padding:0.65rem; border-radius:6px; font-size:0.82rem; margin-bottom:0.75rem;"></div>
+
+      <form id="form-fast-login">
+        <div class="campo">
+          <label>Usuario o Correo:</label>
+          <input type="text" id="fast-credencial" required style="width:100%; padding:0.7rem; border:1px solid #d1d5db; border-radius:6px;">
+        </div>
+        <div class="campo" style="margin-top:0.75rem;">
+          <label>Contraseña:</label>
+          <input type="password" id="fast-password" required style="width:100%; padding:0.7rem; border:1px solid #d1d5db; border-radius:6px;">
+        </div>
+        <div style="display:flex; gap:0.75rem; margin-top:1.5rem;">
+          <button type="submit" class="boton boton--primario boton--bloque" id="btn-fast-login">Iniciar y Continuar</button>
+          <button type="button" class="boton boton--contorno" id="btn-fast-cancel" style="border-color:var(--gris-400); color:var(--gris-900);">Cerrar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- SCRIPT -->
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
@@ -187,14 +234,13 @@
     let tasaCatalogo = 1000.00
     let tasaBcv = 900.00
 
-    const clienteActivo = JSON.parse(localStorage.getItem('optiline_cliente') || 'null')
+    let clienteActivo = JSON.parse(localStorage.getItem('optiline_cliente') || 'null')
     if (clienteActivo) $('#nav-btn-cuenta').textContent = clienteActivo.empresa || 'Mi Cuenta'
 
     function formatoBs(monto) {
       return 'Bs. ' + Number(monto).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
     }
 
-    // Cargar Parámetros Cambiarios de Supabase
     async function cargarParametrosCambiarios() {
       const { data } = await supabase.from('parametros').select('*').eq('id', 1).maybeSingle()
       if (data) {
@@ -212,7 +258,7 @@
       const { data: prods } = await supabase.from('productos').select('*, categorias(nombre)').order('id')
       catalogoProductos = prods || []
 
-      const { data: inv } = await supabase.from('inventario_lotes').select('id, stock, precio, variante_id, variantes(id, nombre, producto_id), lotes(codigo_lote, fecha_vencimiento)')
+      const { data: inv } = await supabase.from('inventario_lotes').select('id, stock, variante_id, variantes(id, nombre, producto_id), lotes(codigo_lote, fecha_vencimiento)')
       inventarioReal = inv || []
 
       actualizarBadgeCarrito()
@@ -229,9 +275,8 @@
         const stockTotal = itemsInv.reduce((sum, item) => sum + (item.stock || 0), 0)
         const tieneStock = stockTotal > 0
 
-        // Precio base USD
-        const precioBaseUSD = parseFloat(p.precio) || (itemsInv.length && parseFloat(itemsInv[0].precio)) || 0.00
-        // Precio mostrado en Catálogo en Bolívares
+        // Precio base USD estricto del producto
+        const precioBaseUSD = parseFloat(p.precio) || 0.00
         const precioBs = precioBaseUSD * tasaCatalogo
 
         return `
@@ -245,17 +290,17 @@
               
               <div style="margin: 0.5rem 0;">
                 ${tieneStock ? `
-                  <span style="font-size:0.82rem; font-weight:700; color:#03543f; background:#def7ec; padding:0.2rem 0.5rem; border-radius:4px;">
-                    Stock disponible: ${stockTotal} unids
+                  <span style="font-size:0.8rem; font-weight:700; color:#03543f; background:#def7ec; padding:0.2rem 0.5rem; border-radius:4px; display:inline-block;">
+                    Stock: ${stockTotal} unids
                   </span>
                 ` : `
-                  <span style="font-size:0.82rem; font-weight:700; color:#991b1b; background:#fee2e2; padding:0.2rem 0.5rem; border-radius:4px;">
-                    Agotado (0 unidades)
+                  <span style="font-size:0.8rem; font-weight:700; color:#991b1b; background:#fee2e2; padding:0.2rem 0.5rem; border-radius:4px; display:inline-block;">
+                    Agotado (0 unids)
                   </span>
                 `}
               </div>
 
-              <!-- PRECIO EN BOLÍVARES -->
+              <!-- PRECIO EN BS. VISIBLE -->
               <div class="catalogo-producto__precio">${formatoBs(precioBs)}</div>
             </div>
 
@@ -276,7 +321,7 @@
 
     $('#select-filtro-categoria').addEventListener('change', renderCatalogo)
 
-    // Modal
+    // Modal Selección Unidades
     let productoActualModal = null, itemsDisponiblesModal = []
     function abrirModalUnidades(pId) {
       productoActualModal = catalogoProductos.find(p => p.id === pId)
@@ -288,7 +333,7 @@
 
       $('#modal-select-variante').innerHTML = '<option value="">Selecciona graduación...</option>' +
         itemsDisponiblesModal.map(i => `
-          <option value="${i.id}" data-stock="${i.stock}" data-precio-usd="${i.precio || productoActualModal.precio}">
+          <option value="${i.id}" data-stock="${i.stock}">
             ${i.variantes?.nombre} (Lote: ${i.lotes?.codigo_lote} | Disp: ${i.stock} unids)
           </option>
         `).join('')
@@ -303,7 +348,7 @@
       if (opt && opt.value) {
         const sMax = parseInt(opt.dataset.stock)
         $('#modal-cantidad').max = sMax
-        $('#modal-stock-info').textContent = `Máximo disponible: ${sMax} unids`
+        $('#modal-stock-info').textContent = `Máximo: ${sMax} unids`
       } else {
         $('#modal-stock-info').textContent = ''
       }
@@ -318,7 +363,7 @@
       const itemInv = itemsDisponiblesModal.find(i => i.id === invId)
       if (!itemInv || cant <= 0 || cant > itemInv.stock) return alert('Selecciona cantidad válida.')
 
-      const precioBaseUSD = parseFloat(itemInv.precio || productoActualModal.precio || 0)
+      const precioBaseUSD = parseFloat(productoActualModal.precio || 0)
 
       carrito.push({
         invId: itemInv.id,
@@ -336,7 +381,7 @@
       abrirDrawerCarrito()
     })
 
-    // Carrito y Cálculos Cambiarios
+    // Carrito
     function actualizarBadgeCarrito() {
       $('#cart-counter').textContent = carrito.reduce((sum, item) => sum + item.cantidad, 0)
     }
@@ -367,7 +412,7 @@
         return
       }
 
-      const moneda = $('#cart-moneda-pago').value // 'Bs' o 'USD'
+      const moneda = $('#cart-moneda-pago').value
       let totalUSD = 0
 
       $('#cart-items-container').innerHTML = carrito.map((item, idx) => {
@@ -390,13 +435,9 @@
         `
       }).join('')
 
-      // CÁLCULO CAMBIARIO CON FÓRMULA SOLICITADA
       const subtotalBs = totalUSD * tasaCatalogo
 
       if (moneda === 'USD') {
-        // Al pagar en divisa:
-        // total_bs_compensado = totalUSD * tasaBcv
-        // descuento_bs = subtotalBs - total_bs_compensado
         const totalBsCompensado = totalUSD * tasaBcv
         const descuentoBs = subtotalBs - totalBsCompensado
 
@@ -408,7 +449,6 @@
         $('#txt-total-bs').textContent = formatoBs(totalBsCompensado)
         $('#txt-total-divisa').textContent = `$${totalUSD.toFixed(2)}`
       } else {
-        // Pago en Bolívares
         $('#row-descuento-bs').style.display = 'none'
         $('#row-total-divisa').style.display = 'none'
 
@@ -426,46 +466,111 @@
       })
     }
 
-    // Confirmar Orden
-    $('#btn-confirmar-pedido').addEventListener('click', async () => {
-      if (!carrito.length) return alert('El carrito está vacío.')
-      if (!clienteActivo) {
-        alert('Debes iniciar sesión con tu cuenta de óptica para confirmar el pedido.')
-        window.location.href = 'cuenta.html'
+    // Modal Login Embebido
+    $('#btn-fast-cancel').addEventListener('click', () => $('#modal-fast-login').classList.remove('activo'))
+
+    $('#form-fast-login').addEventListener('submit', async (e) => {
+      e.preventDefault()
+      const cred = $('#fast-credencial').value.trim()
+      const pass = $('#fast-password').value.trim()
+      const errBox = $('#fast-login-error')
+      errBox.style.display = 'none'
+
+      const { data: c, error } = await supabase.from('clientes').select('*').or(`codigo_usuario.eq.${cred},email.eq.${cred}`).maybeSingle()
+      if (error || !c || (c.password_hash && c.password_hash !== pass)) {
+        errBox.textContent = 'Credenciales no válidas.'
+        errBox.style.display = 'block'
         return
       }
 
-      const moneda = $('#cart-moneda-pago').value
-      const totalUSD = carrito.reduce((sum, item) => sum + (item.cantidad * item.precioUSD), 0)
-      const subtotalBs = totalUSD * tasaCatalogo
-      const totalBs = moneda === 'USD' ? (totalUSD * tasaBcv) : subtotalBs
-      const descuentoBs = moneda === 'USD' ? (subtotalBs - totalBs) : 0.00
-      const codPedido = `OPT-${Date.now().toString().slice(-5)}`
+      localStorage.setItem('optiline_cliente', JSON.stringify(c))
+      clienteActivo = c
+      $('#nav-btn-cuenta').textContent = c.empresa || 'Mi Cuenta'
+      $('#modal-fast-login').classList.remove('activo')
+      
+      // Procesa el pedido automáticamente
+      $('#btn-confirmar-pedido').click()
+    })
 
-      const { error } = await supabase.from('pedidos').insert({
-        codigo_pedido: codPedido,
-        cliente_id: clienteActivo.id,
-        total: moneda === 'USD' ? totalUSD : totalBs,
-        moneda_pago: moneda === 'USD' ? 'USD' : 'Bs.',
-        subtotal_bs: subtotalBs,
-        descuento_bs: descuentoBs,
-        total_bs: totalBs,
-        total_usd: totalUSD,
-        monto_pagado: 0.00,
-        estado_pago: 'Pendiente',
-        estado_despacho: 'En preparación',
-        detalles: carrito
-      })
+    // Confirmar Pedido con Deducción Atómica de Stock y Saldo Exacto
+    $('#btn-confirmar-pedido').addEventListener('click', async () => {
+      if (!carrito.length) return alert('El carrito está vacío.')
 
-      if (error) return alert('Error al generar pedido: ' + error.message)
+      // Si no ha iniciado sesión, abre el modal de login sin salir de la página
+      if (!clienteActivo) {
+        $('#modal-fast-login').classList.add('activo')
+        return
+      }
 
-      carrito = []
-      localStorage.removeItem('optiline_cart')
-      actualizarBadgeCarrito()
-      cerrarDrawerCarrito()
+      const btn = $('#btn-confirmar-pedido')
+      btn.disabled = true
+      btn.textContent = 'Deduciendo stock y procesando...'
 
-      alert(`✓ ¡Orden #${codPedido} generada con éxito! Puedes reportar tu pago en Mi Cuenta.`)
-      window.location.href = 'cuenta.html'
+      try {
+        // 1. Validar y descontar stock de inventario_lotes
+        for (const item of carrito) {
+          const { data: invItem, error: errFetch } = await supabase
+            .from('inventario_lotes')
+            .select('id, stock')
+            .eq('id', item.invId)
+            .single()
+
+          if (errFetch || !invItem || invItem.stock < item.cantidad) {
+            throw new Error(`Stock insuficiente para ${item.nombre} (${item.variante}). Disponible: ${invItem?.stock || 0} unids.`)
+          }
+
+          // Descontar inmediatamente
+          const { error: errUpdate } = await supabase
+            .from('inventario_lotes')
+            .update({ stock: invItem.stock - item.cantidad })
+            .eq('id', item.invId)
+
+          if (errUpdate) throw errUpdate
+        }
+
+        // 2. Registrar el pedido con total y saldo en la moneda escogida
+        const moneda = $('#cart-moneda-pago').value
+        const totalUSD = carrito.reduce((sum, item) => sum + (item.cantidad * item.precioUSD), 0)
+        const subtotalBs = totalUSD * tasaCatalogo
+        const totalBs = moneda === 'USD' ? (totalUSD * tasaBcv) : subtotalBs
+        const descuentoBs = moneda === 'USD' ? (subtotalBs - totalBs) : 0.00
+        const codPedido = `OPT-${Date.now().toString().slice(-5)}`
+
+        // El monto total y el saldo coinciden exactamente con la moneda elegida
+        const totalFinal = moneda === 'USD' ? totalUSD : totalBs
+
+        const { error: errPed } = await supabase.from('pedidos').insert({
+          codigo_pedido: codPedido,
+          cliente_id: clienteActivo.id,
+          total: totalFinal,
+          moneda_pago: moneda === 'USD' ? 'USD' : 'Bs.',
+          subtotal_bs: subtotalBs,
+          descuento_bs: descuentoBs,
+          total_bs: totalBs,
+          total_usd: totalUSD,
+          monto_pagado: 0.00,
+          estado_pago: 'Pendiente',
+          estado_despacho: 'En preparación',
+          detalles: carrito
+        })
+
+        if (errPed) throw errPed
+
+        // Limpiar carrito
+        carrito = []
+        localStorage.removeItem('optiline_cart')
+        actualizarBadgeCarrito()
+        cerrarDrawerCarrito()
+
+        alert(`✓ ¡Orden #${codPedido} registrada con éxito! El inventario fue actualizado. Total a pagar: ${moneda === 'USD' ? '$' + totalFinal.toFixed(2) : formatoBs(totalFinal)}`)
+        window.location.href = 'cuenta.html'
+
+      } catch (err) {
+        alert('Error en el pedido: ' + err.message)
+      } finally {
+        btn.disabled = false
+        btn.textContent = 'Confirmar Pedido'
+      }
     })
 
     inicializarCatalogo()
