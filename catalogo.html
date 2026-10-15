@@ -33,7 +33,6 @@
     .btn-admin-key:hover { color: var(--naranja); background: #fef3c7; }
     .btn-admin-key svg { width: 22px; height: 22px; }
 
-    /* ESTRUCTURA CORREGIDA ANTI-SOLAPAMIENTO */
     .grid-catalogo-productos {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -109,7 +108,6 @@
       padding-top: 0.5rem;
     }
 
-    /* Botones de acción guest (Registro + Login) */
     .catalogo-acciones-guest {
       display: flex;
       flex-direction: column;
@@ -136,7 +134,6 @@
     }
     .btn-login-compacto:hover { background: var(--naranja-osc); }
 
-    /* Drawer */
     .cart-drawer-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; display: none; }
     .cart-drawer-backdrop.activo { display: block; }
     .cart-drawer {
@@ -154,7 +151,6 @@
     .cart-summary-line.total { font-size: 1.15rem; font-weight: 800; color: #111827; border-top: 1px solid #d1d5db; padding-top: 0.6rem; margin-top: 0.6rem; }
     .cart-summary-line.divisa { font-size: 1.2rem; font-weight: 900; color: var(--azul); }
 
-    /* Modales */
     .modal-backdrop-custom { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1100; padding: 1rem; }
     .modal-backdrop-custom.activo { display: flex; }
     .modal-box-custom { background: #fff; border-radius: 8px; max-width: 440px; width: 100%; padding: 2rem; }
@@ -171,7 +167,6 @@
 </head>
 <body>
 
-  <!-- HEADER -->
   <header class="header">
     <div class="contenedor header__inner">
       <a href="index.html" class="logo">
@@ -201,7 +196,6 @@
     </div>
   </header>
 
-  <!-- BANNER -->
   <section class="banner-pagina">
     <div class="contenedor">
       <h1 class="banner-pagina__titulo">Catálogo Mayorista</h1>
@@ -209,7 +203,6 @@
     </div>
   </section>
 
-  <!-- CATÁLOGO -->
   <main class="seccion">
     <div class="contenedor">
       <div class="catalogo-toolbar">
@@ -289,7 +282,7 @@
     </div>
   </div>
 
-  <!-- MODAL: LOGIN RÁPIDO EMBEBIDO (SIN SALIR DE LA PANTALLA) -->
+  <!-- MODAL: LOGIN RÁPIDO EMBEBIDO -->
   <div class="modal-backdrop-custom" id="modal-fast-login">
     <div class="modal-box-custom">
       <h3 style="font-family:var(--fuente-titulos); font-size:1.2rem; font-weight:800; margin-bottom:0.4rem;">Acceso de Ópticas</h3>
@@ -314,7 +307,6 @@
     </div>
   </div>
 
-  <!-- SCRIPT -->
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
@@ -330,7 +322,6 @@
     let tasaBcv = 900.00
     let telefonoWhatsapp = '584120000000'
 
-    // Estado B2B
     let clienteActivo = JSON.parse(localStorage.getItem('optiline_cliente') || 'null')
     let esClienteVerificado = clienteActivo && clienteActivo.estado_verificado && !clienteActivo.inactivo
 
@@ -410,7 +401,6 @@
               `}
             </div>
 
-            <!-- BOTONES DE ACCIÓN SEGÚN AUTENTICACIÓN -->
             ${esClienteVerificado ? `
               <div style="padding: 0 1.25rem 1.25rem;">
                 <button type="button" 
@@ -438,7 +428,6 @@
         btn.addEventListener('click', () => abrirModalUnidades(parseInt(btn.dataset.abrirProd)))
       })
 
-      // Listener para el botón compacto de Iniciar Sesión en tarjetas
       document.querySelectorAll('.btn-fast-login-trigger').forEach(btn => {
         btn.addEventListener('click', () => {
           $('#modal-fast-login').classList.add('activo')
@@ -508,7 +497,6 @@
       abrirDrawerCarrito()
     })
 
-    // Carrito
     function actualizarBadgeCarrito() {
       $('#cart-counter').textContent = carrito.reduce((sum, item) => sum + item.cantidad, 0)
     }
@@ -593,7 +581,7 @@
       })
     }
 
-    // Modal Login Embebido (In-Situ sin salir de pantalla)
+    // Modal Login Embebido In-Situ
     $('#btn-fast-cancel').addEventListener('click', () => $('#modal-fast-login').classList.remove('activo'))
 
     $('#form-fast-login').addEventListener('submit', async (e) => {
@@ -616,14 +604,11 @@
         return
       }
 
-      // Guardar y refrescar reactivamente
       localStorage.setItem('optiline_cliente', JSON.stringify(c))
       clienteActivo = c
       esClienteVerificado = true
       $('#nav-btn-cuenta').textContent = c.empresa || 'Mi Cuenta'
       $('#modal-fast-login').classList.remove('activo')
-      
-      // Re-renderizado inmediato del catálogo sin recargar la web
       renderCatalogo()
     })
 
@@ -641,7 +626,6 @@
       btn.textContent = 'Procesando orden y stock...'
 
       try {
-        // Deducir stock
         for (const item of carrito) {
           const { data: invItem, error: errFetch } = await supabase
             .from('inventario_lotes')
@@ -669,6 +653,7 @@
         const codPedido = `OPT-${Date.now().toString().slice(-5)}`
         const totalFinal = moneda === 'USD' ? totalUSD : totalBs
 
+        // ESTADO DE DESPACHO INICIAL EN 'Pendiente' (CHECKS EN BLANCO)
         const { error: errPed } = await supabase.from('pedidos').insert({
           codigo_pedido: codPedido,
           cliente_id: clienteActivo.id,
@@ -680,7 +665,7 @@
           total_usd: totalUSD,
           monto_pagado: 0.00,
           estado_pago: 'Pendiente',
-          estado_despacho: 'En preparación',
+          estado_despacho: 'Pendiente',
           detalles: carrito
         })
 
