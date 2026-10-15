@@ -11,11 +11,9 @@
   <link rel="stylesheet" href="css/style.css">
 
   <style>
-    /* Header Tools */
     .header__inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
     .logo { flex-shrink: 0; }
     .logo__img { max-width: 150px; height: auto; object-fit: contain; flex-shrink: 0; }
-    
     .header-tools { display: flex; align-items: center; gap: 0.85rem; }
     
     .btn-carrito-toggle {
@@ -35,14 +33,12 @@
     .btn-admin-key:hover { color: var(--naranja); background: #fef3c7; }
     .btn-admin-key svg { width: 22px; height: 22px; }
 
-    /* Grilla de productos responsiva */
     .grid-catalogo-productos {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
       gap: 1.5rem;
     }
 
-    /* Drawer */
     .cart-drawer-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; display: none; }
     .cart-drawer-backdrop.activo { display: block; }
     .cart-drawer {
@@ -60,12 +56,10 @@
     .cart-summary-line.total { font-size: 1.15rem; font-weight: 800; color: #111827; border-top: 1px solid #d1d5db; padding-top: 0.6rem; margin-top: 0.6rem; }
     .cart-summary-line.divisa { font-size: 1.2rem; font-weight: 900; color: var(--azul); }
 
-    /* Modales */
     .modal-backdrop-custom { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1100; padding: 1rem; }
     .modal-backdrop-custom.activo { display: flex; }
     .modal-box-custom { background: #fff; border-radius: 8px; max-width: 440px; width: 100%; padding: 2rem; }
 
-    /* AJUSTES MÓVIL */
     @media (max-width: 640px) {
       .logo__img { max-width: 125px; }
       .header-tools { gap: 0.5rem; }
@@ -160,7 +154,9 @@
         </div>
       </div>
 
-      <button type="button" class="boton boton--naranja boton--bloque" id="btn-confirmar-pedido" style="margin-top:1.25rem;">Confirmar Pedido</button>
+      <button type="button" class="boton boton--naranja boton--bloque" id="btn-confirmar-pedido" style="margin-top:1.25rem;">
+        Confirmar y Notificar Pedido
+      </button>
     </div>
   </aside>
 
@@ -194,31 +190,6 @@
     </div>
   </div>
 
-  <!-- MODAL: LOGIN RÁPIDO EMBEBIDO (SIN SALIR DE LA ORDEN) -->
-  <div class="modal-backdrop-custom" id="modal-fast-login">
-    <div class="modal-box-custom">
-      <h3 style="font-family:var(--fuente-titulos); font-size:1.2rem; font-weight:800; margin-bottom:0.4rem;">Identificación de Óptica</h3>
-      <p style="font-size:0.85rem; color:var(--gris-700); margin-bottom:1rem;">Inicia sesión con tu código o correo para procesar la orden inmediatamente.</p>
-      
-      <div id="fast-login-error" style="display:none; color:#b91c1c; background:#fee2e2; padding:0.65rem; border-radius:6px; font-size:0.82rem; margin-bottom:0.75rem;"></div>
-
-      <form id="form-fast-login">
-        <div class="campo">
-          <label>Usuario o Correo:</label>
-          <input type="text" id="fast-credencial" required style="width:100%; padding:0.7rem; border:1px solid #d1d5db; border-radius:6px;">
-        </div>
-        <div class="campo" style="margin-top:0.75rem;">
-          <label>Contraseña:</label>
-          <input type="password" id="fast-password" required style="width:100%; padding:0.7rem; border:1px solid #d1d5db; border-radius:6px;">
-        </div>
-        <div style="display:flex; gap:0.75rem; margin-top:1.5rem;">
-          <button type="submit" class="boton boton--primario boton--bloque" id="btn-fast-login">Iniciar y Continuar</button>
-          <button type="button" class="boton boton--contorno" id="btn-fast-cancel" style="border-color:var(--gris-400); color:var(--gris-900);">Cerrar</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
   <!-- SCRIPT -->
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
@@ -233,9 +204,15 @@
     let inventarioReal = []
     let tasaCatalogo = 1000.00
     let tasaBcv = 900.00
+    let telefonoWhatsapp = '584120000000'
 
+    // Estado B2B del Cliente
     let clienteActivo = JSON.parse(localStorage.getItem('optiline_cliente') || 'null')
-    if (clienteActivo) $('#nav-btn-cuenta').textContent = clienteActivo.empresa || 'Mi Cuenta'
+    const esClienteVerificado = clienteActivo && clienteActivo.estado_verificado && !clienteActivo.inactivo
+
+    if (clienteActivo) {
+      $('#nav-btn-cuenta').textContent = clienteActivo.empresa || 'Mi Cuenta'
+    }
 
     function formatoBs(monto) {
       return 'Bs. ' + Number(monto).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -246,6 +223,7 @@
       if (data) {
         tasaCatalogo = parseFloat(data.tasa_catalogo) || 1000.00
         tasaBcv = parseFloat(data.tasa_bcv) || 900.00
+        telefonoWhatsapp = data.telefono_whatsapp || '584120000000'
       }
     }
 
@@ -275,7 +253,6 @@
         const stockTotal = itemsInv.reduce((sum, item) => sum + (item.stock || 0), 0)
         const tieneStock = stockTotal > 0
 
-        // Precio base USD estricto del producto
         const precioBaseUSD = parseFloat(p.precio) || 0.00
         const precioBs = precioBaseUSD * tasaCatalogo
 
@@ -288,28 +265,39 @@
               <h3 class="catalogo-producto__titulo">${p.nombre}</h3>
               <p class="catalogo-producto__precio-desc">${p.categorias?.nombre || 'General'}</p>
               
-              <div style="margin: 0.5rem 0;">
-                ${tieneStock ? `
-                  <span style="font-size:0.8rem; font-weight:700; color:#03543f; background:#def7ec; padding:0.2rem 0.5rem; border-radius:4px; display:inline-block;">
-                    Stock: ${stockTotal} unids
-                  </span>
-                ` : `
-                  <span style="font-size:0.8rem; font-weight:700; color:#991b1b; background:#fee2e2; padding:0.2rem 0.5rem; border-radius:4px; display:inline-block;">
-                    Agotado (0 unids)
-                  </span>
-                `}
-              </div>
-
-              <!-- PRECIO EN BS. VISIBLE -->
-              <div class="catalogo-producto__precio">${formatoBs(precioBs)}</div>
+              <!-- PROTECCIÓN B2B DE PRECIOS Y STOCK -->
+              ${esClienteVerificado ? `
+                <div style="margin: 0.5rem 0;">
+                  ${tieneStock ? `
+                    <span style="font-size:0.8rem; font-weight:700; color:#03543f; background:#def7ec; padding:0.2rem 0.5rem; border-radius:4px; display:inline-block;">
+                      Stock: ${stockTotal} unids
+                    </span>
+                  ` : `
+                    <span style="font-size:0.8rem; font-weight:700; color:#991b1b; background:#fee2e2; padding:0.2rem 0.5rem; border-radius:4px; display:inline-block;">
+                      Agotado (0 unids)
+                    </span>
+                  `}
+                </div>
+                <div class="catalogo-producto__precio">${formatoBs(precioBs)}</div>
+              ` : `
+                <div style="margin: 0.8rem 0; font-size:0.85rem; color:#64748b; font-style:italic;">
+                  Precios mayoristas protegidos
+                </div>
+              `}
             </div>
 
-            <button type="button" 
-              class="catalogo-producto__opciones ${tieneStock ? 'catalogo-producto__opciones--destacado' : ''}" 
-              data-abrir-prod="${p.id}"
-              ${!tieneStock ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>
-              ${tieneStock ? 'Seleccionar Unidades' : 'Sin Stock'}
-            </button>
+            ${esClienteVerificado ? `
+              <button type="button" 
+                class="catalogo-producto__opciones ${tieneStock ? 'catalogo-producto__opciones--destacado' : ''}" 
+                data-abrir-prod="${p.id}"
+                ${!tieneStock ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>
+                ${tieneStock ? 'Seleccionar Unidades' : 'Sin Stock'}
+              </button>
+            ` : `
+              <a href="index.html#registro" class="catalogo-producto__opciones" style="display:block; text-align:center; background:#0b4d8c; color:#fff;">
+                Ver Precios (Requiere Registro)
+              </a>
+            `}
           </article>
         `
       }).join('')
@@ -381,7 +369,6 @@
       abrirDrawerCarrito()
     })
 
-    // Carrito
     function actualizarBadgeCarrito() {
       $('#cart-counter').textContent = carrito.reduce((sum, item) => sum + item.cantidad, 0)
     }
@@ -466,48 +453,22 @@
       })
     }
 
-    // Modal Login Embebido
-    $('#btn-fast-cancel').addEventListener('click', () => $('#modal-fast-login').classList.remove('activo'))
-
-    $('#form-fast-login').addEventListener('submit', async (e) => {
-      e.preventDefault()
-      const cred = $('#fast-credencial').value.trim()
-      const pass = $('#fast-password').value.trim()
-      const errBox = $('#fast-login-error')
-      errBox.style.display = 'none'
-
-      const { data: c, error } = await supabase.from('clientes').select('*').or(`codigo_usuario.eq.${cred},email.eq.${cred}`).maybeSingle()
-      if (error || !c || (c.password_hash && c.password_hash !== pass)) {
-        errBox.textContent = 'Credenciales no válidas.'
-        errBox.style.display = 'block'
-        return
-      }
-
-      localStorage.setItem('optiline_cliente', JSON.stringify(c))
-      clienteActivo = c
-      $('#nav-btn-cuenta').textContent = c.empresa || 'Mi Cuenta'
-      $('#modal-fast-login').classList.remove('activo')
-      
-      // Procesa el pedido automáticamente
-      $('#btn-confirmar-pedido').click()
-    })
-
-    // Confirmar Pedido con Deducción Atómica de Stock y Saldo Exacto
+    // ================= CONFIRMAR PEDIDO, DEDUCIR STOCK Y DISPARAR WHATSAPP =================
     $('#btn-confirmar-pedido').addEventListener('click', async () => {
       if (!carrito.length) return alert('El carrito está vacío.')
 
-      // Si no ha iniciado sesión, abre el modal de login sin salir de la página
-      if (!clienteActivo) {
-        $('#modal-fast-login').classList.add('activo')
+      if (!esClienteVerificado) {
+        alert('Debes iniciar sesión con una cuenta de óptica verificada para confirmar el pedido.')
+        window.location.href = 'cuenta.html'
         return
       }
 
       const btn = $('#btn-confirmar-pedido')
       btn.disabled = true
-      btn.textContent = 'Deduciendo stock y procesando...'
+      btn.textContent = 'Procesando orden y stock...'
 
       try {
-        // 1. Validar y descontar stock de inventario_lotes
+        // 1. Deducir stock atómicamente de inventario_lotes
         for (const item of carrito) {
           const { data: invItem, error: errFetch } = await supabase
             .from('inventario_lotes')
@@ -516,10 +477,9 @@
             .single()
 
           if (errFetch || !invItem || invItem.stock < item.cantidad) {
-            throw new Error(`Stock insuficiente para ${item.nombre} (${item.variante}). Disponible: ${invItem?.stock || 0} unids.`)
+            throw new Error(`Stock insuficiente para ${item.nombre} (${item.variante}).`)
           }
 
-          // Descontar inmediatamente
           const { error: errUpdate } = await supabase
             .from('inventario_lotes')
             .update({ stock: invItem.stock - item.cantidad })
@@ -528,15 +488,13 @@
           if (errUpdate) throw errUpdate
         }
 
-        // 2. Registrar el pedido con total y saldo en la moneda escogida
+        // 2. Registrar orden
         const moneda = $('#cart-moneda-pago').value
         const totalUSD = carrito.reduce((sum, item) => sum + (item.cantidad * item.precioUSD), 0)
         const subtotalBs = totalUSD * tasaCatalogo
         const totalBs = moneda === 'USD' ? (totalUSD * tasaBcv) : subtotalBs
         const descuentoBs = moneda === 'USD' ? (subtotalBs - totalBs) : 0.00
         const codPedido = `OPT-${Date.now().toString().slice(-5)}`
-
-        // El monto total y el saldo coinciden exactamente con la moneda elegida
         const totalFinal = moneda === 'USD' ? totalUSD : totalBs
 
         const { error: errPed } = await supabase.from('pedidos').insert({
@@ -556,20 +514,44 @@
 
         if (errPed) throw errPed
 
-        // Limpiar carrito
+        // 3. Actualizar fecha de última compra para regla de inactividad
+        await supabase.from('clientes').update({ ultima_compra: new Date().toISOString() }).eq('id', clienteActivo.id)
+
+        // 4. Armar mensaje de WhatsApp pre-estructurado
+        let listaTexto = carrito.map(i => `• ${i.cantidad}x ${i.nombre} [${i.variante}]`).join('\n')
+        let totalTexto = moneda === 'USD' ? `$${totalFinal.toFixed(2)}` : formatoBs(totalFinal)
+
+        const mensajeWapp = 
+`*NUEVA ORDEN WEB - OPTILINE*
+*Orden:* #${codPedido}
+*Cliente:* ${clienteActivo.empresa} (${clienteActivo.rif})
+*Modalidad:* Pago en ${moneda === 'USD' ? 'Divisas (USD)' : 'Bolívares (Bs.)'}
+
+*Detalle de Ítems:*
+${listaTexto}
+
+*Total a Pagar:* ${totalTexto}
+
+_Quedo a la espera de confirmación de despacho._`
+
+        // 5. Vaciar carrito
         carrito = []
         localStorage.removeItem('optiline_cart')
         actualizarBadgeCarrito()
         cerrarDrawerCarrito()
 
-        alert(`✓ ¡Orden #${codPedido} registrada con éxito! El inventario fue actualizado. Total a pagar: ${moneda === 'USD' ? '$' + totalFinal.toFixed(2) : formatoBs(totalFinal)}`)
+        // 6. Abrir WhatsApp automáticamente con el teléfono configurado
+        const urlWapp = `https://wa.me/${telefonoWhatsapp}?text=${encodeURIComponent(mensajeWapp)}`
+        window.open(urlWapp, '_blank')
+
+        alert(`✓ ¡Orden #${codPedido} generada exitosamente!\nSe ha abierto WhatsApp para que envíes el resumen directo al equipo de ventas.`)
         window.location.href = 'cuenta.html'
 
       } catch (err) {
-        alert('Error en el pedido: ' + err.message)
+        alert('Error: ' + err.message)
       } finally {
         btn.disabled = false
-        btn.textContent = 'Confirmar Pedido'
+        btn.textContent = 'Confirmar y Notificar Pedido'
       }
     })
 
