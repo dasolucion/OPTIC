@@ -130,14 +130,64 @@
           </span>
           <div>
             <h3>Sigue tu pedido</h3>
-            <p>Una vez recibido tu pago, procesaremos tu rden y la despacharemos a la oficina del transportista que no s indiques.</p>
+            <p>Una vez recibido tu pago, procesaremos tu orden y la despacharemos a la oficina del transportista que nos indiques.</p>
           </div>
         </li>
       </ol>
     </div>
 
-    <div class="como-adquirir__media">
-      <img src="img/app-movil.png" alt="Tienda Optiline en el móvil">
+    <!-- FORMULARIO DE REGISTRO (antes sección "Registra tu óptica") -->
+    <div class="como-adquirir__media como-adquirir__form" id="registro">
+
+      <h3 class="seccion__titulo seccion__titulo--form">Registra tu óptica</h3>
+      <p class="seccion__texto">
+        Completa el formulario para formar parte de nuestra red mayorista.
+        Una vez verificado tu RIF por nuestro departamento comercial, recibirás vía WhatsApp tus credenciales de acceso a precios y catálogo.
+      </p>
+
+      <div class="msg msg--ok" id="registro-msg-ok" style="margin:0 0 1rem;"></div>
+      <div class="msg msg--error" id="registro-msg-err" style="margin:0 0 1rem;"></div>
+
+      <form class="formulario--registro" id="form-registro-publico" novalidate>
+
+        <div class="campo">
+          <label for="reg-empresa">Razón Social / Nombre de la Óptica *</label>
+          <input type="text" id="reg-empresa" placeholder="Ej: Óptica Visión Real, C.A." required>
+        </div>
+
+        <div class="campo">
+          <label for="reg-rif">RIF Fiscal *</label>
+          <input type="text" id="reg-rif" placeholder="Ej: J-30200326-1 o V-12345678-0" required>
+          <small id="reg-rif-val" style="display:block; font-size:0.75rem; margin-top:0.25rem; font-weight:700;"></small>
+        </div>
+
+        <div class="campo">
+          <label for="reg-nombre">Nombre y Apellido del Contacto *</label>
+          <input type="text" id="reg-nombre" placeholder="Persona autorizada para compras" required>
+        </div>
+
+        <div class="campo">
+          <label for="reg-telefono">Teléfono / WhatsApp de Contacto *</label>
+          <input type="tel" id="reg-telefono" placeholder="Ej: 0414-1234567" required>
+        </div>
+
+        <div class="campo">
+          <label for="reg-correo">Correo Electrónico *</label>
+          <input type="email" id="reg-correo" placeholder="correo@tuoptica.com" required>
+        </div>
+
+        <div class="campo">
+          <label for="reg-direccion">Dirección Fiscal / Despacho *</label>
+          <textarea id="reg-direccion" rows="3" placeholder="Estado, Ciudad, Centro Comercial / Local" required></textarea>
+        </div>
+
+        <p class="formulario__nota">
+          <strong>Importante:</strong> Al registrarse, sus datos quedan en proceso de verificación. No se genera contraseña automática hasta que nuestro equipo confirme la autenticidad de su establecimiento.
+        </p>
+
+        <button type="submit" class="boton boton--naranja" id="btn-registro-submit">Enviar Solicitud de Registro</button>
+      </form>
+
     </div>
 
   </div>
@@ -226,65 +276,7 @@
   </div>
 </section>
 
-<!-- ================= REGISTRA TU ÓPTICA ================= -->
-<section class="seccion" id="registro">
-  <div class="contenedor">
-
-    <header class="seccion__cabecera seccion__cabecera--centrada">
-      <h2 class="seccion__titulo">Registra tu óptica</h2>
-      <p class="seccion__texto">
-        Completa el formulario para formar parte de nuestra red mayorista.
-        Una vez verificado tu RIF por nuestro departamento comercial, recibirás vía WhatsApp tus credenciales de acceso a precios y catálogo.
-      </p>
-    </header>
-
-    <div class="msg msg--ok" id="registro-msg-ok" style="max-width:720px; margin:0 auto 1.5rem; text-align:center;"></div>
-    <div class="msg msg--error" id="registro-msg-err" style="max-width:720px; margin:0 auto 1.5rem; text-align:center;"></div>
-
-    <form class="formulario--registro" id="form-registro-publico" novalidate>
-
-      <div class="campo">
-        <label for="reg-empresa">Razón Social / Nombre de la Óptica *</label>
-        <input type="text" id="reg-empresa" placeholder="Ej: Óptica Visión Real, C.A." required>
-      </div>
-
-      <div class="campo">
-        <label for="reg-rif">RIF Fiscal *</label>
-        <input type="text" id="reg-rif" placeholder="Ej: J-30200326-1 o V-12345678-0" required>
-        <small id="reg-rif-val" style="display:block; font-size:0.75rem; margin-top:0.25rem; font-weight:700;"></small>
-      </div>
-
-      <div class="campo">
-        <label for="reg-nombre">Nombre y Apellido del Contacto *</label>
-        <input type="text" id="reg-nombre" placeholder="Persona autorizada para compras" required>
-      </div>
-
-      <div class="campo">
-        <label for="reg-telefono">Teléfono / WhatsApp de Contacto *</label>
-        <input type="tel" id="reg-telefono" placeholder="Ej: 0414-1234567" required>
-      </div>
-
-      <div class="campo">
-        <label for="reg-correo">Correo Electrónico *</label>
-        <input type="email" id="reg-correo" placeholder="correo@tuoptica.com" required>
-      </div>
-
-      <div class="campo">
-        <label for="reg-direccion">Dirección Fiscal / Despacho *</label>
-        <textarea id="reg-direccion" rows="3" placeholder="Estado, Ciudad, Centro Comercial / Local" required></textarea>
-      </div>
-
-      <p class="formulario__nota">
-        <strong>Importante:</strong> Al registrarse, sus datos quedan en proceso de verificación. No se genera contraseña automática hasta que nuestro equipo confirme la autenticidad de su establecimiento.
-      </p>
-
-      <button type="submit" class="boton boton--naranja" id="btn-registro-submit">Enviar Solicitud de Registro</button>
-    </form>
-
-  </div>
-</section>
-
-  <!-- SCRIPT DE VALIDACIÓN RIF SENIAT Y REGISTRO SUPABASE -->
+<!-- SCRIPT DE VALIDACIÓN RIF SENIAT Y REGISTRO SUPABASE -->
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
@@ -345,7 +337,7 @@
     const errBox = $('#registro-msg-err')
     const okBox = $('#registro-msg-ok')
     const btn = $('#btn-registro-submit')
-    
+
     errBox.style.display = 'none'
     okBox.style.display = 'none'
 
