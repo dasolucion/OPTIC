@@ -83,8 +83,8 @@
     .btn-sm--warning { background: #fef08a; color: #713f12; }
 
     .badge-status { display: inline-block; padding: 0.2rem 0.55rem; font-size: 0.75rem; font-weight: 800; border-radius: 4px; text-transform: uppercase; }
-    .badge-status--verificando { background: #fef08a; color: #713f12; }
-    .badge-status--aprobado    { background: #def7ec; color: #03543f; }
+    .badge-status--verificando { background: #fef08a; color: #713f12; } /* Amarillo para En Verificación */
+    .badge-status--aprobado    { background: #def7ec; color: #03543f; } /* Verde para Pagado */
     .badge-status--rechazado   { background: #fee2e2; color: #991b1b; }
 
     .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
@@ -98,12 +98,10 @@
     .report-filters label { font-size: 0.8rem; font-weight: 700; color: #475569; }
     .report-filters input, .report-filters select { padding: 0.6rem; border: 1px solid #d1d5db; border-radius: 6px; font-family: inherit; }
 
-    /* CONFIG LAYOUT */
     .config-top { margin-bottom: 2rem; }
     .config-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
     @media(max-width: 900px) { .config-bottom { grid-template-columns: 1fr; } }
 
-    /* IMPRESIÓN */
     @media print {
       body * { visibility: hidden; }
       .admin-main { margin-left: 0; padding: 0; }
@@ -148,12 +146,8 @@
 <div class="sidebar-overlay no-print" id="sidebar-overlay"></div>
 
 <div class="admin-layout" id="panel-view">
-
   <aside class="admin-sidebar no-print" id="admin-sidebar">
-    <div class="sidebar-brand">
-      <img src="img/logo.png" alt="Optiline">
-      <span>ADMIN</span>
-    </div>
+    <div class="sidebar-brand"><img src="img/logo.png" alt="Optiline"><span>ADMIN</span></div>
     <ul class="sidebar-nav">
       <li class="sidebar-item activo" data-tab="dashboard" style="color:var(--naranja);">📊 Dashboard</li>
       <li class="sidebar-item" data-tab="clientes">1. Ópticas / Clientes</li>
@@ -175,40 +169,24 @@
   </aside>
 
   <main class="admin-main">
-
     <!-- 0. DASHBOARD -->
     <section class="tab-content activo no-print" id="tab-dashboard">
-      <div class="main-header">
-        <h1>Dashboard General</h1>
-        <p>Resumen de rendimiento del mes actual.</p>
-      </div>
+      <div class="main-header"><h1>Dashboard General</h1><p>Resumen de rendimiento del mes actual.</p></div>
       <div class="dashboard-grid">
         <div class="dash-card">
           <h3>Ventas del Mes</h3>
           <div class="dash-card__value" id="dash-ventas-mes">$0.00</div>
           <p style="font-size:0.8rem; color:#64748b; margin-top:0.5rem;" id="dash-ventas-bs">Bs. 0,00</p>
         </div>
-        <div class="dash-card">
-          <h3>Top 3 Clientes</h3>
-          <div class="dash-list" id="dash-top-clientes"></div>
-        </div>
-        <div class="dash-card">
-          <h3>Top 3 Productos</h3>
-          <div class="dash-list" id="dash-top-productos"></div>
-        </div>
-        <div class="dash-card">
-          <h3>Top 5 Fórmulas</h3>
-          <div class="dash-list" id="dash-top-formulas"></div>
-        </div>
+        <div class="dash-card"><h3>Top 3 Clientes</h3><div class="dash-list" id="dash-top-clientes"></div></div>
+        <div class="dash-card"><h3>Top 3 Productos</h3><div class="dash-list" id="dash-top-productos"></div></div>
+        <div class="dash-card"><h3>Top 5 Fórmulas</h3><div class="dash-list" id="dash-top-formulas"></div></div>
       </div>
     </section>
 
     <!-- 1. CLIENTES -->
     <section class="tab-content no-print" id="tab-clientes">
-      <div class="main-header">
-        <h1>1. Gestión y Aprobación de Ópticas</h1>
-        <p>Valida solicitudes, aprueba cuentas y audita el estado de inactividad (3 días nuevo / 90 días sin compras).</p>
-      </div>
+      <div class="main-header"><h1>1. Gestión y Aprobación de Ópticas</h1><p>Valida solicitudes, aprueba cuentas y audita el estado de inactividad (3 días nuevo / 90 días sin compras).</p></div>
       <div class="admin-panel-box">
         <div class="filtros-bar">
           <input type="text" id="filtro-clientes" placeholder="🔍 Buscar por RIF, código, empresa o correo...">
@@ -230,26 +208,21 @@
 
     <!-- 2. PEDIDOS -->
     <section class="tab-content no-print" id="tab-pedidos">
-      <div class="main-header">
-        <h1>2. Pedidos Realizados (Consecutivo y Despacho)</h1>
-        <p>Asigna courier y guía de despacho. "Procesado" se activa al conciliar el pago.</p>
-      </div>
+      <div class="main-header"><h1>2. Pedidos Realizados</h1><p>El estado "Procesado" se activa automáticamente al conciliar el pago.</p></div>
       <div class="admin-panel-box">
         <div class="filtros-bar">
           <input type="text" id="filtro-pedidos-busqueda" placeholder="🔍 Buscar por Nro de Orden (#OPT) o RIF...">
           <select id="filtro-pedidos-estado">
             <option value="">Todos los estados de despacho</option>
-            <option value="Pendiente">Pendiente (Sin pagar)</option>
-            <option value="Procesado">Procesado (Pago conciliado)</option>
+            <option value="Pendiente">Pendiente</option>
+            <option value="Procesado">Procesado</option>
             <option value="Enviado">Enviado</option>
             <option value="Anulado">Anulado</option>
           </select>
         </div>
         <div class="table-responsive">
           <table class="data-table">
-            <thead>
-              <tr><th>Orden</th><th>Fecha</th><th>Óptica Cliente</th><th>Total</th><th>Saldo Pend.</th><th>Pago</th><th>Despacho</th><th>Courier / Guía</th><th>Acciones</th></tr>
-            </thead>
+            <thead><tr><th>Orden</th><th>Fecha</th><th>Óptica Cliente</th><th>Total</th><th>Saldo Pend.</th><th>Pago</th><th>Despacho</th><th>Courier / Guía</th><th>Acciones</th></tr></thead>
             <tbody id="tbody-pedidos-admin"></tbody>
           </table>
         </div>
@@ -258,10 +231,7 @@
 
     <!-- 3. CONCILIACIÓN -->
     <section class="tab-content no-print" id="tab-conciliacion">
-      <div class="main-header">
-        <h1>3. Conciliación Bancaria</h1>
-        <p>Valida pagos reportados, acredita el banco y el pedido pasa a <strong>Procesado</strong>.</p>
-      </div>
+      <div class="main-header"><h1>3. Conciliación Bancaria</h1><p>Valida pagos reportados, acredita el banco y el pedido pasa a <strong>Procesado</strong>.</p></div>
       <div class="admin-panel-box">
         <div class="filtros-bar">
           <input type="text" id="filtro-concil-busqueda" placeholder="🔍 Buscar por referencia o cliente...">
@@ -283,10 +253,7 @@
 
     <!-- 4. SALDOS Y BANCOS -->
     <section class="tab-content no-print" id="tab-saldos">
-      <div class="main-header">
-        <h1>4. Saldos por Banco Físico</h1>
-        <p>Control exacto en divisas (USD) y bolívares (Bs.) por entidad bancaria.</p>
-      </div>
+      <div class="main-header"><h1>4. Saldos por Banco Físico</h1><p>Control exacto en divisas (USD) y bolívares (Bs.) por entidad bancaria.</p></div>
       <div class="bancos-grid" id="grid-bancos-saldos"></div>
       <div class="admin-grid">
         <form class="admin-form" id="form-retiro">
@@ -300,9 +267,7 @@
           <button type="submit" class="boton boton--naranja boton--bloque" id="retiro-btn">Registrar Egreso</button>
         </form>
         <div class="admin-panel-box">
-          <div class="filtros-bar">
-            <select id="filtro-mov-banco"><option value="">Selecciona un banco físico para ver su libro diario...</option></select>
-          </div>
+          <div class="filtros-bar"><select id="filtro-mov-banco"><option value="">Selecciona un banco físico para ver su libro diario...</option></select></div>
           <div class="table-responsive">
             <table class="data-table">
               <thead><tr><th>Fecha</th><th>Concepto</th><th>Canal / Detalle</th><th>Monto</th><th>Saldo Resultante</th></tr></thead>
@@ -315,10 +280,7 @@
 
     <!-- 5. INVENTARIO Y FÓRMULAS -->
     <section class="tab-content no-print" id="tab-inventario">
-      <div class="main-header">
-        <h1>5. Inventario y Graduaciones</h1>
-        <p>Asigna fórmulas y stock. Si ingresas un duplicado, se sumará al stock existente.</p>
-      </div>
+      <div class="main-header"><h1>5. Inventario y Graduaciones</h1><p>Las fórmulas repetidas se muestran unificadas sumando su stock total.</p></div>
       <div class="admin-grid">
         <form class="admin-form" id="form-formula-manual">
           <h3 id="inv-form-title">Asignar Fórmula / Inventario</h3>
@@ -344,7 +306,7 @@
           </div>
           <div class="table-responsive">
             <table class="data-table">
-              <thead><tr><th>SKU</th><th>Producto</th><th>Categoría</th><th>Fórmula</th><th>Lote</th><th>Stock</th><th>Precio Base USD</th><th>Acciones</th></tr></thead>
+              <thead><tr><th>SKU</th><th>Producto</th><th>Categoría</th><th>Fórmula</th><th>Lote(s)</th><th>Stock Total</th><th>Precio Base USD</th><th>Acciones</th></tr></thead>
               <tbody id="tbody-inventario"></tbody>
             </table>
           </div>
@@ -442,14 +404,9 @@
       </div>
     </section>
 
-    <!-- 9. MÉTODOS, CUENTAS Y COURIERS (NUEVO LAYOUT) -->
+    <!-- 9. MÉTODOS, CUENTAS Y COURIERS -->
     <section class="tab-content no-print" id="tab-bancos-config">
-      <div class="main-header">
-        <h1>9. Configuración de Cobros y Envíos</h1>
-        <p>Administra las cuentas bancarias, métodos de pago y agencias de envío.</p>
-      </div>
-      
-      <!-- Cuentas Bancarias (Full Width Top) -->
+      <div class="main-header"><h1>9. Configuración de Cobros y Envíos</h1><p>Administra las cuentas bancarias, métodos de pago y agencias de envío.</p></div>
       <div class="admin-panel-box config-top">
         <h3 style="font-family:var(--fuente-titulos); font-size:1.1rem; margin-bottom:1rem;">Cuentas Bancarias Físicas</h3>
         <form id="form-cuenta-banco" style="margin-bottom:1.5rem;">
@@ -474,8 +431,6 @@
           </table>
         </div>
       </div>
-
-      <!-- Dos columnas abajo -->
       <div class="config-bottom">
         <div class="admin-panel-box">
           <h3 style="font-family:var(--fuente-titulos); font-size:1.1rem; margin-bottom:1rem;">Métodos de Pago</h3>
@@ -490,7 +445,6 @@
             </table>
           </div>
         </div>
-
         <div class="admin-panel-box">
           <h3 style="font-family:var(--fuente-titulos); font-size:1.1rem; margin-bottom:1rem;">Couriers / Agencias de Envío</h3>
           <form id="form-courier" style="display:flex; gap:0.5rem; margin-bottom:1.5rem;">
@@ -515,7 +469,6 @@
           <div class="msg msg--ok" id="param-msg"></div>
           <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:1.2rem; margin-bottom:1.25rem;">
             <label style="color:#03543f; font-size:0.9rem; margin-bottom:0.4rem;">Número de WhatsApp *</label>
-            <p style="font-size:0.78rem; color:#64748b; margin-bottom:0.6rem;">Código de país sin '+' ni espacios (Ej: <code>584121234567</code>).</p>
             <input type="text" id="param-whatsapp" required style="font-size:1.1rem; font-weight:800;" placeholder="584120000000">
           </div>
           <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:1.2rem; margin-bottom:1.25rem;">
@@ -537,21 +490,11 @@
 
     <!-- 11. REPORTES -->
     <section class="tab-content" id="tab-reportes">
-      <div class="main-header">
-        <h1>11. Reportes y Estadísticas</h1>
-        <p>Extrae informes detallados por rango de fechas.</p>
-      </div>
-
+      <div class="main-header"><h1>11. Reportes y Estadísticas</h1><p>Extrae informes detallados por rango de fechas.</p></div>
       <div class="admin-panel-box">
-        <div class="report-filters">
-          <div>
-            <label>Desde:</label>
-            <input type="date" id="rep-fecha-desde">
-          </div>
-          <div>
-            <label>Hasta:</label>
-            <input type="date" id="rep-fecha-hasta">
-          </div>
+        <div class="report-filters no-print">
+          <div><label>Desde:</label><input type="date" id="rep-fecha-desde"></div>
+          <div><label>Hasta:</label><input type="date" id="rep-fecha-hasta"></div>
           <div>
             <label>Tipo de Reporte:</label>
             <select id="rep-tipo">
@@ -564,18 +507,14 @@
           <button type="button" class="boton boton--contorno" id="btn-export-excel" style="height:42px; border-color:#03543f; color:#03543f; display:none;">Exportar a Excel</button>
           <button type="button" class="boton boton--contorno" id="btn-imprimir-reporte" style="height:42px; border-color:#0b4d8c; color:#0b4d8c; display:none;">Imprimir</button>
         </div>
-
         <div class="table-responsive" id="rep-tabla-container">
-          <!-- Aquí se inyecta la tabla del reporte -->
           <p style="text-align:center; padding:2rem; color:#9ca3af;">Selecciona un rango de fechas y genera el reporte.</p>
         </div>
       </div>
     </section>
-
   </main>
 </div>
 
-<!-- SCRIPT COMPLETO -->
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
@@ -630,7 +569,6 @@
     cargarTodo()
   }
 
-  // Tabs
   document.querySelectorAll('.sidebar-item').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.sidebar-item').forEach(t => t.classList.remove('activo'))
@@ -752,10 +690,9 @@
   $('#filtro-clientes').addEventListener('input', renderClientes)
   $('#filtro-clientes-estado').addEventListener('change', renderClientes)
 
-  // ================= 2. PEDIDOS (CORREGIDO) =================
+  // ================= 2. PEDIDOS =================
   let pedidosCache = [], couriersCache = []
   async function cargarPedidosAdmin() {
-    // Ya no se hace JOIN a couriers para evitar fallos si la tabla es nueva.
     const { data, error } = await supabase.from('pedidos').select('*, clientes(empresa, rif)').order('id', { ascending: false })
     if (error) {
       console.error("Error cargando pedidos:", error)
@@ -778,9 +715,11 @@
       const esAnulado = p.estado_despacho === 'Anulado'
       const mon = p.moneda_pago === 'USD' ? '$' : 'Bs.'
       
-      // Buscar el nombre del courier manualmente usando el array
       const courierObj = couriersCache.find(c => c.id == p.courier_id)
-      const courierNombre = courierObj ? courierObj.nombre : ''
+      
+      let badgePago = 'badge-status--verificando'
+      if (p.estado_pago === 'Pagado') badgePago = 'badge-status--aprobado'
+      if (p.estado_pago === 'Abonado' || p.estado_pago.includes('Verificar')) badgePago = 'badge-status--verificando'
 
       return `
         <tr style="${esAnulado ? 'background:#fef2f2; opacity:0.75;' : ''}">
@@ -789,7 +728,7 @@
           <td>${p.clientes?.empresa || '—'}<br><small style="color:#64748b;">${p.clientes?.rif || ''}</small></td>
           <td><strong>${mon} ${Number(p.total).toFixed(2)}</strong></td>
           <td><strong style="color:${Number(p.saldo_pendiente) > 0 ? '#f39200' : '#03543f'};">${mon} ${Number(p.saldo_pendiente).toFixed(2)}</strong></td>
-          <td><span class="badge-status ${p.estado_pago === 'Pagado' ? 'badge-status--aprobado' : 'badge-status--verificando'}">${p.estado_pago}</span></td>
+          <td><span class="badge-status ${badgePago}">${p.estado_pago}</span></td>
           
           <td>
             ${esAnulado ? `<span class="badge-status badge-status--rechazado">Anulado</span>` : `
@@ -887,30 +826,50 @@
       </tr>
     `).join('') || '<tr><td colspan="9" style="text-align:center;padding:2rem;">Sin pagos.</td></tr>'
 
+    // Evento de Conciliación
     document.querySelectorAll('[data-check-pago]').forEach(chk => {
       chk.addEventListener('change', async () => {
         const pId = chk.dataset.checkPago, pago = pagosCache.find(x => x.id == pId)
         if (!pago) return
         const nuevoEstado = chk.checked
-        await supabase.from('pagos').update({ conciliado: nuevoEstado, estado_conciliacion: nuevoEstado ? 'Aprobado' : 'En verificación' }).eq('id', pId)
 
-        if (pago.pedido_id) {
-          const nuevoDespacho = nuevoEstado ? 'Procesado' : 'Pendiente'
-          await supabase.from('pedidos').update({ estado_despacho: nuevoDespacho }).eq('id', pago.pedido_id)
-        }
+        try {
+          await supabase.from('pagos').update({ conciliado: nuevoEstado, estado_conciliacion: nuevoEstado ? 'Aprobado' : 'En verificación' }).eq('id', pId)
 
-        if (pago.cuenta_id) {
-          const { data: cta } = await supabase.from('cuentas_bancarias').select('*').eq('id', pago.cuenta_id).single()
-          if (cta) {
-            const delta = nuevoEstado ? parseFloat(pago.monto) : -parseFloat(pago.monto)
-            const nuevoSaldo = parseFloat(cta.saldo_actual) + delta
-            await supabase.from('cuentas_bancarias').update({ saldo_actual: nuevoSaldo }).eq('id', cta.id)
-            if (nuevoEstado) {
-              await supabase.from('movimientos_tesoreria').insert({ cuenta_id: cta.id, tipo: 'INGRESO', monto: pago.monto, concepto: `Pago Orden #${pago.pedidos?.codigo_pedido || ''} (${pago.metodo_pago})`, referencia: pago.referencia, pedido_id: pago.pedido_id, pago_id: pago.id, saldo_resultante: nuevoSaldo })
+          if (pago.pedido_id) {
+            const { data: ped } = await supabase.from('pedidos').select('monto_pagado, total').eq('id', pago.pedido_id).single()
+            if (ped) {
+              if (nuevoEstado) {
+                const esTotal = Number(ped.monto_pagado) >= Number(ped.total)
+                await supabase.from('pedidos').update({
+                  estado_pago: esTotal ? 'Pagado' : 'Abonado',
+                  estado_despacho: esTotal ? 'Procesado' : 'Pendiente'
+                }).eq('id', pago.pedido_id)
+              } else {
+                await supabase.from('pedidos').update({
+                  estado_pago: 'En Verificación',
+                  estado_despacho: 'Pendiente'
+                }).eq('id', pago.pedido_id)
+              }
             }
           }
+
+          if (pago.cuenta_id) {
+            const { data: cta } = await supabase.from('cuentas_bancarias').select('*').eq('id', pago.cuenta_id).single()
+            if (cta) {
+              const delta = nuevoEstado ? parseFloat(pago.monto) : -parseFloat(pago.monto)
+              const nuevoSaldo = parseFloat(cta.saldo_actual) + delta
+              await supabase.from('cuentas_bancarias').update({ saldo_actual: nuevoSaldo }).eq('id', cta.id)
+              if (nuevoEstado) {
+                await supabase.from('movimientos_tesoreria').insert({ cuenta_id: cta.id, tipo: 'INGRESO', monto: pago.monto, concepto: `Pago Orden #${pago.pedidos?.codigo_pedido || ''} (${pago.metodo_pago})`, referencia: pago.referencia, pedido_id: pago.pedido_id, pago_id: pago.id, saldo_resultante: nuevoSaldo })
+              }
+            }
+          }
+          cargarConciliacion(); cargarPedidosAdmin(); cargarSaldosBancarios()
+        } catch (err) {
+          alert("Error al conciliar: " + err.message)
+          chk.checked = !nuevoEstado
         }
-        cargarConciliacion(); cargarPedidosAdmin(); cargarSaldosBancarios()
       })
     })
   }
@@ -972,6 +931,7 @@
 
   // ================= 5. INVENTARIO Y FÓRMULAS =================
   let prodsCache = [], lotesCache = [], catsCache = [], invCache = []
+  
   async function cargarInventarioData() {
     const { data: inv } = await supabase.from('inventario_lotes').select('id, stock, variante_id, lote_id, variantes(id, nombre, productos(id, sku, nombre, precio, categorias(id, nombre))), lotes(id, codigo_lote, fecha_vencimiento)').order('id', { ascending: false })
     invCache = inv || []
@@ -980,23 +940,43 @@
 
   function renderInventario() {
     const q = $('#filtro-inv-busqueda').value.trim().toLowerCase(), cId = $('#filtro-inv-categoria').value, pId = $('#filtro-inv-producto').value
-    const filtrados = invCache.filter(i => {
+
+    // AGRUPACIÓN DE INVENTARIO: Se agrupa por variante_id para sumar stock y no duplicar filas
+    const groupedMap = new Map()
+    invCache.forEach(i => {
+      const vId = i.variante_id
+      if (!groupedMap.has(vId)) {
+        groupedMap.set(vId, { ...i, stock: 0, lotesArray: [] })
+      }
+      const item = groupedMap.get(vId)
+      item.stock += (i.stock || 0)
+      if (i.lotes?.codigo_lote && !item.lotesArray.includes(i.lotes.codigo_lote)) {
+        item.lotesArray.push(i.lotes.codigo_lote)
+      }
+    })
+    
+    const groupedArray = Array.from(groupedMap.values())
+
+    const filtrados = groupedArray.filter(i => {
       const p = i.variantes?.productos
       if (cId && p?.categorias?.id != cId) return false
       if (pId && p?.id != pId) return false
-      if (q && !`${p?.sku} ${p?.nombre} ${i.variantes?.nombre} ${i.lotes?.codigo_lote}`.toLowerCase().includes(q)) return false
+      const loteStr = i.lotesArray.join(', ')
+      if (q && !`${p?.sku} ${p?.nombre} ${i.variantes?.nombre} ${loteStr}`.toLowerCase().includes(q)) return false
       return true
     })
 
     $('#tbody-inventario').innerHTML = filtrados.map(i => {
       const p = i.variantes?.productos
+      const loteStr = i.lotesArray.join(', ')
+      
       return `
         <tr>
           <td><strong>${p?.sku || '—'}</strong></td>
           <td>${p?.nombre || '—'}</td>
           <td>${p?.categorias?.nombre || '—'}</td>
           <td>${i.variantes?.nombre || '—'}</td>
-          <td><strong>${i.lotes?.codigo_lote || '—'}</strong></td>
+          <td><strong style="font-size:0.75rem;">${loteStr || '—'}</strong></td>
           <td><strong style="color:${i.stock > 0 ? '#0b4d8c' : '#991b1b'};">${i.stock} unids</strong></td>
           <td>$${Number(p?.precio || 0).toFixed(2)}</td>
           <td>
@@ -1056,7 +1036,7 @@
       // Modo Edición: Setea el stock exacto
       await supabase.from('inventario_lotes').update({ variante_id: vId, lote_id: lId, stock }).eq('id', editId)
     } else {
-      // Modo Creación: Verifica si existe para SUMAR, si no, inserta
+      // Modo Creación: Verifica si existe la misma fórmula y lote, si existe SUMA
       const { data: existing } = await supabase.from('inventario_lotes').select('id, stock').eq('variante_id', vId).eq('lote_id', lId).maybeSingle()
       if (existing) {
         await supabase.from('inventario_lotes').update({ stock: existing.stock + stock }).eq('id', existing.id)
@@ -1208,7 +1188,6 @@
     couriersCache = data || []
     $('#tbody-couriers').innerHTML = couriersCache.map(c => `<tr><td><strong>${c.nombre}</strong></td><td><button class="btn-sm btn-sm--danger" data-del-courier="${c.id}">Borrar</button></td></tr>`).join('') || '<tr><td colspan="2" style="text-align:center;padding:1.5rem;">Sin couriers.</td></tr>'
     
-    // Refrescar pedidos para que tomen los nuevos couriers
     renderPedidosAdmin()
 
     document.querySelectorAll('[data-del-courier]').forEach(btn => btn.addEventListener('click', async () => {
@@ -1255,7 +1234,7 @@
     showMsg('param-msg', '✓ Parámetros actualizados con éxito.')
   })
 
-  // ================= 11. REPORTES (ORDENAMIENTO Y EXPORTACIÓN) =================
+  // ================= 11. REPORTES =================
   $('#btn-generar-reporte').addEventListener('click', async () => {
     const desde = $('#rep-fecha-desde').value
     const hasta = $('#rep-fecha-hasta').value
@@ -1270,7 +1249,6 @@
 
     try {
       if (tipo === 'ventas') {
-        // Ordenado por Fecha Ascendente
         const { data, error } = await supabase.from('pedidos').select('*, clientes(empresa, rif)').gte('fecha', desde).lte('fecha', hasta + 'T23:59:59').neq('estado_despacho', 'Anulado').order('fecha', { ascending: true })
         if (error) throw error
 
@@ -1292,7 +1270,6 @@
           </table>`
       } 
       else if (tipo === 'bancos') {
-        // Se ordena en JS por banco, luego por fecha
         const { data, error } = await supabase.from('movimientos_tesoreria').select('*, cuentas_bancarias(nombre_banco, moneda)').gte('fecha', desde).lte('fecha', hasta + 'T23:59:59')
         if (error) throw error
 
@@ -1320,7 +1297,6 @@
           </table>`
       }
       else if (tipo === 'productos') {
-        // Se extraen de los detalles y se ordenan por Lote -> Producto -> Fecha
         const { data, error } = await supabase.from('pedidos').select('fecha, codigo_pedido, detalles').gte('fecha', desde).lte('fecha', hasta + 'T23:59:59').neq('estado_despacho', 'Anulado')
         if (error) throw error
 
@@ -1357,7 +1333,6 @@
           </table>`
       }
       
-      // Mostrar botones de exportación
       $('#btn-export-excel').style.display = 'inline-flex'
       $('#btn-imprimir-reporte').style.display = 'inline-flex'
 
@@ -1366,23 +1341,15 @@
     }
   })
 
-  // EXPORTAR EXCEL
   $('#btn-export-excel').addEventListener('click', () => {
     const table = document.getElementById('tabla-reporte')
     if (!table) return alert('Primero genere un reporte.')
-    
-    // Crear libro de excel
     const wb = XLSX.utils.table_to_book(table, { sheet: "Reporte" })
-    // Generar archivo
     XLSX.writeFile(wb, `Reporte_Optiline_${new Date().toISOString().split('T')[0]}.xlsx`)
   })
 
-  // IMPRIMIR
-  $('#btn-imprimir-reporte').addEventListener('click', () => {
-    window.print()
-  })
+  $('#btn-imprimir-reporte').addEventListener('click', () => { window.print() })
 
-  // INICIALIZACIÓN
   async function cargarTodo() {
     await cargarCatalogos()
     await cargarClientes()
@@ -1396,6 +1363,5 @@
     await cargarDashboard()
   }
 </script>
-
 </body>
 </html>
