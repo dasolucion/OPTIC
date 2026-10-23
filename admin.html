@@ -87,7 +87,6 @@
     .badge-status--aprobado    { background: #def7ec; color: #03543f; }
     .badge-status--rechazado   { background: #fee2e2; color: #991b1b; }
 
-    /* ESTILOS DASHBOARD Y REPORTES */
     .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
     .dash-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
     .dash-card h3 { font-family: 'Montserrat', sans-serif; font-size: 0.85rem; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
@@ -98,6 +97,22 @@
     .report-filters > div { display: flex; flex-direction: column; gap: 0.3rem; }
     .report-filters label { font-size: 0.8rem; font-weight: 700; color: #475569; }
     .report-filters input, .report-filters select { padding: 0.6rem; border: 1px solid #d1d5db; border-radius: 6px; font-family: inherit; }
+
+    /* CONFIG LAYOUT */
+    .config-top { margin-bottom: 2rem; }
+    .config-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    @media(max-width: 900px) { .config-bottom { grid-template-columns: 1fr; } }
+
+    /* IMPRESIÓN */
+    @media print {
+      body * { visibility: hidden; }
+      .admin-main { margin-left: 0; padding: 0; }
+      #tab-reportes, #tab-reportes * { visibility: visible; }
+      #tab-reportes { position: absolute; left: 0; top: 0; width: 100%; }
+      .no-print, .sidebar-item, .sidebar-footer, .mobile-header-bar, .report-filters { display: none !important; }
+      .table-responsive { border: none; overflow: visible; }
+      .data-table th, .data-table td { border: 1px solid #ccc !important; padding: 0.5rem; }
+    }
 
     @media (max-width: 768px) {
       .mobile-header-bar { display: flex; }
@@ -112,7 +127,7 @@
 </head>
 <body>
 
-<div class="admin-login" id="login-view">
+<div class="admin-login no-print" id="login-view">
   <div class="admin-login__box">
     <h1>Panel de Control</h1>
     <p>Distribución Mayorista · Optiline</p>
@@ -125,21 +140,20 @@
   </div>
 </div>
 
-<div class="mobile-header-bar">
+<div class="mobile-header-bar no-print">
   <button type="button" class="btn-hamburguesa" id="btn-toggle-menu">☰</button>
   <span style="font-family:'Montserrat',sans-serif; font-weight:800; font-size:0.9rem;">OPTILINE ADMIN</span>
   <div style="width:24px;"></div>
 </div>
-<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<div class="sidebar-overlay no-print" id="sidebar-overlay"></div>
 
 <div class="admin-layout" id="panel-view">
 
-  <aside class="admin-sidebar" id="admin-sidebar">
+  <aside class="admin-sidebar no-print" id="admin-sidebar">
     <div class="sidebar-brand">
       <img src="img/logo.png" alt="Optiline">
       <span>ADMIN</span>
     </div>
-
     <ul class="sidebar-nav">
       <li class="sidebar-item activo" data-tab="dashboard" style="color:var(--naranja);">📊 Dashboard</li>
       <li class="sidebar-item" data-tab="clientes">1. Ópticas / Clientes</li>
@@ -154,7 +168,6 @@
       <li class="sidebar-item" data-tab="parametros">10. ⚙️ Parámetros</li>
       <li class="sidebar-item" data-tab="reportes" style="color:#e2e8f0;">11. 📈 Reportes</li>
     </ul>
-
     <div class="sidebar-footer">
       <small id="user-email"></small>
       <button type="button" class="boton boton--naranja boton--bloque" id="logout-btn" style="padding:0.5rem; font-size:0.75rem;">Cerrar sesión</button>
@@ -164,12 +177,11 @@
   <main class="admin-main">
 
     <!-- 0. DASHBOARD -->
-    <section class="tab-content activo" id="tab-dashboard">
+    <section class="tab-content activo no-print" id="tab-dashboard">
       <div class="main-header">
         <h1>Dashboard General</h1>
         <p>Resumen de rendimiento del mes actual.</p>
       </div>
-
       <div class="dashboard-grid">
         <div class="dash-card">
           <h3>Ventas del Mes</h3>
@@ -192,7 +204,7 @@
     </section>
 
     <!-- 1. CLIENTES -->
-    <section class="tab-content" id="tab-clientes">
+    <section class="tab-content no-print" id="tab-clientes">
       <div class="main-header">
         <h1>1. Gestión y Aprobación de Ópticas</h1>
         <p>Valida solicitudes, aprueba cuentas y audita el estado de inactividad (3 días nuevo / 90 días sin compras).</p>
@@ -217,7 +229,7 @@
     </section>
 
     <!-- 2. PEDIDOS -->
-    <section class="tab-content" id="tab-pedidos">
+    <section class="tab-content no-print" id="tab-pedidos">
       <div class="main-header">
         <h1>2. Pedidos Realizados (Consecutivo y Despacho)</h1>
         <p>Asigna courier y guía de despacho. "Procesado" se activa al conciliar el pago.</p>
@@ -236,9 +248,7 @@
         <div class="table-responsive">
           <table class="data-table">
             <thead>
-              <tr>
-                <th>Orden</th><th>Fecha</th><th>Óptica Cliente</th><th>Total</th><th>Saldo Pend.</th><th>Pago</th><th>Despacho</th><th>Courier / Guía</th><th>Acciones</th>
-              </tr>
+              <tr><th>Orden</th><th>Fecha</th><th>Óptica Cliente</th><th>Total</th><th>Saldo Pend.</th><th>Pago</th><th>Despacho</th><th>Courier / Guía</th><th>Acciones</th></tr>
             </thead>
             <tbody id="tbody-pedidos-admin"></tbody>
           </table>
@@ -247,7 +257,7 @@
     </section>
 
     <!-- 3. CONCILIACIÓN -->
-    <section class="tab-content" id="tab-conciliacion">
+    <section class="tab-content no-print" id="tab-conciliacion">
       <div class="main-header">
         <h1>3. Conciliación Bancaria</h1>
         <p>Valida pagos reportados, acredita el banco y el pedido pasa a <strong>Procesado</strong>.</p>
@@ -272,7 +282,7 @@
     </section>
 
     <!-- 4. SALDOS Y BANCOS -->
-    <section class="tab-content" id="tab-saldos">
+    <section class="tab-content no-print" id="tab-saldos">
       <div class="main-header">
         <h1>4. Saldos por Banco Físico</h1>
         <p>Control exacto en divisas (USD) y bolívares (Bs.) por entidad bancaria.</p>
@@ -304,10 +314,10 @@
     </section>
 
     <!-- 5. INVENTARIO Y FÓRMULAS -->
-    <section class="tab-content" id="tab-inventario">
+    <section class="tab-content no-print" id="tab-inventario">
       <div class="main-header">
         <h1>5. Inventario y Graduaciones</h1>
-        <p>Asigna fórmulas y stock a productos. Edita ítems existentes.</p>
+        <p>Asigna fórmulas y stock. Si ingresas un duplicado, se sumará al stock existente.</p>
       </div>
       <div class="admin-grid">
         <form class="admin-form" id="form-formula-manual">
@@ -319,7 +329,7 @@
           <div class="info-tag" id="tag-lote-info" style="font-size:0.75rem; color:#64748b; margin-bottom:0.5rem;">Lote: — | Vence: —</div>
           <label>Variable / Fórmula *</label>
           <input type="text" id="manual-formula" placeholder="Ej: -2.00 / -0.75 x 90" required>
-          <label>Stock Disponible *</label>
+          <label>Stock a Sumar / Ajustar *</label>
           <input type="number" id="manual-stock" min="0" value="0" required>
           <div class="btn-group">
             <button type="submit" class="boton boton--primario boton--bloque" id="manual-btn">Guardar en Inventario</button>
@@ -343,7 +353,7 @@
     </section>
 
     <!-- 6. PRODUCTOS -->
-    <section class="tab-content" id="tab-productos">
+    <section class="tab-content no-print" id="tab-productos">
       <div class="main-header"><h1>6. Maestro de Productos</h1><p>Configura el SKU, categoría y Precio Base en USD de cada artículo.</p></div>
       <div class="admin-grid">
         <form class="admin-form" id="form-producto">
@@ -377,7 +387,7 @@
     </section>
 
     <!-- 7. CATEGORÍAS -->
-    <section class="tab-content" id="tab-categorias">
+    <section class="tab-content no-print" id="tab-categorias">
       <div class="main-header"><h1>7. Categorías de Productos</h1><p>Estructura de catálogo e imágenes de categoría.</p></div>
       <div class="admin-grid">
         <form class="admin-form" id="form-categoria">
@@ -407,7 +417,7 @@
     </section>
 
     <!-- 8. LOTES -->
-    <section class="tab-content" id="tab-lotes">
+    <section class="tab-content no-print" id="tab-lotes">
       <div class="main-header"><h1>8. Catálogo de Lotes</h1><p>Códigos de fabricación y fechas de vencimiento.</p></div>
       <div class="admin-grid">
         <form class="admin-form" id="form-lote">
@@ -432,14 +442,41 @@
       </div>
     </section>
 
-    <!-- 9. MÉTODOS, CUENTAS Y COURIERS -->
-    <section class="tab-content" id="tab-bancos-config">
+    <!-- 9. MÉTODOS, CUENTAS Y COURIERS (NUEVO LAYOUT) -->
+    <section class="tab-content no-print" id="tab-bancos-config">
       <div class="main-header">
-        <h1>9. Métodos de Pago, Cuentas y Couriers</h1>
-        <p>Configuración de pasarelas, entidades físicas y agencias de envío.</p>
+        <h1>9. Configuración de Cobros y Envíos</h1>
+        <p>Administra las cuentas bancarias, métodos de pago y agencias de envío.</p>
       </div>
-      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap:2rem;">
-        <!-- Métodos -->
+      
+      <!-- Cuentas Bancarias (Full Width Top) -->
+      <div class="admin-panel-box config-top">
+        <h3 style="font-family:var(--fuente-titulos); font-size:1.1rem; margin-bottom:1rem;">Cuentas Bancarias Físicas</h3>
+        <form id="form-cuenta-banco" style="margin-bottom:1.5rem;">
+          <div class="admin-form__row" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+            <div><label>Nombre del Banco *</label><input type="text" id="banco-nombre" placeholder="Banesco / Zelle" required style="padding:.65rem; border:1px solid #d1d5db; border-radius:6px; width:100%;"></div>
+            <div>
+              <label>Moneda *</label>
+              <select id="banco-moneda" required style="padding:.65rem; border:1px solid #d1d5db; border-radius:6px; width:100%;">
+                <option value="USD">Dólares (USD)</option>
+                <option value="Bs.">Bolívares (Bs.)</option>
+              </select>
+            </div>
+            <div><label>Titular</label><input type="text" id="banco-titular" placeholder="Razón Social" style="padding:.65rem; border:1px solid #d1d5db; border-radius:6px; width:100%;"></div>
+            <div><label>Saldo Inicial</label><input type="number" id="banco-saldo-inicial" step="0.01" value="0.00" style="padding:.65rem; border:1px solid #d1d5db; border-radius:6px; width:100%;"></div>
+            <div style="display:flex; align-items:flex-end;"><button type="submit" class="boton boton--primario" style="width:100%;">Crear Cuenta</button></div>
+          </div>
+        </form>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead><tr><th>Banco</th><th>Titular</th><th>Moneda</th><th>Saldo</th><th>Acciones</th></tr></thead>
+            <tbody id="tbody-cuentas"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Dos columnas abajo -->
+      <div class="config-bottom">
         <div class="admin-panel-box">
           <h3 style="font-family:var(--fuente-titulos); font-size:1.1rem; margin-bottom:1rem;">Métodos de Pago</h3>
           <form id="form-metodo-pago" style="display:flex; gap:0.5rem; margin-bottom:1.5rem;">
@@ -454,35 +491,6 @@
           </div>
         </div>
 
-        <!-- Cuentas -->
-        <div class="admin-panel-box">
-          <h3 style="font-family:var(--fuente-titulos); font-size:1.1rem; margin-bottom:1rem;">Cuentas Bancarias Físicas</h3>
-          <form id="form-cuenta-banco" style="margin-bottom:1.5rem;">
-            <div class="admin-form__row">
-              <div><label>Nombre del Banco *</label><input type="text" id="banco-nombre" placeholder="Banesco / Zelle" required style="padding:.65rem; border:1px solid #d1d5db; border-radius:6px;"></div>
-              <div>
-                <label>Moneda *</label>
-                <select id="banco-moneda" required style="padding:.65rem; border:1px solid #d1d5db; border-radius:6px;">
-                  <option value="USD">Dólares (USD)</option>
-                  <option value="Bs.">Bolívares (Bs.)</option>
-                </select>
-              </div>
-            </div>
-            <div class="admin-form__row">
-              <div><label>Titular</label><input type="text" id="banco-titular" placeholder="Razón Social" style="padding:.65rem; border:1px solid #d1d5db; border-radius:6px;"></div>
-              <div><label>Saldo Inicial</label><input type="number" id="banco-saldo-inicial" step="0.01" value="0.00" style="padding:.65rem; border:1px solid #d1d5db; border-radius:6px;"></div>
-            </div>
-            <button type="submit" class="boton boton--primario boton--bloque">Crear Cuenta</button>
-          </form>
-          <div class="table-responsive">
-            <table class="data-table">
-              <thead><tr><th>Banco</th><th>Titular</th><th>Moneda</th><th>Saldo</th><th>Acciones</th></tr></thead>
-              <tbody id="tbody-cuentas"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Couriers -->
         <div class="admin-panel-box">
           <h3 style="font-family:var(--fuente-titulos); font-size:1.1rem; margin-bottom:1rem;">Couriers / Agencias de Envío</h3>
           <form id="form-courier" style="display:flex; gap:0.5rem; margin-bottom:1.5rem;">
@@ -500,7 +508,7 @@
     </section>
 
     <!-- 10. PARÁMETROS -->
-    <section class="tab-content" id="tab-parametros">
+    <section class="tab-content no-print" id="tab-parametros">
       <div class="main-header"><h1>10. Parámetros Cambiarios y Notificaciones</h1><p>Configura las tasas y el número de WhatsApp oficial.</p></div>
       <div style="max-width: 650px;">
         <form class="admin-form" id="form-parametros" style="position:static;">
@@ -553,6 +561,8 @@
             </select>
           </div>
           <button type="button" class="boton boton--naranja" id="btn-generar-reporte" style="height:42px;">Generar Reporte</button>
+          <button type="button" class="boton boton--contorno" id="btn-export-excel" style="height:42px; border-color:#03543f; color:#03543f; display:none;">Exportar a Excel</button>
+          <button type="button" class="boton boton--contorno" id="btn-imprimir-reporte" style="height:42px; border-color:#0b4d8c; color:#0b4d8c; display:none;">Imprimir</button>
         </div>
 
         <div class="table-responsive" id="rep-tabla-container">
@@ -637,30 +647,19 @@
   async function cargarDashboard() {
     const ahora = new Date()
     const primerDiaMes = new Date(ahora.getFullYear(), ahora.getMonth(), 1).toISOString()
-    
-    // Ventas del mes
     const { data: ventasMes } = await supabase.from('pedidos').select('total, total_usd, total_bs, cliente_id, detalles').neq('estado_despacho', 'Anulado').gte('fecha', primerDiaMes)
     
-    let sumUSD = 0, sumBs = 0
-    let clientesMap = {}, productosMap = {}, formulasMap = {}
+    let sumUSD = 0, sumBs = 0, clientesMap = {}, productosMap = {}, formulasMap = {}
 
     if (ventasMes) {
       ventasMes.forEach(p => {
-        sumUSD += Number(p.total_usd || 0)
-        sumBs += Number(p.total_bs || 0)
-        
-        // Top Clientes
+        sumUSD += Number(p.total_usd || 0); sumBs += Number(p.total_bs || 0)
         if (!clientesMap[p.cliente_id]) clientesMap[p.cliente_id] = 0
         clientesMap[p.cliente_id] += Number(p.total_usd || 0)
-
-        // Top Productos y Fórmulas
         if (p.detalles && Array.isArray(p.detalles)) {
           p.detalles.forEach(item => {
-            // Producto
             if (!productosMap[item.nombre]) productosMap[item.nombre] = 0
             productosMap[item.nombre] += item.cantidad
-
-            // Fórmula
             const keyFormula = `${item.nombre} [${item.variante}]`
             if (!formulasMap[keyFormula]) formulasMap[keyFormula] = 0
             formulasMap[keyFormula] += item.cantidad
@@ -672,7 +671,6 @@
     $('#dash-ventas-mes').textContent = `$${sumUSD.toFixed(2)}`
     $('#dash-ventas-bs').textContent = `Bs. ${sumBs.toLocaleString('es-VE', { minimumFractionDigits: 2 })}`
 
-    // Renderizar Top Clientes
     const { data: clientesDB } = await supabase.from('clientes').select('id, empresa')
     const topClientes = Object.entries(clientesMap).sort((a,b) => b[1] - a[1]).slice(0, 3)
     $('#dash-top-clientes').innerHTML = topClientes.map(([id, monto]) => {
@@ -680,11 +678,9 @@
       return `<div class="dash-list-item"><span>${cli?.empresa || 'Desconocido'}</span> <strong>$${monto.toFixed(2)}</strong></div>`
     }).join('') || '<p style="font-size:0.8rem; color:#9ca3af;">Sin ventas este mes.</p>'
 
-    // Renderizar Top Productos
     const topProductos = Object.entries(productosMap).sort((a,b) => b[1] - a[1]).slice(0, 3)
     $('#dash-top-productos').innerHTML = topProductos.map(([nombre, cant]) => `<div class="dash-list-item"><span>${nombre}</span> <strong>${cant} unids</strong></div>`).join('') || '<p style="font-size:0.8rem; color:#9ca3af;">Sin ventas este mes.</p>'
 
-    // Renderizar Top Fórmulas
     const topFormulas = Object.entries(formulasMap).sort((a,b) => b[1] - a[1]).slice(0, 5)
     $('#dash-top-formulas').innerHTML = topFormulas.map(([formula, cant]) => `<div class="dash-list-item"><span style="font-size:0.8rem;">${formula}</span> <strong>${cant} unids</strong></div>`).join('') || '<p style="font-size:0.8rem; color:#9ca3af;">Sin ventas este mes.</p>'
   }
@@ -756,10 +752,16 @@
   $('#filtro-clientes').addEventListener('input', renderClientes)
   $('#filtro-clientes-estado').addEventListener('change', renderClientes)
 
-  // ================= 2. PEDIDOS =================
+  // ================= 2. PEDIDOS (CORREGIDO) =================
   let pedidosCache = [], couriersCache = []
   async function cargarPedidosAdmin() {
-    const { data } = await supabase.from('pedidos').select('*, clientes(empresa, rif), couriers(nombre)').order('id', { ascending: false })
+    // Ya no se hace JOIN a couriers para evitar fallos si la tabla es nueva.
+    const { data, error } = await supabase.from('pedidos').select('*, clientes(empresa, rif)').order('id', { ascending: false })
+    if (error) {
+      console.error("Error cargando pedidos:", error)
+      $('#tbody-pedidos-admin').innerHTML = `<tr><td colspan="9" style="text-align:center;padding:2rem;color:#991b1b;">Error al cargar pedidos: ${error.message}</td></tr>`
+      return
+    }
     pedidosCache = data || []
     renderPedidosAdmin()
   }
@@ -776,6 +778,10 @@
       const esAnulado = p.estado_despacho === 'Anulado'
       const mon = p.moneda_pago === 'USD' ? '$' : 'Bs.'
       
+      // Buscar el nombre del courier manualmente usando el array
+      const courierObj = couriersCache.find(c => c.id == p.courier_id)
+      const courierNombre = courierObj ? courierObj.nombre : ''
+
       return `
         <tr style="${esAnulado ? 'background:#fef2f2; opacity:0.75;' : ''}">
           <td><strong>#${p.codigo_pedido}</strong></td>
@@ -815,7 +821,6 @@
       `
     }).join('') || '<tr><td colspan="9" style="text-align:center;padding:2rem;">Sin pedidos registrados.</td></tr>'
 
-    // Actualizar estado despacho (select)
     document.querySelectorAll('.check-despacho-select').forEach(sel => {
       sel.addEventListener('change', async () => {
         await supabase.from('pedidos').update({ estado_despacho: sel.value }).eq('id', sel.dataset.pedId)
@@ -823,7 +828,6 @@
       })
     })
 
-    // Guardar courier y guía
     document.querySelectorAll('[data-save-ship]').forEach(btn => {
       btn.addEventListener('click', async () => {
         const pId = btn.dataset.saveShip
@@ -831,10 +835,10 @@
         const guia = $(`#guia-inp-${pId}`).value.trim() || null
         await supabase.from('pedidos').update({ courier_id: cId, guia_despacho: guia }).eq('id', pId)
         alert('✓ Datos de envío guardados.')
+        cargarPedidosAdmin()
       })
     })
 
-    // Anular pedido
     document.querySelectorAll('[data-anular-ped]').forEach(btn => btn.addEventListener('click', async () => {
       if (!confirm(`¿Anular pedido #${btn.dataset.codigo}? El stock reservado se devolverá.`)) return
       const items = JSON.parse(btn.dataset.detalles || '[]')
@@ -890,13 +894,11 @@
         const nuevoEstado = chk.checked
         await supabase.from('pagos').update({ conciliado: nuevoEstado, estado_conciliacion: nuevoEstado ? 'Aprobado' : 'En verificación' }).eq('id', pId)
 
-        // IMPACTO AUTOMÁTICO: PEDIDO PASA A "PROCESADO" AL CONCILIAR
         if (pago.pedido_id) {
           const nuevoDespacho = nuevoEstado ? 'Procesado' : 'Pendiente'
           await supabase.from('pedidos').update({ estado_despacho: nuevoDespacho }).eq('id', pago.pedido_id)
         }
 
-        // IMPACTO EN SALDO BANCARIO
         if (pago.cuenta_id) {
           const { data: cta } = await supabase.from('cuentas_bancarias').select('*').eq('id', pago.cuenta_id).single()
           if (cta) {
@@ -1051,9 +1053,16 @@
     }
 
     if (editId) {
+      // Modo Edición: Setea el stock exacto
       await supabase.from('inventario_lotes').update({ variante_id: vId, lote_id: lId, stock }).eq('id', editId)
     } else {
-      await supabase.from('inventario_lotes').upsert({ variante_id: vId, lote_id: lId, stock }, { onConflict: 'variante_id,lote_id' })
+      // Modo Creación: Verifica si existe para SUMAR, si no, inserta
+      const { data: existing } = await supabase.from('inventario_lotes').select('id, stock').eq('variante_id', vId).eq('lote_id', lId).maybeSingle()
+      if (existing) {
+        await supabase.from('inventario_lotes').update({ stock: existing.stock + stock }).eq('id', existing.id)
+      } else {
+        await supabase.from('inventario_lotes').insert({ variante_id: vId, lote_id: lId, stock })
+      }
     }
     
     $('#inv-btn-cancelar').click()
@@ -1168,7 +1177,7 @@
   })
 
   // ================= 9. MÉTODOS, CUENTAS Y COURIERS =================
-  let metodosCache = [], couriersCacheConfig = []
+  let metodosCache = []
   async function cargarMetodosPago() {
     const { data } = await supabase.from('metodos_pago').select('*').order('id')
     metodosCache = data || []
@@ -1196,11 +1205,10 @@
 
   async function cargarCouriers() {
     const { data } = await supabase.from('couriers').select('*').order('id')
-    couriersCacheConfig = data || []
-    $('#tbody-couriers').innerHTML = couriersCacheConfig.map(c => `<tr><td><strong>${c.nombre}</strong></td><td><button class="btn-sm btn-sm--danger" data-del-courier="${c.id}">Borrar</button></td></tr>`).join('') || '<tr><td colspan="2" style="text-align:center;padding:1.5rem;">Sin couriers.</td></tr>'
+    couriersCache = data || []
+    $('#tbody-couriers').innerHTML = couriersCache.map(c => `<tr><td><strong>${c.nombre}</strong></td><td><button class="btn-sm btn-sm--danger" data-del-courier="${c.id}">Borrar</button></td></tr>`).join('') || '<tr><td colspan="2" style="text-align:center;padding:1.5rem;">Sin couriers.</td></tr>'
     
-    // Actualizar variable para pedidos
-    couriersCache = couriersCacheConfig
+    // Refrescar pedidos para que tomen los nuevos couriers
     renderPedidosAdmin()
 
     document.querySelectorAll('[data-del-courier]').forEach(btn => btn.addEventListener('click', async () => {
@@ -1247,7 +1255,7 @@
     showMsg('param-msg', '✓ Parámetros actualizados con éxito.')
   })
 
-  // ================= 11. REPORTES =================
+  // ================= 11. REPORTES (ORDENAMIENTO Y EXPORTACIÓN) =================
   $('#btn-generar-reporte').addEventListener('click', async () => {
     const desde = $('#rep-fecha-desde').value
     const hasta = $('#rep-fecha-hasta').value
@@ -1257,14 +1265,17 @@
     if (!desde || !hasta) return alert('Debes seleccionar ambas fechas.')
 
     container.innerHTML = '<p style="text-align:center; padding:2rem; color:#0b4d8c; font-weight:700;">Generando reporte...</p>'
+    $('#btn-export-excel').style.display = 'none'
+    $('#btn-imprimir-reporte').style.display = 'none'
 
     try {
       if (tipo === 'ventas') {
-        const { data, error } = await supabase.from('pedidos').select('*, clientes(empresa, rif)').gte('fecha', desde).lte('fecha', hasta + 'T23:59:59').neq('estado_despacho', 'Anulado').order('fecha', { ascending: false })
+        // Ordenado por Fecha Ascendente
+        const { data, error } = await supabase.from('pedidos').select('*, clientes(empresa, rif)').gte('fecha', desde).lte('fecha', hasta + 'T23:59:59').neq('estado_despacho', 'Anulado').order('fecha', { ascending: true })
         if (error) throw error
 
         container.innerHTML = `
-          <table class="data-table">
+          <table class="data-table" id="tabla-reporte">
             <thead><tr><th>Fecha</th><th>Orden</th><th>Cliente</th><th>Total USD</th><th>Total Bs</th><th>Estado</th></tr></thead>
             <tbody>
               ${(data||[]).map(p => `
@@ -1281,17 +1292,25 @@
           </table>`
       } 
       else if (tipo === 'bancos') {
-        const { data, error } = await supabase.from('movimientos_tesoreria').select('*, cuentas_bancarias(nombre_banco, moneda)').gte('fecha', desde).lte('fecha', hasta + 'T23:59:59').order('fecha', { ascending: false })
+        // Se ordena en JS por banco, luego por fecha
+        const { data, error } = await supabase.from('movimientos_tesoreria').select('*, cuentas_bancarias(nombre_banco, moneda)').gte('fecha', desde).lte('fecha', hasta + 'T23:59:59')
         if (error) throw error
 
+        const sorted = (data||[]).sort((a,b) => {
+          const bankA = a.cuentas_bancarias?.nombre_banco || ''
+          const bankB = b.cuentas_bancarias?.nombre_banco || ''
+          if (bankA !== bankB) return bankA.localeCompare(bankB)
+          return new Date(a.fecha) - new Date(b.fecha)
+        })
+
         container.innerHTML = `
-          <table class="data-table">
-            <thead><tr><th>Fecha</th><th>Banco</th><th>Concepto</th><th>Monto</th><th>Tipo</th></tr></thead>
+          <table class="data-table" id="tabla-reporte">
+            <thead><tr><th>Banco</th><th>Fecha</th><th>Concepto</th><th>Monto</th><th>Tipo</th></tr></thead>
             <tbody>
-              ${(data||[]).map(m => `
+              ${sorted.map(m => `
                 <tr>
+                  <td><strong>${m.cuentas_bancarias?.nombre_banco || '—'}</strong></td>
                   <td>${new Date(m.fecha).toLocaleDateString()}</td>
-                  <td>${m.cuentas_bancarias?.nombre_banco || '—'}</td>
                   <td>${m.concepto}</td>
                   <td style="color:${m.tipo === 'INGRESO' ? '#03543f' : '#991b1b'}; font-weight:800;">${m.cuentas_bancarias?.moneda} ${Number(m.monto).toFixed(2)}</td>
                   <td>${m.tipo}</td>
@@ -1301,6 +1320,7 @@
           </table>`
       }
       else if (tipo === 'productos') {
+        // Se extraen de los detalles y se ordenan por Lote -> Producto -> Fecha
         const { data, error } = await supabase.from('pedidos').select('fecha, codigo_pedido, detalles').gte('fecha', desde).lte('fecha', hasta + 'T23:59:59').neq('estado_despacho', 'Anulado')
         if (error) throw error
 
@@ -1308,30 +1328,58 @@
         ;(data||[]).forEach(p => {
           if (p.detalles && Array.isArray(p.detalles)) {
             p.detalles.forEach(d => {
-              movs.push({ fecha: p.fecha, orden: p.codigo_pedido, producto: d.nombre, formula: d.variante, cantidad: d.cantidad })
+              movs.push({ fecha: p.fecha, orden: p.codigo_pedido, lote: d.lote || 'S/L', producto: d.nombre, formula: d.variante, cantidad: d.cantidad })
             })
           }
         })
 
+        movs.sort((a,b) => {
+          if (a.lote !== b.lote) return a.lote.localeCompare(b.lote)
+          if (a.producto !== b.producto) return a.producto.localeCompare(b.producto)
+          return new Date(a.fecha) - new Date(b.fecha)
+        })
+
         container.innerHTML = `
-          <table class="data-table">
-            <thead><tr><th>Fecha</th><th>Orden</th><th>Producto</th><th>Fórmula</th><th>Cant. Salida</th></tr></thead>
+          <table class="data-table" id="tabla-reporte">
+            <thead><tr><th>Lote</th><th>Producto</th><th>Fórmula</th><th>Fecha</th><th>Orden</th><th>Cant. Salida</th></tr></thead>
             <tbody>
               ${movs.map(m => `
                 <tr>
-                  <td>${new Date(m.fecha).toLocaleDateString()}</td>
-                  <td>#${m.orden}</td>
+                  <td><strong>${m.lote}</strong></td>
                   <td>${m.producto}</td>
                   <td>${m.formula}</td>
+                  <td>${new Date(m.fecha).toLocaleDateString()}</td>
+                  <td>#${m.orden}</td>
                   <td><strong>${m.cantidad} unids</strong></td>
                 </tr>
-              `).join('') || '<tr><td colspan="5" style="text-align:center;">Sin salidas en este rango.</td></tr>'}
+              `).join('') || '<tr><td colspan="6" style="text-align:center;">Sin salidas en este rango.</td></tr>'}
             </tbody>
           </table>`
       }
+      
+      // Mostrar botones de exportación
+      $('#btn-export-excel').style.display = 'inline-flex'
+      $('#btn-imprimir-reporte').style.display = 'inline-flex'
+
     } catch (err) {
       container.innerHTML = `<p style="text-align:center; color:#991b1b; padding:2rem;">Error: ${err.message}</p>`
     }
+  })
+
+  // EXPORTAR EXCEL
+  $('#btn-export-excel').addEventListener('click', () => {
+    const table = document.getElementById('tabla-reporte')
+    if (!table) return alert('Primero genere un reporte.')
+    
+    // Crear libro de excel
+    const wb = XLSX.utils.table_to_book(table, { sheet: "Reporte" })
+    // Generar archivo
+    XLSX.writeFile(wb, `Reporte_Optiline_${new Date().toISOString().split('T')[0]}.xlsx`)
+  })
+
+  // IMPRIMIR
+  $('#btn-imprimir-reporte').addEventListener('click', () => {
+    window.print()
   })
 
   // INICIALIZACIÓN
@@ -1339,7 +1387,7 @@
     await cargarCatalogos()
     await cargarClientes()
     await cargarSaldosBancarios()
-    await cargarCouriers() // Carga couriers y refresca pedidos
+    await cargarCouriers() 
     await cargarPedidosAdmin()
     await cargarConciliacion()
     await cargarInventarioData()
