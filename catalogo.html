@@ -9,7 +9,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
-  <!-- ... (Mantén los mismos estilos en línea que ya tenías) ... -->
   <style>
     .header__inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
     .logo { flex-shrink: 0; }
@@ -211,9 +210,8 @@
       const { data: prods } = await supabase.from('productos').select('*, categorias(nombre)').order('id')
       catalogoProductos = prods || []
 
-      // Asegúrate de que RLS permita SELECT público en inventario_lotes
       const { data: inv, error: invErr } = await supabase.from('inventario_lotes').select('id, stock, variante_id, variantes(id, nombre, producto_id), lotes(codigo_lote, fecha_vencimiento)')
-      if (invErr) console.error("Error cargando stock (Posible RLS en Supabase):", invErr)
+      if (invErr) console.error("Error cargando stock:", invErr)
       inventarioReal = inv || []
 
       actualizarBadgeCarrito()
@@ -273,14 +271,34 @@
 
     $('#select-filtro-categoria').addEventListener('change', renderCatalogo)
 
-    let productoActualModal = null, itemsDisponiblesModal = []
+    let productoActualModal = null, currentGroupedVariants = []
     function abrirModalUnidades(pId) {
       productoActualModal = catalogoProductos.find(p => p.id === pId)
       if (!productoActualModal) return
-      itemsDisponiblesModal = inventarioReal.filter(i => i.variantes?.producto_id === pId && i.stock > 0)
+      
+      const itemsDisponiblesModal = inventarioReal.filter(i => i.variantes?.producto_id === pId && i.stock > 0)
+      
+      // AGRUPACIÓN POR VARIANTE ID
+      const groupedMap = {}
+      itemsDisponiblesModal.forEach(i => {
+        const vId = i.variante_id
+        if (!groupedMap[vId]) {
+          groupedMap[vId] = { variante_id: vId, nombre: i.variantes?.nombre, stock: 0, lotes: [] }
+        }
+        groupedMap[vId].stock += i.stock
+        groupedMap[vId].lotes.push(i.lotes?.codigo_lote)
+      })
+      
+      currentGroupedVariants = Object.values(groupedMap)
+
       $('#modal-prod-nombre').textContent = productoActualModal.nombre
       $('#modal-prod-desc').textContent = productoActualModal.descripcion || 'Selecciona graduación y cantidad.'
-      $('#modal-select-variante').innerHTML = '<option value="">Selecciona graduación...</option>' + itemsDisponiblesModal.map(i => `<option value="${i.id}" data-stock="${i.stock}">${i.variantes?.nombre} (Lote: ${i.lotes?.codigo_lote} | Disp: ${i.stock} unids)</option>`).join('')
+      
+      $('#modal-select-variante').innerHTML = '<option value="">Selecciona graduación...</option>' + currentGroupedVariants.map((g, idx) => {
+        const lotesStr = g.lotes.join(', ')
+        return `<option value="${idx}" data-stock="${g.stock}">${g.nombre} (Lotes: ${lotesStr} | Disp: ${g.stock} unids)</option>`
+      }).join('')
+      
       $('#modal-cantidad').value = '1'
       $('#modal-stock-info').textContent = ''
       $('#modal-units').classList.add('activo')
@@ -288,20 +306,37 @@
 
     $('#modal-select-variante').addEventListener('change', (e) => {
       const opt = e.target.selectedOptions[0]
-      if (opt && opt.value) { const sMax = parseInt(opt.dataset.stock); $('#modal-cantidad').max = sMax; $('#modal-stock-info').textContent = `Máximo: ${sMax} unids`; }
-      else { $('#modal-stock-info').textContent = '' }
+      if (opt && opt.value !== '') {
+        const sMax = parseInt(opt.dataset.stock)
+        $('#modal-cantidad').max = sMax
+        $('#modal-stock-info').textContent = `Máximo: ${sMax} unids`
+      } else { $('#modal-stock-info').textContent = '' }
     })
 
     $('#btn-modal-cancel').addEventListener('click', () => $('#modal-units').classList.remove('activo'))
 
     $('#form-add-to-cart').addEventListener('submit', (e) => {
       e.preventDefault()
-      const invId = parseInt($('#modal-select-variante').value)
+      const selectedIdx = $('#modal-select-variante').value
+      if (selectedIdx === '') return alert('Selecciona una fórmula válida.')
+      
       const cant = parseInt($('#modal-cantidad').value)
-      const itemInv = itemsDisponiblesModal.find(i => i.id === invId)
-      if (!itemInv || cant <= 0 || cant > itemInv.stock) return alert('Selecciona cantidad válida.')
+      const group = currentGroupedVariants[selectedIdx]
+      
+      if (!group || cant <= 0 || cant > group.stock) return alert('Selecciona cantidad válida.')
 
-      carrito.push({ invId: itemInv.id, productoId: productoActualModal.id, nombre: productoActualModal.nombre, variante: itemInv.variantes?.nombre, lote: itemInv.lotes?.codigo_lote, cantidad: cant, precioUSD: parseFloat(productoActualModal.precio || 0) })
+      const lotesStr = group.lotes.join(', ')
+
+      carrito.push({ 
+        variante_id: group.variante_id, 
+        productoId: productoActualModal.id, 
+        nombre: productoActualModal.nombre, 
+        variante: group.nombre, 
+        lote: lotesStr, 
+        cantidad: cant, 
+        precioUSD: parseFloat(productoActualModal.precio || 0) 
+      })
+      
       localStorage.setItem('optiline_cart', JSON.stringify(carrito))
       actualizarBadgeCarrito()
       $('#modal-units').classList.remove('activo')
@@ -337,6 +372,7 @@
             <div>
               <h4 style="font-family:var(--fuente-titulos);">${item.nombre}</h4>
               <p>Fórmula: <strong>${item.variante}</strong></p>
+              <p style="font-size:0.8rem; color:#64748b;">Lotes: ${item.lote}</p>
               <p>${item.cantidad} unids x ${formatoBs(item.precioUSD * tasaCatalogo)}</p>
             </div>
             <div style="text-align:right;">
@@ -397,19 +433,36 @@
       const btn = $('#btn-confirmar-pedido'); btn.disabled = true; btn.textContent = 'Procesando orden y stock...'
 
       try {
+        // DESCUENTO FIFO (Primero en entrar, primero en salir) POR VARIANTE
         for (const item of carrito) {
-          const { data: invItem, error: errFetch } = await supabase.from('inventario_lotes').select('id, stock').eq('id', item.invId).single()
-          if (errFetch || !invItem || invItem.stock < item.cantidad) throw new Error(`Stock insuficiente para ${item.nombre} (${item.variante}).`)
-          const { error: errUpdate } = await supabase.from('inventario_lotes').update({ stock: invItem.stock - item.cantidad }).eq('id', item.invId)
-          if (errUpdate) throw errUpdate
+          const { data: lots, error: errFetch } = await supabase
+            .from('inventario_lotes')
+            .select('id, stock')
+            .eq('variante_id', item.variante_id)
+            .gt('stock', 0)
+            .order('id', { ascending: true }) // Asumiendo que ID menor = lote más antiguo
+
+          if (errFetch) throw errFetch
+          
+          let totalDisponible = lots.reduce((sum, l) => sum + l.stock, 0)
+          if (totalDisponible < item.cantidad) {
+            throw new Error(`Stock insuficiente para ${item.nombre} (${item.variante}).`)
+          }
+
+          let restante = item.cantidad
+          for (const lote of lots) {
+            if (restante <= 0) break
+            const aDescontar = Math.min(restante, lote.stock)
+            await supabase.from('inventario_lotes').update({ stock: lote.stock - aDescontar }).eq('id', lote.id)
+            restante -= aDescontar
+          }
         }
 
         // GENERACIÓN DE CONSECUTIVO
         let nuevoCodigo = ''
         const { data: ultimoPedido } = await supabase.from('pedidos').select('id').order('id', { ascending: false }).limit(1)
         if (ultimoPedido && ultimoPedido.length > 0) {
-          const nextId = ultimoPedido[0].id + 1
-          nuevoCodigo = `OPT-${String(nextId).padStart(5, '0')}`
+          nuevoCodigo = `OPT-${String(ultimoPedido[0].id + 1).padStart(5, '0')}`
         } else {
           nuevoCodigo = `OPT-00001`
         }
