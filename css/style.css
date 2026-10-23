@@ -508,19 +508,37 @@ section[id] {
   color: var(--gris-700);
 }
 
+/* Contenedor del formulario dentro de "Cómo adquirir" */
 .como-adquirir__media {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   width: 100%;
+  display: block;
 }
 
-.como-adquirir__media img {
-  width: auto;
-  max-width: 100%;
-  max-height: 580px;
-  object-fit: contain;
-  filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.12));
+/* El wrapper que ahora ocupa el lugar de la imagen */
+.como-adquirir__form {
+  width: 100%;
+  background: var(--blanco);
+  border: 1px solid var(--gris-200);
+  border-radius: var(--radio-borde);
+  padding: 2rem;
+  box-shadow: var(--sombra-md);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Título del formulario dentro de la columna */
+.como-adquirir__form .seccion__titulo--form {
+  font-size: clamp(1.4rem, 2vw, 1.6rem);
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
+}
+
+/* Texto introductorio del formulario */
+.como-adquirir__form > .seccion__texto {
+  font-size: 0.9rem;
+  color: var(--gris-700);
+  line-height: 1.55;
+  margin-bottom: 1.25rem;
 }
 
 /* ================= CERTIFICADOS ================= */
@@ -646,6 +664,44 @@ section[id] {
   box-shadow: var(--sombra-sm);
   display: grid;
   gap: 1.25rem;
+}
+
+/* Ajustes del formulario cuando está dentro de "Cómo adquirir" */
+.como-adquirir__form .formulario--registro {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  gap: 1rem;
+}
+
+/* El botón de envío ocupa todo el ancho en columna estrecha */
+.como-adquirir__form .formulario--registro .boton {
+  width: 100%;
+  margin-top: 0.25rem;
+}
+
+/* Mensajes de éxito / error del formulario */
+.msg {
+  display: none;
+  padding: 0.9rem 1.1rem;
+  border-radius: var(--radio-borde);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.msg--ok {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #03543f;
+}
+
+.msg--error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
 }
 
 .campo label,
@@ -1009,6 +1065,14 @@ section[id] {
     gap: 3rem;
   }
 
+   @media (min-width: 768px) {
+  /* …lo que ya tenías… */
+
+  .como-adquirir__form {
+    padding: 2.25rem;
+  }
+}
+
   .faq-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -1025,6 +1089,10 @@ section[id] {
     gap: 5px;
     cursor: pointer;
     padding: 0.5rem;
+
+     .como-adquirir__form {
+    padding: 1.5rem;
+         }
   }
 
   .menu-icono span {
