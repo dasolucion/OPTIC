@@ -228,8 +228,12 @@
       }
 
       contenedor.innerHTML = pedidos.map(p => {
+        // CALCULO DINAMICO POR SI LA COLUMNA SALDO_PENDIENTE NO EXISTE EN LA DB
+        const abonado = Number(p.monto_pagado || 0);
+        const total = Number(p.total || 0);
+        const saldo = Math.max(0, total - abonado).toFixed(2);
+
         const badgeClass = p.estado_pago === 'Pagado' ? 'badge--pagado' : ((p.estado_pago === 'Abonado' || p.estado_pago.includes('Verificar')) ? 'badge--abonado' : 'badge--pendiente')
-        const saldo = Number(p.saldo_pendiente || 0).toFixed(2)
         const mon = p.moneda_pago === 'USD' ? '$' : 'Bs.'
 
         return `
@@ -243,7 +247,7 @@
               <p style="font-size:0.85rem; color:#6b7280;">Fecha: ${new Date(p.fecha).toLocaleDateString()}</p>
               <p style="font-size:0.95rem; margin-top:0.4rem;">
                 Total: <strong>${mon} ${Number(p.total).toFixed(2)}</strong> | 
-                Abonado: <strong style="color:var(--azul);">${mon} ${Number(p.monto_pagado).toFixed(2)}</strong> | 
+                Abonado: <strong style="color:var(--azul);">${mon} ${abonado.toFixed(2)}</strong> | 
                 Saldo Pendiente: <strong style="color:var(--naranja);">${mon} ${saldo}</strong>
               </p>
             </div>
@@ -267,18 +271,23 @@
     function abrirModalPago(p) {
       pedidoActual = p
       const mon = p.moneda_pago === 'USD' ? '$' : 'Bs.'
+      const saldo = Math.max(0, Number(p.total) - Number(p.monto_pagado || 0)).toFixed(2);
+
       $('#pago-pedido-id').value = p.id
-      $('#modal-pedido-info').innerHTML = `Abonando a orden <strong>#${p.codigo_pedido}</strong> · Saldo pendiente: <strong>${mon} ${Number(p.saldo_pendiente).toFixed(2)}</strong>`
+      $('#modal-pedido-info').innerHTML = `Abonando a orden <strong>#${p.codigo_pedido}</strong> · Saldo pendiente: <strong>${mon} ${saldo}</strong>`
       $('#lbl-monto-reportar').textContent = `Monto a Reportar (${mon}):`
       $('#pago-tipo').value = 'Total'
-      $('#pago-monto').value = Number(p.saldo_pendiente).toFixed(2)
+      $('#pago-monto').value = saldo
       $('#pago-fecha').value = new Date().toISOString().split('T')[0]
       $('#modal-pago').classList.add('activo')
     }
 
     $('#pago-tipo').addEventListener('change', (e) => {
       if (!pedidoActual) return
-      if (e.target.value === 'Total') $('#pago-monto').value = Number(pedidoActual.saldo_pendiente).toFixed(2)
+      if (e.target.value === 'Total') {
+        const saldo = Math.max(0, Number(pedidoActual.total) - Number(pedidoActual.monto_pagado || 0)).toFixed(2);
+        $('#pago-monto').value = saldo
+      }
       else { $('#pago-monto').value = ''; $('#pago-monto').focus() }
     })
     $('#btn-cerrar-modal').addEventListener('click', () => $('#modal-pago').classList.remove('activo'))
@@ -288,9 +297,9 @@
       const btn = $('#btn-enviar-pago')
       const file = $('#pago-comprobante').files[0]
       const monto = parseFloat($('#pago-monto').value)
-      const saldoMax = parseFloat(pedidoActual.saldo_pendiente)
+      const saldoMax = Math.max(0, Number(pedidoActual.total) - Number(pedidoActual.monto_pagado || 0))
 
-      if (monto <= 0 || monto > saldoMax) return alert('El monto a reportar no puede superar el saldo pendiente.')
+      if (monto <= 0 || monto > saldoMax + 0.01) return alert('El monto a reportar no puede superar el saldo pendiente.')
 
       btn.disabled = true
       btn.textContent = 'Enviando notificación...'
@@ -324,10 +333,9 @@
         const nuevoPagado = parseFloat(pedidoActual.monto_pagado || 0) + monto
         const total = parseFloat(pedidoActual.total)
         
-        // CAMBIO CLAVE: Pasa a 'En Verificación' en lugar de 'Pagado' directamente
         await supabase.from('pedidos').update({
           monto_pagado: nuevoPagado,
-          estado_pago: nuevoPagado >= total ? 'En Verificación' : 'Abonado (Verificar)'
+          estado_pago: nuevoPagado >= total - 0.01 ? 'En Verificación' : 'Abonado (Verificar)'
         }).eq('id', pedidoActual.id)
 
         alert('✓ Pago reportado con éxito. Nuestro equipo verificará la transacción a la brevedad.')
