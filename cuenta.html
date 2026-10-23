@@ -112,7 +112,6 @@
           </select>
         </div>
 
-        <!-- ETIQUETA NEUTRA SIN SIGLAS FIJAS -->
         <div class="campo">
           <label for="pago-monto" id="lbl-monto-reportar">Monto a Reportar:</label>
           <input type="number" id="pago-monto" step="0.01" min="0.01" required style="width:100%; padding:0.75rem; border:1px solid #d1d5db; border-radius:6px;">
@@ -229,7 +228,7 @@
       }
 
       contenedor.innerHTML = pedidos.map(p => {
-        const badgeClass = p.estado_pago === 'Pagado' ? 'badge--pagado' : (p.estado_pago === 'Abonado' ? 'badge--abonado' : 'badge--pendiente')
+        const badgeClass = p.estado_pago === 'Pagado' ? 'badge--pagado' : ((p.estado_pago === 'Abonado' || p.estado_pago.includes('Verificar')) ? 'badge--abonado' : 'badge--pendiente')
         const saldo = Number(p.saldo_pendiente || 0).toFixed(2)
         const mon = p.moneda_pago === 'USD' ? '$' : 'Bs.'
 
@@ -324,13 +323,16 @@
 
         const nuevoPagado = parseFloat(pedidoActual.monto_pagado || 0) + monto
         const total = parseFloat(pedidoActual.total)
+        
+        // CAMBIO CLAVE: Pasa a 'En Verificación' en lugar de 'Pagado' directamente
         await supabase.from('pedidos').update({
           monto_pagado: nuevoPagado,
-          estado_pago: nuevoPagado >= total ? 'Pagado' : 'Abonado'
+          estado_pago: nuevoPagado >= total ? 'En Verificación' : 'Abonado (Verificar)'
         }).eq('id', pedidoActual.id)
 
-        alert('✓ Pago reportado con éxito. Se enviará a conciliación en administración.')
+        alert('✓ Pago reportado con éxito. Nuestro equipo verificará la transacción a la brevedad.')
         $('#modal-pago').classList.remove('activo')
+        $('#form-notificar-pago').reset()
         cargarPedidos(clienteSesion.id)
 
       } catch (err) {
