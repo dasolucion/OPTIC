@@ -836,23 +836,27 @@
         const nuevoEstado = chk.checked
 
         try {
-          // 1. Actualizar el pago
-          const { error: errPago } = await supabase.from('pagos').update({ 
-            conciliado: nuevoEstado, 
-            estado_conciliacion: nuevoEstado ? 'Aprobado' : 'En verificación' 
-          }).eq('id', pId)
-          if (errPago) throw errPago
-
+          // 1. Intentar actualizar el PEDIDO primero
           if (pago.pedido_id) {
-            // 2. Obtener el total del pedido
             const { data: ped, error: errPed } = await supabase.from('pedidos').select('total').eq('id', pago.pedido_id).single()
             if (errPed) throw errPed;
 
-            // 3. Recalcular sumando SOLO los pagos conciliados
+            // Obtener pagos aprobados (incluyendo el actual si nuevoEstado es true)
             const { data: pagosAprobados, error: errAprobados } = await supabase.from('pagos').select('monto').eq('pedido_id', pago.pedido_id).eq('conciliado', true)
             if (errAprobados) throw errAprobados;
 
-            const totalAprobado = pagosAprobados.reduce((sum, p) => sum + parseFloat(p.monto), 0)
+            let totalAprobado = pagosAprobados.reduce((sum, p) => sum + parseFloat(p.monto), 0)
+            
+            // Si estamos marcando el check, sumamos este pago manualmente para el cálculo, ya que aún no está en la DB
+            if (nuevoEstado) {
+              totalAprobado += parseFloat(pago.monto)
+            } else {
+               // Si estamos desmarcando, restamos este pago manualmente (porque la consulta anterior lo trajo como true)
+               totalAprobado -= parseFloat(pago.monto)
+            }
+
+            // Evitar decimales flotantes
+            totalAprobado = Math.max(0, Math.round(totalAprobado * 100) / 100)
             const totalPedido = parseFloat(ped.total)
             const saldoRestante = Math.max(0, totalPedido - totalAprobado)
 
@@ -866,29 +870,32 @@
               nuevoEstadoPago = 'Abonado'
             }
 
-            // 4. Actualizar el Pedido (sin tocar saldo_pendiente por si es generada)
-            const updateData = {
+            const { error: errUpdatePed } = await supabase.from('pedidos').update({
               monto_pagado: totalAprobado,
               estado_pago: nuevoEstadoPago,
               estado_despacho: nuevoDespacho
-            }
-            
-            const { error: errUpdatePed } = await supabase.from('pedidos').update(updateData).eq('id', pago.pedido_id)
-            if (errUpdatePed) throw errUpdatePed;
+            }).eq('id', pago.pedido_id)
+
+            // SI FALLA EL PEDIDO, CANCELAMOS TODO
+            if (errUpdatePed) throw new Error("Error en tabla Pedidos: " + errUpdatePed.message)
           }
 
-          // 5. Actualizar Banco
-          if (pago.cuenta_id) {
-            const { data: cta, error: errCta } = await supabase.from('cuentas_bancarias').select('*').eq('id', pago.cuenta_id).single()
-            if (errCta) throw errCta;
+          // 2. Si el pedido se actualizó, actualizamos el PAGO
+          const { error: errPago } = await supabase.from('pagos').update({ 
+            conciliado: nuevoEstado, 
+            estado_conciliacion: nuevoEstado ? 'Aprobado' : 'En verificación' 
+          }).eq('id', pId)
+          if (errPago) throw new Error("Error en tabla Pagos: " + errPago.message)
 
+          // 3. Actualizar Banco
+          if (pago.cuenta_id) {
+            const { data: cta } = await supabase.from('cuentas_bancarias').select('*').eq('id', pago.cuenta_id).single()
             if (cta) {
               const delta = nuevoEstado ? parseFloat(pago.monto) : -parseFloat(pago.monto)
               const nuevoSaldo = parseFloat(cta.saldo_actual) + delta
               
-              const { error: errUpdateCta } = await supabase.from('cuentas_bancarias').update({ saldo_actual: nuevoSaldo }).eq('id', cta.id)
-              if (errUpdateCta) throw errUpdateCta;
-
+              await supabase.from('cuentas_bancarias').update({ saldo_actual: nuevoSaldo }).eq('id', cta.id)
+              
               if (nuevoEstado) {
                 await supabase.from('movimientos_tesoreria').insert({
                   cuenta_id: cta.id, tipo: 'INGRESO', monto: pago.monto,
@@ -907,7 +914,7 @@
         } catch (err) {
           console.error(err)
           alert("Error al conciliar: " + err.message)
-          chk.checked = !nuevoEstado // Revertir UI
+          chk.checked = !nuevoEstado // Revertir visualmente si falla
         }
       })
     })
