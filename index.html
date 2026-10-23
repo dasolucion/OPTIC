@@ -28,11 +28,9 @@
 <!-- ================= NUESTRA HISTORIA ================= -->
 <section class="seccion seccion--gris" id="nosotros">
   <div class="contenedor historia">
-
     <div class="historia__media">
       <img src="img/historia.jpg" alt="Historia de Optiline">
     </div>
-
     <div class="historia__texto">
       <h2 class="seccion__titulo">Nuestra historia</h2>
       <p class="seccion__etiqueta-linea">¿QUIÉNES SOMOS?</p>
@@ -46,20 +44,16 @@
         mundialmente, garantizando así la calidad de sus productos.
       </p>
     </div>
-
   </div>
 </section>
 
 <!-- ================= PRODUCTOS ================= -->
 <section class="seccion" id="productos">
   <div class="contenedor">
-
     <header class="seccion__cabecera seccion__cabecera--centrada">
       <h2 class="seccion__titulo">Productos para cada necesidad</h2>
     </header>
-
     <div class="grid-productos">
-
       <article class="producto-card">
         <div class="producto-card__media">
           <img src="img/formulados.jpg" alt="Lentes de contacto formulados">
@@ -70,7 +64,6 @@
           <a href="catalogo.html" class="boton boton--primario">Ver catálogo</a>
         </div>
       </article>
-
       <article class="producto-card">
         <div class="producto-card__media">
           <img src="img/producto-color.jpg" alt="Lentes de contacto cosméticos">
@@ -81,7 +74,6 @@
           <a href="catalogo.html" class="boton boton--primario">Ver catálogo</a>
         </div>
       </article>
-
     </div>
   </div>
 </section>
@@ -89,10 +81,8 @@
 <!-- ================= CÓMO ADQUIRIR ================= -->
 <section class="seccion seccion--gris" id="como-adquirir">
   <div class="contenedor como-adquirir">
-
     <div class="como-adquirir__texto">
       <h2 class="seccion__titulo">¿Cómo adquirir nuestros<br>productos?</h2>
-
       <ol class="pasos">
         <li class="paso">
           <span class="paso__icono">
@@ -103,7 +93,6 @@
             <p>Ingresa los datos en el formulario de registro y recibe tu usuario y contraseña para poder ingresar en nuestra tienda y ver los precios.</p>
           </div>
         </li>
-
         <li class="paso">
           <span class="paso__icono">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
@@ -113,7 +102,6 @@
             <p>Elige el tipo de lente y la(s) fórmula(s) que necesites.</p>
           </div>
         </li>
-
         <li class="paso">
           <span class="paso__icono">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
@@ -123,7 +111,6 @@
             <p>Realiza tu pago a través de nuestros diferentes medios de pago y notifica en nuestra página para procesar tu pedido.</p>
           </div>
         </li>
-
         <li class="paso">
           <span class="paso__icono">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 3h13v13H1z"/><path d="M14 8h4l3 3v5h-7"/><circle cx="5.5" cy="18.5" r="2"/><circle cx="17.5" cy="18.5" r="2"/></svg>
@@ -132,78 +119,96 @@
             <h3>Sigue tu pedido</h3>
             <p>Una vez recibido tu pago, procesaremos tu orden y la despacharemos a la oficina del transportista que nos indiques.</p>
           </div>
-                 
         </li>
-         <p class="formulario__nota">
-          <strong>Importante:</strong> Al registrarse, sus datos quedan en proceso de verificación. No se genera contraseña automática hasta que nuestro equipo confirme la autenticidad de su establecimiento.
-        </p>
       </ol>
     </div>
 
-    <!-- FORMULARIO DE REGISTRO (antes sección "Registra tu óptica") -->
+    <!-- FORMULARIO DE REGISTRO INTEGRADO -->
     <div class="como-adquirir__media como-adquirir__form" id="registro">
-
-   <!--   <h3 class="seccion__titulo seccion__titulo--form">Registra tu óptica</h3>
+      <h3 class="seccion__titulo seccion__titulo--form">Registra tu óptica</h3>
       <p class="seccion__texto">
         Completa el formulario para formar parte de nuestra red mayorista.
         Una vez verificado tu RIF por nuestro departamento comercial, recibirás vía WhatsApp tus credenciales de acceso a precios y catálogo.
-      </p>-->
-
-      <div class="msg msg--ok" id="registro-msg-ok" style="margin:0 0 1rem;"></div>
-      <div class="msg msg--error" id="registro-msg-err" style="margin:0 0 1rem;"></div>
+      </p>
+      <div class="msg msg--ok" id="registro-msg-ok"></div>
+      <div class="msg msg--error" id="registro-msg-err"></div>
 
       <form class="formulario--registro" id="form-registro-publico" novalidate>
-
         <div class="campo">
           <label for="reg-empresa">Razón Social / Nombre de la Óptica *</label>
           <input type="text" id="reg-empresa" placeholder="Ej: Óptica Visión Real, C.A." required>
         </div>
-
         <div class="campo">
           <label for="reg-rif">RIF Fiscal *</label>
           <input type="text" id="reg-rif" placeholder="Ej: J-30200326-1 o V-12345678-0" required>
-          <small id="reg-rif-val" style="display:block; font-size:0.75rem; margin-top:0.25rem; font-weight:700;"></small>
+          <small id="reg-rif-val"></small>
         </div>
-
         <div class="campo">
           <label for="reg-nombre">Nombre y Apellido del Contacto *</label>
           <input type="text" id="reg-nombre" placeholder="Persona autorizada para compras" required>
         </div>
-
         <div class="campo">
           <label for="reg-telefono">Teléfono / WhatsApp de Contacto *</label>
           <input type="tel" id="reg-telefono" placeholder="Ej: 0414-1234567" required>
         </div>
-
         <div class="campo">
           <label for="reg-correo">Correo Electrónico *</label>
           <input type="email" id="reg-correo" placeholder="correo@tuoptica.com" required>
         </div>
-
         <div class="campo">
           <label for="reg-direccion">Dirección Fiscal / Despacho *</label>
-          <textarea id="reg-direccion" rows="3" placeholder="Estado, Ciudad, Centro Comercial / Local" required></textarea>
+          <textarea id="reg-direccion" rows="2" placeholder="Estado, Ciudad, Centro Comercial / Local" required></textarea>
         </div>
-
+        <p class="formulario__nota">
+          <strong>Importante:</strong> Al registrarse, sus datos quedan en proceso de verificación. No se genera contraseña automática hasta que nuestro equipo confirme la autenticidad de su establecimiento.
+        </p>
         <button type="submit" class="boton boton--naranja" id="btn-registro-submit">Enviar Solicitud de Registro</button>
       </form>
-
     </div>
-
   </div>
 </section>
 
-  <!-- ================= PREGUNTAS FRECUENTES ================= -->
+<!-- ================= CERTIFICADOS ================= -->
+<section class="seccion" id="certificados">
+  <div class="contenedor">
+    <header class="seccion__cabecera seccion__cabecera--centrada">
+      <h2 class="seccion__titulo">Certificados</h2>
+    </header>
+    <h3 class="certificados__grupo">Sistema de manejo de calidad</h3>
+    <div class="grid-certificados">
+      <div class="certificado"><div class="certificado__logo"><img src="img/cert-kgmp.png" alt="KGMP"></div><p>KGMP</p></div>
+      <div class="certificado"><div class="certificado__logo"><img src="img/cert-iso.png" alt="ISO 13485"></div><p>ISO 13485:2016</p></div>
+      <div class="certificado"><div class="certificado__logo"><img src="img/cert-mdsap.png" alt="MDSAP"></div><p>MDSAP (ISO13485:2016)</p></div>
+    </div>
+    <h3 class="certificados__grupo">Responsabilidad social</h3>
+    <div class="grid-certificados">
+      <div class="certificado"><div class="certificado__logo"><img src="img/cert-smeta.png" alt="SMETA"></div><p>SMETA</p></div>
+    </div>
+    <h3 class="certificados__grupo">Certificación por país</h3>
+    <div class="grid-certificados">
+      <div class="certificado"><div class="certificado__logo"><img src="img/cert-mfds.png" alt="MFDS Corea"></div><p>MFDS (Corea)</p></div>
+      <div class="certificado"><div class="certificado__logo"><img src="img/cert-fda.png" alt="FDA"></div><p>FDA (Estados Unidos)</p></div>
+      <div class="certificado"><div class="certificado__logo"><img src="img/cert-ce.png" alt="CE"></div><p>CE (UE)</p></div>
+      <div class="certificado"><div class="certificado__logo"><img src="img/cert-canada.png" alt="Health Canada"></div><p>Health Canada (Canadá)</p></div>
+      <div class="certificado"><div class="certificado__logo"><img src="img/cert-cfda.png" alt="CFDA China"></div><p>CFDA (China)</p></div>
+      <div class="certificado"><div class="certificado__logo"><img src="img/cert-pmda.png" alt="PMDA Japón"></div><p>PMDA (Japón)</p></div>
+      <div class="certificado"><div class="certificado__logo"><img src="img/cert-gost.png" alt="GOST Rusia"></div><p>GOST (Rusia)</p></div>
+      <div class="certificado"><div class="certificado__logo"><img src="img/cert-anvisa.png" alt="ANVISA Brasil"></div><p>ANVISA (Brasil)</p></div>
+      <div class="certificado"><div class="certificado__logo"><img src="img/cert-sabs.png" alt="SABS Sudáfrica"></div><p>SABS (Sudáfrica)</p></div>
+      <div class="certificado"><div class="certificado__logo"><img src="img/cert-hsa.png" alt="HSA Singapur"></div><p>HSA (Singapur)</p></div>
+      <div class="certificado"><div class="certificado__logo"><img src="img/cert-tga.png" alt="TGA Australia"></div><p>TGA (Australia)</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PREGUNTAS FRECUENTES ================= -->
 <section class="seccion seccion--gris" id="faq">
   <div class="contenedor">
-
     <header class="seccion__cabecera seccion__cabecera--centrada">
       <h2 class="seccion__titulo">Preguntas frecuentes</h2>
       <p class="seccion__texto">Las preguntas que más realizan nuestros clientes</p>
     </header>
-
     <div class="faq-grid">
-
       <div class="faq-col">
         <article class="faq-item">
           <h3>¿Quiénes Pueden Hacer Pedidos?</h3>
@@ -218,7 +223,6 @@
           <p>Solo debes ingresar con tu usuario y contraseña en la plataforma, seleccionar los productos que necesites y confirmar tu pedido.</p>
         </article>
       </div>
-
       <div class="faq-col">
         <article class="faq-item">
           <h3>¿Debo Hacer Una Compra Mínima Para Realizar Un Pedido?</h3>
@@ -233,95 +237,37 @@
           <p>Una vez realizado tu pedido y procesado el pago, será enviado por la agencia de tu preferencia y en un lapso no mayor a 2 días (dependiendo de la agencia) deberías recibir tu pedido.</p>
         </article>
       </div>
-
     </div>
-  </div>
-</section>
-
-<!-- ================= CERTIFICADOS ================= -->
-<section class="seccion" id="certificados">
-  <div class="contenedor">
-
-    <header class="seccion__cabecera seccion__cabecera--centrada">
-      <h2 class="seccion__titulo">Certificados</h2>
-    </header>
-
-    <h3 class="certificados__grupo">Sistema de manejo de calidad</h3>
-    <div class="grid-certificados">
-      <div class="certificado"><div class="certificado__logo"><img src="img/cert-kgmp.png" alt="KGMP"></div><p>KGMP</p></div>
-      <div class="certificado"><div class="certificado__logo"><img src="img/cert-iso.png" alt="ISO 13485"></div><p>ISO 13485:2016</p></div>
-      <div class="certificado"><div class="certificado__logo"><img src="img/cert-mdsap.png" alt="MDSAP"></div><p>MDSAP (ISO13485:2016)</p></div>
-    </div>
-
-    <h3 class="certificados__grupo">Responsabilidad social</h3>
-    <div class="grid-certificados">
-      <div class="certificado"><div class="certificado__logo"><img src="img/cert-smeta.png" alt="SMETA"></div><p>SMETA</p></div>
-    </div>
-
-    <h3 class="certificados__grupo">Certificación por país</h3>
-    <div class="grid-certificados">
-      <div class="certificado"><div class="certificado__logo"><img src="img/cert-mfds.png" alt="MFDS Corea"></div><p>MFDS (Corea)</p></div>
-      <div class="certificado"><div class="certificado__logo"><img src="img/cert-fda.png" alt="FDA"></div><p>FDA (Estados Unidos)</p></div>
-      <div class="certificado"><div class="certificado__logo"><img src="img/cert-ce.png" alt="CE"></div><p>CE (UE)</p></div>
-      <div class="certificado"><div class="certificado__logo"><img src="img/cert-canada.png" alt="Health Canada"></div><p>Health Canada (Canadá)</p></div>
-      <div class="certificado"><div class="certificado__logo"><img src="img/cert-nmpa.png" alt="CFDA China"></div><p>CFDA (China)</p></div>
-      <div class="certificado"><div class="certificado__logo"><img src="img/cert-pmda.png" alt="PMDA Japón"></div><p>PMDA (Japón)</p></div>
-      <div class="certificado"><div class="certificado__logo"><img src="img/cert-ukca.png" alt="GOST Rusia"></div><p>GOST (Rusia)</p></div>
-      <div class="certificado"><div class="certificado__logo"><img src="img/cert-anvisa.png" alt="ANVISA Brasil"></div><p>ANVISA (Brasil)</p></div>
-      <div class="certificado"><div class="certificado__logo"><img src="img/cert-tfda.png" alt="SABS Sudáfrica"></div><p>SABS (Sudáfrica)</p></div>
-      <div class="certificado"><div class="certificado__logo"><img src="img/cert-hsa.png" alt="HSA Singapur"></div><p>HSA (Singapur)</p></div>
-      <div class="certificado"><div class="certificado__logo"><img src="img/cert-tga.png" alt="TGA Australia"></div><p>TGA (Australia)</p></div>
-    </div>
-
   </div>
 </section>
 
 <!-- SCRIPT DE VALIDACIÓN RIF SENIAT Y REGISTRO SUPABASE -->
 <script type="module">
   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-
   const SUPABASE_URL = 'https://fdkdzyjrrtuaotiumbym.supabase.co'
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZka2R6eWpycnR1YW90aXVtYnltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0MDc1MzAsImV4cCI6MjEwNjk4MzUzMH0.RC_ueLB8le0c95RMemtkQf4Yj-bFTrfYLaAcbdRDbXs'
   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   const $ = (s) => document.querySelector(s)
 
-  // Algoritmo Oficial Módulo 11 de RIF Venezolano
   function validarRifVenezolano(rifInput) {
     const clean = rifInput.toUpperCase().trim().replace(/[-\s]/g, '')
     if (!/^[VJEGP][0-9]{8,9}$/.test(clean)) return false
-
     const tipo = clean[0]
     const cuerpo = clean.slice(1, -1).padStart(8, '0')
     const digitoVerificador = parseInt(clean.slice(-1))
-
-    let factorTipo = 0
-    if (tipo === 'V') factorTipo = 1
-    else if (tipo === 'E') factorTipo = 2
-    else if (tipo === 'J') factorTipo = 3
-    else if (tipo === 'P') factorTipo = 4
-    else if (tipo === 'G') factorTipo = 5
-
+    let factorTipo = { 'V':1, 'E':2, 'J':3, 'P':4, 'G':5 }[tipo] || 0
     const constantes = [4, 3, 2, 7, 6, 5, 4, 3, 2]
     const numeros = [factorTipo, ...cuerpo.split('').map(Number)]
-
-    let suma = 0
-    for (let i = 0; i < 9; i++) {
-      suma += numeros[i] * constantes[i]
-    }
-
-    const resto = suma % 11
-    let digitoEsperado = 11 - resto
+    let suma = numeros.reduce((acc, num, i) => acc + (num * constantes[i]), 0)
+    let digitoEsperado = 11 - (suma % 11)
     if (digitoEsperado >= 10) digitoEsperado = 0
-
     return digitoVerificador === digitoEsperado
   }
 
-  // Validación reactiva mientras escribe el RIF
   $('#reg-rif').addEventListener('input', (e) => {
     const val = e.target.value.trim()
     const msg = $('#reg-rif-val')
     if (!val) { msg.textContent = ''; return }
-
     if (validarRifVenezolano(val)) {
       msg.textContent = '✓ RIF con formato y dígito verificador válido'
       msg.style.color = '#03543f'
@@ -331,15 +277,10 @@
     }
   })
 
-  // Envío del Formulario
   $('#form-registro-publico').addEventListener('submit', async (e) => {
     e.preventDefault()
-    const errBox = $('#registro-msg-err')
-    const okBox = $('#registro-msg-ok')
-    const btn = $('#btn-registro-submit')
-
-    errBox.style.display = 'none'
-    okBox.style.display = 'none'
+    const errBox = $('#registro-msg-err'), okBox = $('#registro-msg-ok'), btn = $('#btn-registro-submit')
+    errBox.style.display = 'none'; okBox.style.display = 'none'
 
     const rif = $('#reg-rif').value.trim().toUpperCase()
     if (!validarRifVenezolano(rif)) {
@@ -348,51 +289,26 @@
       return
     }
 
-    btn.disabled = true
-    btn.textContent = 'Enviando solicitud...'
-
-    const empresa = $('#reg-empresa').value.trim()
-    const nombre = $('#reg-nombre').value.trim()
-    const telefono = $('#reg-telefono').value.trim()
-    const email = $('#reg-correo').value.trim().toLowerCase()
-    const direccion = $('#reg-direccion').value.trim()
-    const codigoUsuario = `OPT-${Date.now().toString().slice(-4)}`
+    btn.disabled = true; btn.textContent = 'Enviando solicitud...'
+    const empresa = $('#reg-empresa').value.trim(), nombre = $('#reg-nombre').value.trim(), telefono = $('#reg-telefono').value.trim(), email = $('#reg-correo').value.trim().toLowerCase(), direccion = $('#reg-direccion').value.trim(), codigoUsuario = `OPT-${Date.now().toString().slice(-4)}`
 
     try {
-      // 1. Validar que no exista el RIF o correo
       const { data: existe } = await supabase.from('clientes').select('id').or(`rif.eq.${rif},email.eq.${email}`).maybeSingle()
-      if (existe) {
-        throw new Error('Ya existe una solicitud o cuenta con este RIF o correo electrónico.')
-      }
+      if (existe) throw new Error('Ya existe una solicitud o cuenta con este RIF o correo electrónico.')
 
-      // 2. Insertar con estado_verificado: false
       const { error } = await supabase.from('clientes').insert({
-        codigo_usuario: codigoUsuario,
-        rif: rif,
-        empresa: empresa,
-        nombre_completo: nombre,
-        telefono: telefono,
-        email: email,
-        direccion_fiscal: direccion,
-        direccion_envio: direccion,
-        estado_verificado: false,
-        inactivo: false,
-        password_hash: null
+        codigo_usuario: codigoUsuario, rif, empresa, nombre_completo: nombre, telefono, email, direccion_fiscal: direccion, direccion_envio: direccion, estado_verificado: false, inactivo: false, password_hash: null
       })
-
       if (error) throw error
 
       okBox.innerHTML = `<strong>¡Solicitud recibida con éxito!</strong><br>Su código de trámite es <code>${codigoUsuario}</code>. Nuestro equipo validará sus datos y se comunicará vía WhatsApp al <strong>${telefono}</strong> para asignarle sus credenciales.`
       okBox.style.display = 'block'
       $('#form-registro-publico').reset()
       $('#reg-rif-val').textContent = ''
-
     } catch (err) {
-      errBox.textContent = err.message
-      errBox.style.display = 'block'
+      errBox.textContent = err.message; errBox.style.display = 'block'
     } finally {
-      btn.disabled = false
-      btn.textContent = 'Enviar Solicitud de Registro'
+      btn.disabled = false; btn.textContent = 'Enviar Solicitud de Registro'
     }
   })
 </script>
@@ -402,12 +318,9 @@
   <div class="footer__bg"></div>
   <div class="contenedor footer__inner">
     <div class="footer__col">
-      <a href="#inicio" class="logo logo--claro">
-        <img src="img/logo.png" alt="Optiline" class="logo__img">
-      </a>
+      <a href="#inicio" class="logo logo--claro"><img src="img/logo.png" alt="Optiline" class="logo__img"></a>
       <p class="footer__texto">Distribución al mayor de lentes de contacto, monturas y cristales en Venezuela.</p>
     </div>
-
     <div class="footer__col">
       <h4>Navegación</h4>
       <ul>
@@ -421,7 +334,6 @@
         <li><a href="#registro">Registra tu óptica</a></li>
       </ul>
     </div>
-
     <div class="footer__col">
       <h4>Contacto</h4>
       <ul>
@@ -431,11 +343,9 @@
       </ul>
     </div>
   </div>
-
   <div class="contenedor footer__bottom">
     <p>Copyright © 2026 Optiline | Productos para Ópticas</p>
   </div>
 </footer>
-
 </body>
 </html>
