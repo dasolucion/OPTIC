@@ -829,7 +829,7 @@
       </tr>
     `).join('') || '<tr><td colspan="9" style="text-align:center;padding:2rem;">Sin pagos.</td></tr>'
 
-    // LÓGICA CORREGIDA: RESTA EL MONTO SI SE DESMARCA
+    // LÓGICA CORREGIDA: PUNTO FLOTANTE Y ESTATUS "EN VERIFICACIÓN"
     document.querySelectorAll('[data-check-pago]').forEach(chk => {
       chk.addEventListener('change', async () => {
         const pId = chk.dataset.checkPago, pago = pagosCache.find(x => x.id == pId)
@@ -840,20 +840,33 @@
           await supabase.from('pagos').update({ conciliado: nuevoEstado, estado_conciliacion: nuevoEstado ? 'Aprobado' : 'En verificación' }).eq('id', pId)
 
           if (pago.pedido_id) {
-            const { data: ped } = await supabase.from('pedidos').select('monto_pagado, total').eq('id', pago.pedido_id).single()
+            const { data: ped, error: errPed } = await supabase.from('pedidos').select('monto_pagado, total').eq('id', pago.pedido_id).single()
+            if (errPed) throw errPed;
+            
             if (ped) {
               const montoAjuste = nuevoEstado ? parseFloat(pago.monto) : -parseFloat(pago.monto)
-              const nuevoMontoPagado = Number(ped.monto_pagado || 0) + montoAjuste
+              let nuevoMontoPagado = Math.max(0, Number(ped.monto_pagado || 0) + montoAjuste)
+              nuevoMontoPagado = Math.round(nuevoMontoPagado * 100) / 100; // Evitar 12.00000001
               
               let nuevoEstadoPago = 'Pendiente'
               let nuevoDespacho = 'Pendiente'
               
-              if (nuevoMontoPagado >= ped.total) {
-                nuevoEstadoPago = 'Pagado'
-                nuevoDespacho = 'Procesado'
-              } else if (nuevoMontoPagado > 0) {
-                nuevoEstadoPago = 'Abonado'
-                nuevoDespacho = 'Pendiente'
+              if (nuevoEstado) {
+                // Si se tilda, verificar si el pago cubre el total
+                if (nuevoMontoPagado >= (Number(ped.total) - 0.01)) {
+                  nuevoEstadoPago = 'Pagado'
+                  nuevoDespacho = 'Procesado'
+                } else if (nuevoMontoPagado > 0) {
+                  nuevoEstadoPago = 'Abonado'
+                  nuevoDespacho = 'Pendiente'
+                }
+              } else {
+                // Si se destilda, pero el cliente ya había notificado, se deja "En Verificación" (Por verificar)
+                if (nuevoMontoPagado > 0) {
+                  nuevoEstadoPago = 'Abonado (Verificar)'
+                } else {
+                  nuevoEstadoPago = 'En Verificación'
+                }
               }
 
               await supabase.from('pedidos').update({
@@ -870,12 +883,19 @@
               const delta = nuevoEstado ? parseFloat(pago.monto) : -parseFloat(pago.monto)
               const nuevoSaldo = parseFloat(cta.saldo_actual) + delta
               await supabase.from('cuentas_bancarias').update({ saldo_actual: nuevoSaldo }).eq('id', cta.id)
+              
               if (nuevoEstado) {
                 await supabase.from('movimientos_tesoreria').insert({ cuenta_id: cta.id, tipo: 'INGRESO', monto: pago.monto, concepto: `Pago Orden #${pago.pedidos?.codigo_pedido || ''} (${pago.metodo_pago})`, referencia: pago.referencia, pedido_id: pago.pedido_id, pago_id: pago.id, saldo_resultante: nuevoSaldo })
+              } else {
+                // Si se destilda, se elimina el movimiento para evitar duplicados si se vuelve a tildar
+                await supabase.from('movimientos_tesoreria').delete().eq('pago_id', pago.id)
               }
             }
           }
-          cargarConciliacion(); cargarPedidosAdmin(); cargarSaldosBancarios()
+          
+          await cargarConciliacion(); 
+          await cargarPedidosAdmin(); 
+          await cargarSaldosBancarios();
         } catch (err) {
           alert("Error al conciliar: " + err.message)
           chk.checked = !nuevoEstado
