@@ -334,4 +334,1020 @@
           </div>
           <div class="table-responsive">
             <table class="data-table">
-              <thead><tr><th>SKU</th><th>Producto</th><th>Categoría</th><th>Fórmula</th><th>Lote</th><th>Stock</th><th>P
+              <thead><tr><th>SKU</th><th>Producto</th><th>Categoría</th><th>Fórmula</th><th>Lote</th><th>Stock</th><th>Precio Base USD</th><th>Acciones</th></tr></thead>
+              <tbody id="tbody-inventario"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. PRODUCTOS -->
+    <section class="tab-content" id="tab-productos">
+      <div class="main-header"><h1>6. Maestro de Productos</h1><p>Configura el SKU, categoría y Precio Base en USD de cada artículo.</p></div>
+      <div class="admin-grid">
+        <form class="admin-form" id="form-producto">
+          <h3 id="prod-form-title">Nuevo producto</h3>
+          <input type="hidden" id="prod-id" value="">
+          <div class="msg msg--ok" id="prod-msg"></div>
+          <div class="admin-form__row">
+            <div><label>SKU *</label><input type="text" id="prod-sku" required></div>
+            <div><label>Precio Base ($) *</label><input type="number" id="prod-precio" step="0.01" required></div>
+          </div>
+          <label>Nombre *</label><input type="text" id="prod-nombre" required>
+          <label>Categoría *</label><select id="prod-categoria" required></select>
+          <label>Descripción</label><textarea id="prod-desc" rows="3"></textarea>
+          <label>Imagen</label>
+          <div class="admin-form__preview" id="prod-preview" style="margin-bottom:0.5rem;"><span>Sin imagen</span></div>
+          <label class="admin-form__file" for="prod-imagen">📷 Subir Imagen<input type="file" id="prod-imagen" accept="image/*"></label>
+          <div class="btn-group">
+            <button type="submit" class="boton boton--primario boton--bloque" id="prod-btn">Guardar producto</button>
+            <button type="button" class="boton btn-cancelar" id="prod-btn-cancelar">Cancelar</button>
+          </div>
+        </form>
+        <div class="admin-panel-box">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead><tr><th>Imagen</th><th>SKU</th><th>Nombre</th><th>Categoría</th><th>Precio Base ($)</th><th>Acciones</th></tr></thead>
+              <tbody id="tbody-productos"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. CATEGORÍAS -->
+    <section class="tab-content" id="tab-categorias">
+      <div class="main-header"><h1>7. Categorías de Productos</h1><p>Estructura de catálogo e imágenes de categoría.</p></div>
+      <div class="admin-grid">
+        <form class="admin-form" id="form-categoria">
+          <h3 id="cat-form-title">Nueva categoría</h3>
+          <input type="hidden" id="cat-id" value="">
+          <div class="msg msg--ok" id="cat-msg"></div>
+          <label>Prefijo SKU *</label><input type="text" id="cat-sku" required>
+          <label>Nombre *</label><input type="text" id="cat-nombre" required>
+          <label>Slug *</label><input type="text" id="cat-slug" required>
+          <label>Imagen</label>
+          <div class="admin-form__preview" id="cat-preview" style="margin-bottom:0.5rem;"><span>Sin imagen</span></div>
+          <label class="admin-form__file" for="cat-imagen">📷 Subir Imagen<input type="file" id="cat-imagen" accept="image/*"></label>
+          <div class="btn-group">
+            <button type="submit" class="boton boton--primario boton--bloque" id="cat-btn">Guardar categoría</button>
+            <button type="button" class="boton btn-cancelar" id="cat-btn-cancelar">Cancelar</button>
+          </div>
+        </form>
+        <div class="admin-panel-box">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead><tr><th>Imagen</th><th>Prefijo SKU</th><th>Nombre</th><th>Slug</th><th>Acciones</th></tr></thead>
+              <tbody id="tbody-categorias"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. LOTES -->
+    <section class="tab-content" id="tab-lotes">
+      <div class="main-header"><h1>8. Catálogo de Lotes</h1><p>Códigos de fabricación y fechas de vencimiento.</p></div>
+      <div class="admin-grid">
+        <form class="admin-form" id="form-lote">
+          <h3 id="lote-form-title">Nuevo lote</h3>
+          <input type="hidden" id="lote-id" value="">
+          <div class="msg msg--ok" id="lote-msg"></div>
+          <label>Número de Lote *</label><input type="text" id="lote-codigo" required>
+          <label>Fecha de Vencimiento *</label><input type="date" id="lote-vencimiento" required>
+          <div class="btn-group">
+            <button type="submit" class="boton boton--primario boton--bloque" id="lote-btn">Guardar lote</button>
+            <button type="button" class="boton btn-cancelar" id="lote-btn-cancelar">Cancelar</button>
+          </div>
+        </form>
+        <div class="admin-panel-box">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead><tr><th>Código de Lote</th><th>Fecha de Vencimiento</th><th>Acciones</th></tr></thead>
+              <tbody id="tbody-lotes"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. MÉTODOS, CUENTAS Y COURIERS -->
+    <section class="tab-content" id="tab-bancos-config">
+      <div class="main-header">
+        <h1>9. Métodos de Pago, Cuentas y Couriers</h1>
+        <p>Configuración de pasarelas, entidades físicas y agencias de envío.</p>
+      </div>
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap:2rem;">
+        <!-- Métodos -->
+        <div class="admin-panel-box">
+          <h3 style="font-family:var(--fuente-titulos); font-size:1.1rem; margin-bottom:1rem;">Métodos de Pago</h3>
+          <form id="form-metodo-pago" style="display:flex; gap:0.5rem; margin-bottom:1.5rem;">
+            <input type="text" id="metodo-nombre" placeholder="Ej: Pago Móvil, Zelle" required style="flex-grow:1; padding:.65rem; border:1px solid #d1d5db; border-radius:6px;">
+            <button type="submit" class="boton boton--primario" style="padding:.65rem 1.25rem;">Agregar</button>
+          </form>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead><tr><th>Método</th><th>Estado</th><th>Acciones</th></tr></thead>
+              <tbody id="tbody-metodos"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Cuentas -->
+        <div class="admin-panel-box">
+          <h3 style="font-family:var(--fuente-titulos); font-size:1.1rem; margin-bottom:1rem;">Cuentas Bancarias Físicas</h3>
+          <form id="form-cuenta-banco" style="margin-bottom:1.5rem;">
+            <div class="admin-form__row">
+              <div><label>Nombre del Banco *</label><input type="text" id="banco-nombre" placeholder="Banesco / Zelle" required style="padding:.65rem; border:1px solid #d1d5db; border-radius:6px;"></div>
+              <div>
+                <label>Moneda *</label>
+                <select id="banco-moneda" required style="padding:.65rem; border:1px solid #d1d5db; border-radius:6px;">
+                  <option value="USD">Dólares (USD)</option>
+                  <option value="Bs.">Bolívares (Bs.)</option>
+                </select>
+              </div>
+            </div>
+            <div class="admin-form__row">
+              <div><label>Titular</label><input type="text" id="banco-titular" placeholder="Razón Social" style="padding:.65rem; border:1px solid #d1d5db; border-radius:6px;"></div>
+              <div><label>Saldo Inicial</label><input type="number" id="banco-saldo-inicial" step="0.01" value="0.00" style="padding:.65rem; border:1px solid #d1d5db; border-radius:6px;"></div>
+            </div>
+            <button type="submit" class="boton boton--primario boton--bloque">Crear Cuenta</button>
+          </form>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead><tr><th>Banco</th><th>Titular</th><th>Moneda</th><th>Saldo</th><th>Acciones</th></tr></thead>
+              <tbody id="tbody-cuentas"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Couriers -->
+        <div class="admin-panel-box">
+          <h3 style="font-family:var(--fuente-titulos); font-size:1.1rem; margin-bottom:1rem;">Couriers / Agencias de Envío</h3>
+          <form id="form-courier" style="display:flex; gap:0.5rem; margin-bottom:1.5rem;">
+            <input type="text" id="courier-nombre" placeholder="Ej: MRW, Zoom, Tealca" required style="flex-grow:1; padding:.65rem; border:1px solid #d1d5db; border-radius:6px;">
+            <button type="submit" class="boton boton--primario" style="padding:.65rem 1.25rem;">Agregar</button>
+          </form>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead><tr><th>Courier</th><th>Acciones</th></tr></thead>
+              <tbody id="tbody-couriers"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10. PARÁMETROS -->
+    <section class="tab-content" id="tab-parametros">
+      <div class="main-header"><h1>10. Parámetros Cambiarios y Notificaciones</h1><p>Configura las tasas y el número de WhatsApp oficial.</p></div>
+      <div style="max-width: 650px;">
+        <form class="admin-form" id="form-parametros" style="position:static;">
+          <div class="msg msg--ok" id="param-msg"></div>
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:1.2rem; margin-bottom:1.25rem;">
+            <label style="color:#03543f; font-size:0.9rem; margin-bottom:0.4rem;">Número de WhatsApp *</label>
+            <p style="font-size:0.78rem; color:#64748b; margin-bottom:0.6rem;">Código de país sin '+' ni espacios (Ej: <code>584121234567</code>).</p>
+            <input type="text" id="param-whatsapp" required style="font-size:1.1rem; font-weight:800;" placeholder="584120000000">
+          </div>
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:1.2rem; margin-bottom:1.25rem;">
+            <label style="color:#0b4d8c; font-size:0.9rem; margin-bottom:0.4rem;">Tasa de Catálogo (Bs. por USD) *</label>
+            <input type="number" id="param-tasa-catalogo" step="0.01" min="1" required style="font-size:1.15rem; font-weight:800;">
+          </div>
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:1.2rem; margin-bottom:1.5rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+              <label style="color:#f39200; font-size:0.9rem; margin:0;">Tasa Oficial BCV del Día (Bs.) *</label>
+              <button type="button" class="btn-sm btn-sm--edit" id="btn-sync-bcv">🔄 Sincronizar BCV</button>
+            </div>
+            <p style="font-size:0.78rem; color:#64748b; margin-bottom:0.6rem;" id="txt-bcv-status">Consultando cotización oficial...</p>
+            <input type="number" id="param-tasa-bcv" step="0.01" min="1" required style="font-size:1.15rem; font-weight:800;">
+          </div>
+          <button type="submit" class="boton boton--primario boton--bloque" id="btn-save-param">Actualizar Parámetros del Sistema</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- 11. REPORTES -->
+    <section class="tab-content" id="tab-reportes">
+      <div class="main-header">
+        <h1>11. Reportes y Estadísticas</h1>
+        <p>Extrae informes detallados por rango de fechas.</p>
+      </div>
+
+      <div class="admin-panel-box">
+        <div class="report-filters">
+          <div>
+            <label>Desde:</label>
+            <input type="date" id="rep-fecha-desde">
+          </div>
+          <div>
+            <label>Hasta:</label>
+            <input type="date" id="rep-fecha-hasta">
+          </div>
+          <div>
+            <label>Tipo de Reporte:</label>
+            <select id="rep-tipo">
+              <option value="ventas">Ventas / Pedidos</option>
+              <option value="bancos">Movimientos Bancarios</option>
+              <option value="productos">Movimientos de Productos (Salidas)</option>
+            </select>
+          </div>
+          <button type="button" class="boton boton--naranja" id="btn-generar-reporte" style="height:42px;">Generar Reporte</button>
+        </div>
+
+        <div class="table-responsive" id="rep-tabla-container">
+          <!-- Aquí se inyecta la tabla del reporte -->
+          <p style="text-align:center; padding:2rem; color:#9ca3af;">Selecciona un rango de fechas y genera el reporte.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- SCRIPT COMPLETO -->
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+  const SUPABASE_URL = 'https://fdkdzyjrrtuaotiumbym.supabase.co'
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZka2R6eWpycnR1YW90aXVtYnltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0MDc1MzAsImV4cCI6MjEwNjk4MzUzMH0.RC_ueLB8le0c95RMemtkQf4Yj-bFTrfYLaAcbdRDbXs'
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  const $ = (s) => document.querySelector(s)
+
+  function showMsg(id, text, type = 'ok') {
+    const el = document.getElementById(id)
+    if (!el) return
+    el.textContent = text
+    el.className = `msg msg--${type} visible`
+    setTimeout(() => el.classList.remove('visible'), 4000)
+  }
+
+  function setLoading(btn, loading, defaultText = 'Guardar') {
+    if (loading) { btn.disabled = true; btn.innerHTML = '<span class="loading"></span>Guardando...' }
+    else { btn.disabled = false; btn.textContent = defaultText }
+  }
+
+  async function subirImagen(file, folder = 'productos') {
+    const ext = file.name.split('.').pop()
+    const fileName = `${folder}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${ext}`
+    const { data, error } = await supabase.storage.from('productos').upload(fileName, file, { cacheControl: '3600', upsert: false })
+    if (error) throw error
+    return supabase.storage.from('productos').getPublicUrl(data.path).data.publicUrl
+  }
+
+  $('#btn-toggle-menu').addEventListener('click', () => { $('#admin-sidebar').classList.toggle('abierto'); $('#sidebar-overlay').classList.toggle('abierto') })
+  $('#sidebar-overlay').addEventListener('click', () => { $('#admin-sidebar').classList.remove('abierto'); $('#sidebar-overlay').classList.remove('abierto') })
+
+  // Auth
+  $('#login-form').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    $('#login-error').classList.remove('visible')
+    setLoading($('#login-btn'), true, 'Entrando...')
+    const { data, error } = await supabase.auth.signInWithPassword({ email: $('#login-email').value.trim(), password: $('#login-password').value })
+    setLoading($('#login-btn'), false, 'Entrar al Sistema')
+    if (error) { $('#login-error').textContent = error.message; $('#login-error').classList.add('visible'); return }
+    iniciarSesion(data.user)
+  })
+
+  $('#logout-btn').addEventListener('click', async () => { await supabase.auth.signOut(); location.reload() })
+  const { data: { session } } = await supabase.auth.getSession()
+  if (session) iniciarSesion(session.user)
+
+  function iniciarSesion(user) {
+    $('#login-view').style.display = 'none'
+    $('#panel-view').classList.add('activo')
+    $('#user-email').textContent = user.email
+    cargarTodo()
+  }
+
+  // Tabs
+  document.querySelectorAll('.sidebar-item').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.sidebar-item').forEach(t => t.classList.remove('activo'))
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('activo'))
+      tab.classList.add('activo')
+      $('#tab-' + tab.dataset.tab).classList.add('activo')
+      $('#admin-sidebar').classList.remove('abierto')
+      $('#sidebar-overlay').classList.remove('abierto')
+      if (tab.dataset.tab === 'dashboard') cargarDashboard()
+    })
+  })
+
+  // ================= 0. DASHBOARD =================
+  async function cargarDashboard() {
+    const ahora = new Date()
+    const primerDiaMes = new Date(ahora.getFullYear(), ahora.getMonth(), 1).toISOString()
+    
+    // Ventas del mes
+    const { data: ventasMes } = await supabase.from('pedidos').select('total, total_usd, total_bs, cliente_id, detalles').neq('estado_despacho', 'Anulado').gte('fecha', primerDiaMes)
+    
+    let sumUSD = 0, sumBs = 0
+    let clientesMap = {}, productosMap = {}, formulasMap = {}
+
+    if (ventasMes) {
+      ventasMes.forEach(p => {
+        sumUSD += Number(p.total_usd || 0)
+        sumBs += Number(p.total_bs || 0)
+        
+        // Top Clientes
+        if (!clientesMap[p.cliente_id]) clientesMap[p.cliente_id] = 0
+        clientesMap[p.cliente_id] += Number(p.total_usd || 0)
+
+        // Top Productos y Fórmulas
+        if (p.detalles && Array.isArray(p.detalles)) {
+          p.detalles.forEach(item => {
+            // Producto
+            if (!productosMap[item.nombre]) productosMap[item.nombre] = 0
+            productosMap[item.nombre] += item.cantidad
+
+            // Fórmula
+            const keyFormula = `${item.nombre} [${item.variante}]`
+            if (!formulasMap[keyFormula]) formulasMap[keyFormula] = 0
+            formulasMap[keyFormula] += item.cantidad
+          })
+        }
+      })
+    }
+
+    $('#dash-ventas-mes').textContent = `$${sumUSD.toFixed(2)}`
+    $('#dash-ventas-bs').textContent = `Bs. ${sumBs.toLocaleString('es-VE', { minimumFractionDigits: 2 })}`
+
+    // Renderizar Top Clientes
+    const { data: clientesDB } = await supabase.from('clientes').select('id, empresa')
+    const topClientes = Object.entries(clientesMap).sort((a,b) => b[1] - a[1]).slice(0, 3)
+    $('#dash-top-clientes').innerHTML = topClientes.map(([id, monto]) => {
+      const cli = clientesDB?.find(c => c.id == id)
+      return `<div class="dash-list-item"><span>${cli?.empresa || 'Desconocido'}</span> <strong>$${monto.toFixed(2)}</strong></div>`
+    }).join('') || '<p style="font-size:0.8rem; color:#9ca3af;">Sin ventas este mes.</p>'
+
+    // Renderizar Top Productos
+    const topProductos = Object.entries(productosMap).sort((a,b) => b[1] - a[1]).slice(0, 3)
+    $('#dash-top-productos').innerHTML = topProductos.map(([nombre, cant]) => `<div class="dash-list-item"><span>${nombre}</span> <strong>${cant} unids</strong></div>`).join('') || '<p style="font-size:0.8rem; color:#9ca3af;">Sin ventas este mes.</p>'
+
+    // Renderizar Top Fórmulas
+    const topFormulas = Object.entries(formulasMap).sort((a,b) => b[1] - a[1]).slice(0, 5)
+    $('#dash-top-formulas').innerHTML = topFormulas.map(([formula, cant]) => `<div class="dash-list-item"><span style="font-size:0.8rem;">${formula}</span> <strong>${cant} unids</strong></div>`).join('') || '<p style="font-size:0.8rem; color:#9ca3af;">Sin ventas este mes.</p>'
+  }
+
+  // ================= 1. CLIENTES =================
+  let clientesCache = []
+  async function cargarClientes() {
+    const { data } = await supabase.from('clientes').select('*').order('id', { ascending: false })
+    clientesCache = data || []
+    renderClientes()
+  }
+
+  function calcularInactividad(c) {
+    if (!c.estado_verificado) return { estado: 'Pendiente', color: 'badge-status--verificando' }
+    if (c.inactivo) return { estado: 'Inactivo', color: 'badge-status--rechazado' }
+
+    const ahora = new Date()
+    if (c.fecha_aprobacion && !c.ultima_compra) {
+      const diasAprobado = (ahora - new Date(c.fecha_aprobacion)) / (1000 * 60 * 60 * 24)
+      if (diasAprobado >= 3) return { estado: 'Inactivo (3d sin orden)', color: 'badge-status--rechazado', marcarInactivo: true }
+    }
+    if (c.ultima_compra) {
+      const diasSinComprar = (ahora - new Date(c.ultima_compra)) / (1000 * 60 * 60 * 24)
+      if (diasSinComprar >= 90) return { estado: 'Inactivo (90d sin comprar)', color: 'badge-status--rechazado', marcarInactivo: true }
+    }
+    return { estado: 'Activo', color: 'badge-status--aprobado' }
+  }
+
+  function renderClientes() {
+    const q = $('#filtro-clientes').value.trim().toLowerCase(), filtroEst = $('#filtro-clientes-estado').value
+    const filtrados = clientesCache.filter(c => {
+      const info = calcularInactividad(c)
+      if (filtroEst === 'pendientes' && c.estado_verificado) return false
+      if (filtroEst === 'activos' && (!c.estado_verificado || c.inactivo || info.marcarInactivo)) return false
+      if (filtroEst === 'inactivos' && (!c.inactivo && !info.marcarInactivo)) return false
+      if (q && !`${c.codigo_usuario} ${c.rif} ${c.empresa} ${c.email}`.toLowerCase().includes(q)) return false
+      return true
+    })
+
+    $('#tbody-clientes').innerHTML = filtrados.map(c => {
+      const info = calcularInactividad(c)
+      return `
+        <tr>
+          <td><strong>${c.codigo_usuario}</strong></td>
+          <td>${c.empresa}</td>
+          <td><code>${c.rif}</code></td>
+          <td>${c.nombre_completo || '—'}<br><small style="color:#64748b;">${c.telefono || ''}</small></td>
+          <td><span class="badge-status ${info.color}">${info.estado}</span></td>
+          <td><code>${c.password_hash || 'Sin clave'}</code></td>
+          <td>
+            ${!c.estado_verificado ? `<button class="btn-sm btn-sm--success" data-aprobar-c="${c.id}" data-empresa="${c.empresa}">Aprobar y Asignar Clave</button>` : `<button class="btn-sm ${c.inactivo ? 'btn-sm--success' : 'btn-sm--warning'}" data-toggle-c="${c.id}" data-inactivo="${c.inactivo}">${c.inactivo ? 'Reactivar' : 'Desactivar'}</button>`}
+          </td>
+        </tr>
+      `
+    }).join('') || '<tr><td colspan="7" style="text-align:center;padding:2rem;">Sin clientes.</td></tr>'
+
+    document.querySelectorAll('[data-aprobar-c]').forEach(btn => btn.addEventListener('click', async () => {
+      const clave = prompt(`Asignar contraseña inicial para ${btn.dataset.empresa}:`, 'optiline2026')
+      if (!clave) return
+      await supabase.from('clientes').update({ estado_verificado: true, inactivo: false, password_hash: clave.trim(), fecha_aprobacion: new Date().toISOString() }).eq('id', btn.dataset.aprobarC)
+      alert('✓ Óptica aprobada.'); cargarClientes()
+    }))
+
+    document.querySelectorAll('[data-toggle-c]').forEach(btn => btn.addEventListener('click', async () => {
+      await supabase.from('clientes').update({ inactivo: btn.dataset.inactivo !== 'true' }).eq('id', btn.dataset.toggleC)
+      cargarClientes()
+    }))
+  }
+  $('#filtro-clientes').addEventListener('input', renderClientes)
+  $('#filtro-clientes-estado').addEventListener('change', renderClientes)
+
+  // ================= 2. PEDIDOS =================
+  let pedidosCache = [], couriersCache = []
+  async function cargarPedidosAdmin() {
+    const { data } = await supabase.from('pedidos').select('*, clientes(empresa, rif), couriers(nombre)').order('id', { ascending: false })
+    pedidosCache = data || []
+    renderPedidosAdmin()
+  }
+
+  function renderPedidosAdmin() {
+    const q = $('#filtro-pedidos-busqueda').value.trim().toLowerCase(), est = $('#filtro-pedidos-estado').value
+    const filtrados = pedidosCache.filter(p => {
+      if (est && p.estado_despacho !== est) return false
+      if (q && !`${p.codigo_pedido} ${p.clientes?.empresa} ${p.clientes?.rif}`.toLowerCase().includes(q)) return false
+      return true
+    })
+
+    $('#tbody-pedidos-admin').innerHTML = filtrados.map(p => {
+      const esAnulado = p.estado_despacho === 'Anulado'
+      const mon = p.moneda_pago === 'USD' ? '$' : 'Bs.'
+      
+      return `
+        <tr style="${esAnulado ? 'background:#fef2f2; opacity:0.75;' : ''}">
+          <td><strong>#${p.codigo_pedido}</strong></td>
+          <td>${new Date(p.fecha).toLocaleDateString()}</td>
+          <td>${p.clientes?.empresa || '—'}<br><small style="color:#64748b;">${p.clientes?.rif || ''}</small></td>
+          <td><strong>${mon} ${Number(p.total).toFixed(2)}</strong></td>
+          <td><strong style="color:${Number(p.saldo_pendiente) > 0 ? '#f39200' : '#03543f'};">${mon} ${Number(p.saldo_pendiente).toFixed(2)}</strong></td>
+          <td><span class="badge-status ${p.estado_pago === 'Pagado' ? 'badge-status--aprobado' : 'badge-status--verificando'}">${p.estado_pago}</span></td>
+          
+          <td>
+            ${esAnulado ? `<span class="badge-status badge-status--rechazado">Anulado</span>` : `
+              <select class="check-despacho-select" data-ped-id="${p.id}" style="padding:0.3rem; border-radius:4px; border:1px solid #ccc; font-size:0.75rem;">
+                <option value="Pendiente" ${p.estado_despacho === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
+                <option value="Procesado" ${p.estado_despacho === 'Procesado' ? 'selected' : ''}>Procesado</option>
+                <option value="Enviado" ${p.estado_despacho === 'Enviado' ? 'selected' : ''}>Enviado</option>
+              </select>
+            `}
+          </td>
+
+          <td>
+            ${!esAnulado ? `
+              <div style="display:flex; flex-direction:column; gap:0.2rem;">
+                <select id="courier-sel-${p.id}" style="padding:0.2rem; border:1px solid #ccc; border-radius:4px; font-size:0.75rem;">
+                  <option value="">Courier...</option>
+                  ${couriersCache.map(c => `<option value="${c.id}" ${p.courier_id == c.id ? 'selected' : ''}>${c.nombre}</option>`).join('')}
+                </select>
+                <input type="text" id="guia-inp-${p.id}" value="${p.guia_despacho || ''}" placeholder="Guía" style="padding:0.2rem; border:1px solid #ccc; border-radius:4px; font-size:0.75rem; width:80px;">
+                <button class="btn-sm btn-sm--edit" data-save-ship="${p.id}">Guardar</button>
+              </div>
+            ` : '—'}
+          </td>
+
+          <td>
+            ${!esAnulado ? `<button class="btn-sm btn-sm--danger" data-anular-ped="${p.id}" data-codigo="${p.codigo_pedido}" data-detalles='${JSON.stringify(p.detalles || [])}'>Anular</button>` : `<span style="font-size:0.75rem; color:#991b1b; font-weight:700;">Sin acción</span>`}
+          </td>
+        </tr>
+      `
+    }).join('') || '<tr><td colspan="9" style="text-align:center;padding:2rem;">Sin pedidos registrados.</td></tr>'
+
+    // Actualizar estado despacho (select)
+    document.querySelectorAll('.check-despacho-select').forEach(sel => {
+      sel.addEventListener('change', async () => {
+        await supabase.from('pedidos').update({ estado_despacho: sel.value }).eq('id', sel.dataset.pedId)
+        cargarPedidosAdmin()
+      })
+    })
+
+    // Guardar courier y guía
+    document.querySelectorAll('[data-save-ship]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const pId = btn.dataset.saveShip
+        const cId = $(`#courier-sel-${pId}`).value || null
+        const guia = $(`#guia-inp-${pId}`).value.trim() || null
+        await supabase.from('pedidos').update({ courier_id: cId, guia_despacho: guia }).eq('id', pId)
+        alert('✓ Datos de envío guardados.')
+      })
+    })
+
+    // Anular pedido
+    document.querySelectorAll('[data-anular-ped]').forEach(btn => btn.addEventListener('click', async () => {
+      if (!confirm(`¿Anular pedido #${btn.dataset.codigo}? El stock reservado se devolverá.`)) return
+      const items = JSON.parse(btn.dataset.detalles || '[]')
+      for (const item of items) {
+        if (item.invId && item.cantidad) {
+          const { data: inv } = await supabase.from('inventario_lotes').select('stock').eq('id', item.invId).single()
+          if (inv) await supabase.from('inventario_lotes').update({ stock: inv.stock + item.cantidad }).eq('id', item.invId)
+        }
+      }
+      await supabase.from('pedidos').update({ estado_despacho: 'Anulado', saldo_pendiente: 0.00 }).eq('id', btn.dataset.anularPed)
+      alert('✓ Pedido anulado y stock devuelto.')
+      cargarPedidosAdmin(); cargarInventarioData()
+    }))
+  }
+  $('#filtro-pedidos-busqueda').addEventListener('input', renderPedidosAdmin)
+  $('#filtro-pedidos-estado').addEventListener('change', renderPedidosAdmin)
+
+  // ================= 3. CONCILIACIÓN =================
+  let pagosCache = []
+  async function cargarConciliacion() {
+    const { data } = await supabase.from('pagos').select('*, pedidos(codigo_pedido), clientes(empresa, rif), cuentas_bancarias(nombre_banco, moneda)').order('id', { ascending: false })
+    pagosCache = data || []
+    renderConciliacion()
+  }
+
+  function renderConciliacion() {
+    const q = $('#filtro-concil-busqueda').value.trim().toLowerCase(), bId = $('#filtro-concil-banco').value, est = $('#filtro-concil-estado').value
+    const filtrados = pagosCache.filter(p => {
+      if (bId && p.cuenta_id != bId) return false
+      if (est !== '' && String(p.conciliado) !== est) return false
+      if (q && !`${p.pedidos?.codigo_pedido} ${p.referencia} ${p.clientes?.empresa}`.toLowerCase().includes(q)) return false
+      return true
+    })
+
+    $('#tbody-conciliacion').innerHTML = filtrados.map(p => `
+      <tr style="${p.conciliado ? 'background:#f0fdf4;' : ''}">
+        <td>${p.fecha_pago}</td>
+        <td><strong>#${p.pedidos?.codigo_pedido || '—'}</strong></td>
+        <td>${p.clientes?.empresa || '—'}<br><small style="color:#64748b;">${p.clientes?.rif || ''}</small></td>
+        <td><strong>${p.cuentas_bancarias?.moneda || '$'} ${Number(p.monto).toFixed(2)}</strong></td>
+        <td>${p.metodo_pago}</td>
+        <td><strong>${p.cuentas_bancarias?.nombre_banco || p.banco_origen || 'Por asignar'}</strong></td>
+        <td><code>${p.referencia}</code></td>
+        <td>${p.comprobante_url ? `<a href="${p.comprobante_url}" target="_blank" style="color:#0b4d8c;font-weight:700;text-decoration:underline;">Ver Voucher</a>` : '<span style="color:#94a3b8;">Sin archivo</span>'}</td>
+        <td style="text-align:center;"><input type="checkbox" style="width:20px; height:20px; cursor:pointer;" data-check-pago="${p.id}" ${p.conciliado ? 'checked' : ''}></td>
+      </tr>
+    `).join('') || '<tr><td colspan="9" style="text-align:center;padding:2rem;">Sin pagos.</td></tr>'
+
+    document.querySelectorAll('[data-check-pago]').forEach(chk => {
+      chk.addEventListener('change', async () => {
+        const pId = chk.dataset.checkPago, pago = pagosCache.find(x => x.id == pId)
+        if (!pago) return
+        const nuevoEstado = chk.checked
+        await supabase.from('pagos').update({ conciliado: nuevoEstado, estado_conciliacion: nuevoEstado ? 'Aprobado' : 'En verificación' }).eq('id', pId)
+
+        // IMPACTO AUTOMÁTICO: PEDIDO PASA A "PROCESADO" AL CONCILIAR
+        if (pago.pedido_id) {
+          const nuevoDespacho = nuevoEstado ? 'Procesado' : 'Pendiente'
+          await supabase.from('pedidos').update({ estado_despacho: nuevoDespacho }).eq('id', pago.pedido_id)
+        }
+
+        // IMPACTO EN SALDO BANCARIO
+        if (pago.cuenta_id) {
+          const { data: cta } = await supabase.from('cuentas_bancarias').select('*').eq('id', pago.cuenta_id).single()
+          if (cta) {
+            const delta = nuevoEstado ? parseFloat(pago.monto) : -parseFloat(pago.monto)
+            const nuevoSaldo = parseFloat(cta.saldo_actual) + delta
+            await supabase.from('cuentas_bancarias').update({ saldo_actual: nuevoSaldo }).eq('id', cta.id)
+            if (nuevoEstado) {
+              await supabase.from('movimientos_tesoreria').insert({ cuenta_id: cta.id, tipo: 'INGRESO', monto: pago.monto, concepto: `Pago Orden #${pago.pedidos?.codigo_pedido || ''} (${pago.metodo_pago})`, referencia: pago.referencia, pedido_id: pago.pedido_id, pago_id: pago.id, saldo_resultante: nuevoSaldo })
+            }
+          }
+        }
+        cargarConciliacion(); cargarPedidosAdmin(); cargarSaldosBancarios()
+      })
+    })
+  }
+  $('#filtro-concil-busqueda').addEventListener('input', renderConciliacion)
+  $('#filtro-concil-banco').addEventListener('change', renderConciliacion)
+  $('#filtro-concil-estado').addEventListener('change', renderConciliacion)
+
+  // ================= 4. SALDOS Y BANCOS =================
+  let cuentasCache = []
+  async function cargarSaldosBancarios() {
+    const { data } = await supabase.from('cuentas_bancarias').select('*').order('id')
+    cuentasCache = data || []
+    $('#grid-bancos-saldos').innerHTML = cuentasCache.map(b => `
+      <div class="banco-card ${b.moneda === 'Bs.' ? 'bs' : ''}">
+        <h4>${b.nombre_banco}</h4>
+        <p>${b.titular || 'Sin titular'} · Moneda: <strong>${b.moneda}</strong></p>
+        <div class="banco-card__monto">${b.moneda} ${Number(b.saldo_actual).toLocaleString('es-VE', { minimumFractionDigits: 2 })}</div>
+      </div>
+    `).join('')
+
+    const opts = '<option value="">Selecciona banco físico...</option>' + cuentasCache.map(b => `<option value="${b.id}">${b.nombre_banco} (${b.moneda})</option>`).join('')
+    $('#retiro-banco').innerHTML = opts
+    $('#filtro-mov-banco').innerHTML = opts
+    $('#filtro-concil-banco').innerHTML = '<option value="">Todos los bancos físicos</option>' + cuentasCache.map(b => `<option value="${b.id}">${b.nombre_banco}</option>`).join('')
+    $('#tbody-cuentas').innerHTML = cuentasCache.map(b => `<tr><td><strong>${b.nombre_banco}</strong></td><td>${b.titular || '—'}</td><td><strong>${b.moneda}</strong></td><td>${b.moneda} ${Number(b.saldo_actual).toFixed(2)}</td><td><button class="btn-sm btn-sm--danger" data-del-cta="${b.id}">Borrar</button></td></tr>`).join('') || '<tr><td colspan="5" style="text-align:center;padding:1.5rem;">Sin cuentas.</td></tr>'
+    
+    document.querySelectorAll('[data-del-cta]').forEach(btn => btn.addEventListener('click', async () => {
+      if (confirm('¿Eliminar cuenta?')) { await supabase.from('cuentas_bancarias').delete().eq('id', btn.dataset.delCta); cargarSaldosBancarios() }
+    }))
+  }
+
+  $('#filtro-mov-banco').addEventListener('change', async (e) => {
+    const bId = e.target.value
+    if (!bId) { $('#tbody-movimientos').innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;">Selecciona un banco físico arriba.</td></tr>'; return }
+    const { data } = await supabase.from('movimientos_tesoreria').select('*').eq('cuenta_id', bId).order('id', { ascending: false })
+    const cta = cuentasCache.find(c => c.id == bId)
+    $('#tbody-movimientos').innerHTML = (data && data.length) ? data.map(m => `
+      <tr>
+        <td>${new Date(m.fecha).toLocaleDateString()}</td>
+        <td><strong>${m.concepto}</strong><br><small style="color:#64748b;">Ref: ${m.referencia || '—'}</small></td>
+        <td>${m.tipo === 'INGRESO' ? 'Abono / Cobranza' : 'Egreso / Retiro'}</td>
+        <td style="color:${m.tipo === 'INGRESO' ? '#03543f' : '#991b1b'}; font-weight:800;">${m.tipo === 'INGRESO' ? '+' : '-'} ${cta?.moneda} ${Number(m.monto).toFixed(2)}</td>
+        <td><strong>${cta?.moneda} ${Number(m.saldo_resultante).toFixed(2)}</strong></td>
+      </tr>
+    `).join('') : '<tr><td colspan="5" style="text-align:center;padding:2rem;">Sin movimientos.</td></tr>'
+  })
+
+  $('#form-retiro').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const ctaId = $('#retiro-banco').value, monto = parseFloat($('#retiro-monto').value), cta = cuentasCache.find(c => c.id == ctaId)
+    if (!cta) return
+    const nuevoSaldo = parseFloat(cta.saldo_actual) - monto
+    await supabase.from('retiros').insert({ cuenta_id: ctaId, fecha: $('#retiro-fecha').value, monto, concepto: $('#retiro-concepto').value.trim(), referencia: $('#retiro-referencia').value.trim() || null })
+    await supabase.from('movimientos_tesoreria').insert({ cuenta_id: ctaId, tipo: 'EGRESO', monto, concepto: $('#retiro-concepto').value.trim(), referencia: $('#retiro-referencia').value.trim() || null, saldo_resultante: nuevoSaldo })
+    await supabase.from('cuentas_bancarias').update({ saldo_actual: nuevoSaldo }).eq('id', ctaId)
+    showMsg('retiro-msg', '✓ Egreso registrado con éxito.')
+    $('#form-retiro').reset(); cargarSaldosBancarios()
+  })
+
+  // ================= 5. INVENTARIO Y FÓRMULAS =================
+  let prodsCache = [], lotesCache = [], catsCache = [], invCache = []
+  async function cargarInventarioData() {
+    const { data: inv } = await supabase.from('inventario_lotes').select('id, stock, variante_id, lote_id, variantes(id, nombre, productos(id, sku, nombre, precio, categorias(id, nombre))), lotes(id, codigo_lote, fecha_vencimiento)').order('id', { ascending: false })
+    invCache = inv || []
+    renderInventario()
+  }
+
+  function renderInventario() {
+    const q = $('#filtro-inv-busqueda').value.trim().toLowerCase(), cId = $('#filtro-inv-categoria').value, pId = $('#filtro-inv-producto').value
+    const filtrados = invCache.filter(i => {
+      const p = i.variantes?.productos
+      if (cId && p?.categorias?.id != cId) return false
+      if (pId && p?.id != pId) return false
+      if (q && !`${p?.sku} ${p?.nombre} ${i.variantes?.nombre} ${i.lotes?.codigo_lote}`.toLowerCase().includes(q)) return false
+      return true
+    })
+
+    $('#tbody-inventario').innerHTML = filtrados.map(i => {
+      const p = i.variantes?.productos
+      return `
+        <tr>
+          <td><strong>${p?.sku || '—'}</strong></td>
+          <td>${p?.nombre || '—'}</td>
+          <td>${p?.categorias?.nombre || '—'}</td>
+          <td>${i.variantes?.nombre || '—'}</td>
+          <td><strong>${i.lotes?.codigo_lote || '—'}</strong></td>
+          <td><strong style="color:${i.stock > 0 ? '#0b4d8c' : '#991b1b'};">${i.stock} unids</strong></td>
+          <td>$${Number(p?.precio || 0).toFixed(2)}</td>
+          <td>
+            <button class="btn-sm btn-sm--edit" data-edit-inv='${JSON.stringify(i)}'>Editar</button>
+            <button class="btn-sm btn-sm--danger" data-del-inv="${i.id}">Borrar</button>
+          </td>
+        </tr>
+      `
+    }).join('') || '<tr><td colspan="8" style="text-align:center;padding:2rem;">Sin inventario.</td></tr>'
+
+    document.querySelectorAll('[data-edit-inv]').forEach(btn => btn.addEventListener('click', () => {
+      const i = JSON.parse(btn.dataset.editInv)
+      $('#inv-edit-id').value = i.id
+      $('#manual-producto').value = i.variantes?.productos?.id || ''
+      $('#manual-producto').dispatchEvent(new Event('change'))
+      $('#manual-lote').value = i.lotes?.id || ''
+      $('#manual-lote').dispatchEvent(new Event('change'))
+      $('#manual-formula').value = i.variantes?.nombre || ''
+      $('#manual-stock').value = i.stock
+      
+      $('#inv-form-title').textContent = 'Editar Inventario'
+      $('#manual-btn').textContent = 'Actualizar Inventario'
+      $('#inv-btn-cancelar').style.display = 'block'
+    }))
+
+    document.querySelectorAll('[data-del-inv]').forEach(btn => btn.addEventListener('click', async () => {
+      if (confirm('¿Eliminar variante?')) { await supabase.from('inventario_lotes').delete().eq('id', btn.dataset.delInv); cargarInventarioData() }
+    }))
+  }
+
+  $('#filtro-inv-busqueda').addEventListener('input', renderInventario)
+  $('#filtro-inv-categoria').addEventListener('change', renderInventario)
+  $('#filtro-inv-producto').addEventListener('change', renderInventario)
+  $('#manual-producto').addEventListener('change', (e) => {
+    const p = prodsCache.find(x => x.id == e.target.value)
+    $('#tag-prod-info').textContent = p ? `SKU: ${p.sku || 'Sin SKU'} | Cat: ${p.categorias?.nombre || '—'} | Precio Base: $${Number(p.precio).toFixed(2)}` : 'SKU: — | Cat: — | Precio Base: —'
+  })
+  $('#manual-lote').addEventListener('change', (e) => {
+    const l = lotesCache.find(x => x.id == e.target.value)
+    $('#tag-lote-info').textContent = l ? `Lote: ${l.codigo_lote} | Vence: ${l.fecha_vencimiento}` : 'Lote: — | Vence: —'
+  })
+
+  $('#form-formula-manual').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const pId = parseInt($('#manual-producto').value), lId = parseInt($('#manual-lote').value)
+    const formula = $('#manual-formula').value.trim(), stock = parseInt($('#manual-stock').value) || 0
+    const editId = $('#inv-edit-id').value
+
+    let { data: varData } = await supabase.from('variantes').select('id').eq('producto_id', pId).eq('nombre', formula).maybeSingle()
+    let vId = varData?.id
+    if (!vId) {
+      const { data: nv } = await supabase.from('variantes').insert({ producto_id: pId, nombre: formula }).select('id').single()
+      if (nv) vId = nv.id
+    }
+
+    if (editId) {
+      await supabase.from('inventario_lotes').update({ variante_id: vId, lote_id: lId, stock }).eq('id', editId)
+    } else {
+      await supabase.from('inventario_lotes').upsert({ variante_id: vId, lote_id: lId, stock }, { onConflict: 'variante_id,lote_id' })
+    }
+    
+    $('#inv-btn-cancelar').click()
+    cargarInventarioData()
+  })
+
+  $('#inv-btn-cancelar').addEventListener('click', () => {
+    $('#form-formula-manual').reset()
+    $('#inv-edit-id').value = ''
+    $('#inv-form-title').textContent = 'Asignar Fórmula / Inventario'
+    $('#manual-btn').textContent = 'Guardar en Inventario'
+    $('#inv-btn-cancelar').style.display = 'none'
+    $('#tag-prod-info').textContent = 'SKU: — | Cat: — | Precio Base: —'
+    $('#tag-lote-info').textContent = 'Lote: — | Vence: —'
+  })
+
+  // ================= 6, 7, 8. PRODUCTOS, LOTES Y CATEGORÍAS =================
+  let prodFile = null, catFile = null
+  $('#prod-imagen').addEventListener('change', (e) => { prodFile = e.target.files[0]; if (prodFile) { const r = new FileReader(); r.onload = (ev) => $('#prod-preview').innerHTML = `<img src="${ev.target.result}">`; r.readAsDataURL(prodFile) } })
+  $('#cat-imagen').addEventListener('change', (e) => { catFile = e.target.files[0]; if (catFile) { const r = new FileReader(); r.onload = (ev) => $('#cat-preview').innerHTML = `<img src="${ev.target.result}">`; r.readAsDataURL(catFile) } })
+
+  async function cargarCatalogos() {
+    const { data: p } = await supabase.from('productos').select('*, categorias(nombre)').order('id', { ascending: false })
+    prodsCache = p || []
+    const { data: l } = await supabase.from('lotes').select('*').order('fecha_vencimiento', { ascending: true })
+    lotesCache = l || []
+    const { data: c } = await supabase.from('categorias').select('*').order('id')
+    catsCache = c || []
+
+    $('#manual-producto').innerHTML = '<option value="">Seleccionar producto...</option>' + prodsCache.map(x => `<option value="${x.id}">${x.nombre} (${x.sku || 'Sin SKU'})</option>`).join('')
+    $('#manual-lote').innerHTML = '<option value="">Seleccionar lote...</option>' + lotesCache.map(x => `<option value="${x.id}">${x.codigo_lote} (Vence: ${x.fecha_vencimiento})</option>`).join('')
+    $('#filtro-inv-categoria').innerHTML = '<option value="">Todas las categorías</option>' + catsCache.map(x => `<option value="${x.id}">${x.nombre}</option>`).join('')
+    $('#filtro-inv-producto').innerHTML = '<option value="">Todos los productos</option>' + prodsCache.map(x => `<option value="${x.id}">${x.nombre}</option>`).join('')
+    $('#prod-categoria').innerHTML = '<option value="">Selecciona categoría</option>' + catsCache.map(x => `<option value="${x.id}">${x.nombre}</option>`).join('')
+
+    $('#tbody-productos').innerHTML = prodsCache.map(x => `
+      <tr>
+        <td><div class="table-thumb" style="width:44px;height:44px;border:1px solid #e2e8f0;">${x.imagen_url ? `<img src="${x.imagen_url}" style="width:100%;height:100%;object-fit:contain;">` : 'Sin img'}</div></td>
+        <td><strong>${x.sku}</strong></td>
+        <td>${x.nombre}</td>
+        <td>${x.categorias?.nombre || '—'}</td>
+        <td>$${Number(x.precio).toFixed(2)}</td>
+        <td><button class="btn-sm btn-sm--edit" data-edit-p='${JSON.stringify(x)}'>Editar</button><button class="btn-sm btn-sm--danger" data-del-p="${x.id}">Borrar</button></td>
+      </tr>
+    `).join('') || '<tr><td colspan="6" style="text-align:center;padding:2rem;">Sin productos.</td></tr>'
+
+    $('#tbody-categorias').innerHTML = catsCache.map(x => `
+      <tr>
+        <td><div class="table-thumb" style="width:44px;height:44px;border:1px solid #e2e8f0;">${x.imagen_url ? `<img src="${x.imagen_url}" style="width:100%;height:100%;object-fit:contain;">` : 'Sin img'}</div></td>
+        <td><strong>${x.sku_prefijo || '—'}</strong></td>
+        <td>${x.nombre}</td>
+        <td><code>${x.slug}</code></td>
+        <td><button class="btn-sm btn-sm--edit" data-edit-cat='${JSON.stringify(x)}'>Editar</button><button class="btn-sm btn-sm--danger" data-del-cat="${x.id}">Borrar</button></td>
+      </tr>
+    `).join('') || '<tr><td colspan="5" style="text-align:center;padding:2rem;">Sin categorías.</td></tr>'
+
+    $('#tbody-lotes').innerHTML = lotesCache.map(x => `
+      <tr>
+        <td><strong>${x.codigo_lote}</strong></td>
+        <td>${x.fecha_vencimiento}</td>
+        <td><button class="btn-sm btn-sm--edit" data-edit-lot='${JSON.stringify(x)}'>Editar</button><button class="btn-sm btn-sm--danger" data-del-lot="${x.id}">Borrar</button></td>
+      </tr>
+    `).join('') || '<tr><td colspan="3" style="text-align:center;padding:2rem;">Sin lotes.</td></tr>'
+
+    document.querySelectorAll('[data-edit-p]').forEach(btn => btn.addEventListener('click', () => {
+      const p = JSON.parse(btn.dataset.editP)
+      $('#prod-id').value = p.id; $('#prod-sku').value = p.sku; $('#prod-precio').value = p.precio; $('#prod-nombre').value = p.nombre
+      $('#prod-categoria').value = p.categoria_id; $('#prod-desc').value = p.descripcion || ''
+      $('#prod-preview').innerHTML = p.imagen_url ? `<img src="${p.imagen_url}">` : '<span>Sin imagen</span>'
+      $('#prod-form-title').textContent = 'Editar producto'; $('#prod-btn').textContent = 'Actualizar producto'; $('#prod-btn-cancelar').style.display = 'block'
+    }))
+    document.querySelectorAll('[data-del-p]').forEach(b => b.addEventListener('click', async () => { if (confirm('¿Eliminar producto?')) { await supabase.from('productos').delete().eq('id', b.dataset.delP); cargarCatalogos() } }))
+
+    document.querySelectorAll('[data-edit-cat]').forEach(btn => btn.addEventListener('click', () => {
+      const c = JSON.parse(btn.dataset.editCat)
+      $('#cat-id').value = c.id; $('#cat-sku').value = c.sku_prefijo || ''; $('#cat-nombre').value = c.nombre; $('#cat-slug').value = c.slug
+      $('#cat-preview').innerHTML = c.imagen_url ? `<img src="${c.imagen_url}">` : '<span>Sin imagen</span>'
+      $('#cat-form-title').textContent = 'Editar categoría'; $('#cat-btn').textContent = 'Actualizar categoría'; $('#cat-btn-cancelar').style.display = 'block'
+    }))
+    document.querySelectorAll('[data-del-cat]').forEach(b => b.addEventListener('click', async () => { if (confirm('¿Eliminar categoría?')) { await supabase.from('categorias').delete().eq('id', b.dataset.delCat); cargarCatalogos() } }))
+
+    document.querySelectorAll('[data-edit-lot]').forEach(btn => btn.addEventListener('click', () => {
+      const l = JSON.parse(btn.dataset.editLot)
+      $('#lote-id').value = l.id; $('#lote-codigo').value = l.codigo_lote; $('#lote-vencimiento').value = l.fecha_vencimiento
+      $('#lote-form-title').textContent = 'Editar lote'; $('#lote-btn').textContent = 'Actualizar lote'; $('#lote-btn-cancelar').style.display = 'block'
+    }))
+    document.querySelectorAll('[data-del-lot]').forEach(b => b.addEventListener('click', async () => { if (confirm('¿Eliminar lote?')) { await supabase.from('lotes').delete().eq('id', b.dataset.delLot); cargarCatalogos() } }))
+  }
+
+  $('#prod-btn-cancelar').addEventListener('click', () => { $('#prod-id').value = ''; $('#form-producto').reset(); $('#prod-preview').innerHTML = '<span>Sin imagen</span>'; $('#prod-form-title').textContent = 'Nuevo producto'; $('#prod-btn').textContent = 'Guardar producto'; $('#prod-btn-cancelar').style.display = 'none' })
+  $('#cat-btn-cancelar').addEventListener('click', () => { $('#cat-id').value = ''; $('#form-categoria').reset(); $('#cat-preview').innerHTML = '<span>Sin imagen</span>'; $('#cat-form-title').textContent = 'Nueva categoría'; $('#cat-btn').textContent = 'Guardar categoría'; $('#cat-btn-cancelar').style.display = 'none' })
+  $('#lote-btn-cancelar').addEventListener('click', () => { $('#lote-id').value = ''; $('#form-lote').reset(); $('#lote-form-title').textContent = 'Nuevo lote'; $('#lote-btn').textContent = 'Guardar lote'; $('#lote-btn-cancelar').style.display = 'none' })
+
+  $('#form-producto').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    let img = null; if (prodFile) img = await subirImagen(prodFile, 'productos')
+    await supabase.from('productos').upsert({ id: $('#prod-id').value || undefined, sku: $('#prod-sku').value.trim(), precio: parseFloat($('#prod-precio').value), nombre: $('#prod-nombre').value.trim(), categoria_id: parseInt($('#prod-categoria').value), descripcion: $('#prod-desc').value.trim() || null, imagen_url: img || undefined })
+    $('#prod-btn-cancelar').click(); cargarCatalogos()
+  })
+
+  $('#form-categoria').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    let img = null; if (catFile) img = await subirImagen(catFile, 'categorias')
+    await supabase.from('categorias').upsert({ id: $('#cat-id').value || undefined, sku_prefijo: $('#cat-sku').value.trim(), nombre: $('#cat-nombre').value.trim(), slug: $('#cat-slug').value.trim().toLowerCase(), imagen_url: img || undefined })
+    $('#cat-btn-cancelar').click(); cargarCatalogos()
+  })
+
+  $('#form-lote').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    await supabase.from('lotes').upsert({ id: $('#lote-id').value || undefined, codigo_lote: $('#lote-codigo').value.trim(), fecha_vencimiento: $('#lote-vencimiento').value })
+    $('#lote-btn-cancelar').click(); cargarCatalogos()
+  })
+
+  // ================= 9. MÉTODOS, CUENTAS Y COURIERS =================
+  let metodosCache = [], couriersCacheConfig = []
+  async function cargarMetodosPago() {
+    const { data } = await supabase.from('metodos_pago').select('*').order('id')
+    metodosCache = data || []
+    $('#tbody-metodos').innerHTML = metodosCache.map(m => `<tr><td><strong>${m.nombre}</strong></td><td><span style="font-size:0.75rem; font-weight:700; color:${m.activo ? '#03543f' : '#991b1b'};">${m.activo ? 'ACTIVO' : 'INACTIVO'}</span></td><td><button class="btn-sm btn-sm--edit" data-toggle-metodo="${m.id}" data-status="${m.activo}">${m.activo ? 'Pausar' : 'Activar'}</button><button class="btn-sm btn-sm--danger" data-del-metodo="${m.id}">Borrar</button></td></tr>`).join('') || '<tr><td colspan="3" style="text-align:center;padding:1.5rem;">Sin métodos.</td></tr>'
+    
+    document.querySelectorAll('[data-toggle-metodo]').forEach(btn => btn.addEventListener('click', async () => {
+      await supabase.from('metodos_pago').update({ activo: btn.dataset.status !== 'true' }).eq('id', btn.dataset.toggleMetodo); cargarMetodosPago()
+    }))
+    document.querySelectorAll('[data-del-metodo]').forEach(btn => btn.addEventListener('click', async () => {
+      if (confirm('¿Eliminar método?')) { await supabase.from('metodos_pago').delete().eq('id', btn.dataset.delMetodo); cargarMetodosPago() }
+    }))
+  }
+
+  $('#form-metodo-pago').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const n = $('#metodo-nombre').value.trim(); if (!n) return
+    await supabase.from('metodos_pago').insert({ nombre: n, activo: true }); $('#metodo-nombre').value = ''; cargarMetodosPago()
+  })
+
+  $('#form-cuenta-banco').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    await supabase.from('cuentas_bancarias').insert({ nombre_banco: $('#banco-nombre').value.trim(), titular: $('#banco-titular').value.trim() || null, moneda: $('#banco-moneda').value, saldo_actual: parseFloat($('#banco-saldo-inicial').value) || 0 })
+    $('#form-cuenta-banco').reset(); cargarSaldosBancarios()
+  })
+
+  async function cargarCouriers() {
+    const { data } = await supabase.from('couriers').select('*').order('id')
+    couriersCacheConfig = data || []
+    $('#tbody-couriers').innerHTML = couriersCacheConfig.map(c => `<tr><td><strong>${c.nombre}</strong></td><td><button class="btn-sm btn-sm--danger" data-del-courier="${c.id}">Borrar</button></td></tr>`).join('') || '<tr><td colspan="2" style="text-align:center;padding:1.5rem;">Sin couriers.</td></tr>'
+    
+    // Actualizar variable para pedidos
+    couriersCache = couriersCacheConfig
+    renderPedidosAdmin()
+
+    document.querySelectorAll('[data-del-courier]').forEach(btn => btn.addEventListener('click', async () => {
+      if (confirm('¿Eliminar courier?')) { await supabase.from('couriers').delete().eq('id', btn.dataset.delCourier); cargarCouriers() }
+    }))
+  }
+
+  $('#form-courier').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const n = $('#courier-nombre').value.trim(); if (!n) return
+    await supabase.from('couriers').insert({ nombre: n }); $('#courier-nombre').value = ''; cargarCouriers()
+  })
+
+  // ================= 10. PARÁMETROS =================
+  async function cargarParametros() {
+    const { data } = await supabase.from('parametros').select('*').eq('id', 1).maybeSingle()
+    if (data) {
+      $('#param-tasa-catalogo').value = data.tasa_catalogo || 1000.00
+      $('#param-tasa-bcv').value = data.tasa_bcv || 900.00
+      $('#param-whatsapp').value = data.telefono_whatsapp || '584120000000'
+    }
+    consultarBcvEnVivo()
+  }
+
+  async function consultarBcvEnVivo() {
+    const statusTxt = $('#txt-bcv-status'); statusTxt.textContent = 'Consultando cotización oficial BCV...'
+    try {
+      const res = await fetch('https://ve.dolarapi.com/v1/dolares/oficial'); if (!res.ok) throw new Error('API indisponible')
+      const json = await res.json()
+      if (json && json.promedio) {
+        $('#param-tasa-bcv').value = Number(json.promedio).toFixed(2)
+        statusTxt.textContent = `✓ Tasa oficial BCV sincronizada: Bs. ${Number(json.promedio).toFixed(2)}`
+        statusTxt.style.color = '#03543f'
+      }
+    } catch (err) { statusTxt.textContent = 'Nota: Sin conexión a la API BCV.'; statusTxt.style.color = '#713f12' }
+  }
+
+  $('#btn-sync-bcv').addEventListener('click', consultarBcvEnVivo)
+  $('#form-parametros').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    setLoading($('#btn-save-param'), true)
+    await supabase.from('parametros').upsert({ id: 1, tasa_catalogo: parseFloat($('#param-tasa-catalogo').value) || 1000.00, tasa_bcv: parseFloat($('#param-tasa-bcv').value) || 900.00, telefono_whatsapp: $('#param-whatsapp').value.trim().replace(/[^0-9]/g, ''), updated_at: new Date().toISOString() })
+    setLoading($('#btn-save-param'), false, 'Actualizar Parámetros del Sistema')
+    showMsg('param-msg', '✓ Parámetros actualizados con éxito.')
+  })
+
+  // ================= 11. REPORTES =================
+  $('#btn-generar-reporte').addEventListener('click', async () => {
+    const desde = $('#rep-fecha-desde').value
+    const hasta = $('#rep-fecha-hasta').value
+    const tipo = $('#rep-tipo').value
+    const container = $('#rep-tabla-container')
+    
+    if (!desde || !hasta) return alert('Debes seleccionar ambas fechas.')
+
+    container.innerHTML = '<p style="text-align:center; padding:2rem; color:#0b4d8c; font-weight:700;">Generando reporte...</p>'
+
+    try {
+      if (tipo === 'ventas') {
+        const { data, error } = await supabase.from('pedidos').select('*, clientes(empresa, rif)').gte('fecha', desde).lte('fecha', hasta + 'T23:59:59').neq('estado_despacho', 'Anulado').order('fecha', { ascending: false })
+        if (error) throw error
+
+        container.innerHTML = `
+          <table class="data-table">
+            <thead><tr><th>Fecha</th><th>Orden</th><th>Cliente</th><th>Total USD</th><th>Total Bs</th><th>Estado</th></tr></thead>
+            <tbody>
+              ${(data||[]).map(p => `
+                <tr>
+                  <td>${new Date(p.fecha).toLocaleDateString()}</td>
+                  <td>#${p.codigo_pedido}</td>
+                  <td>${p.clientes?.empresa}</td>
+                  <td>$${Number(p.total_usd).toFixed(2)}</td>
+                  <td>Bs. ${Number(p.total_bs).toFixed(2)}</td>
+                  <td>${p.estado_pago}</td>
+                </tr>
+              `).join('') || '<tr><td colspan="6" style="text-align:center;">Sin ventas en este rango.</td></tr>'}
+            </tbody>
+          </table>`
+      } 
+      else if (tipo === 'bancos') {
+        const { data, error } = await supabase.from('movimientos_tesoreria').select('*, cuentas_bancarias(nombre_banco, moneda)').gte('fecha', desde).lte('fecha', hasta + 'T23:59:59').order('fecha', { ascending: false })
+        if (error) throw error
+
+        container.innerHTML = `
+          <table class="data-table">
+            <thead><tr><th>Fecha</th><th>Banco</th><th>Concepto</th><th>Monto</th><th>Tipo</th></tr></thead>
+            <tbody>
+              ${(data||[]).map(m => `
+                <tr>
+                  <td>${new Date(m.fecha).toLocaleDateString()}</td>
+                  <td>${m.cuentas_bancarias?.nombre_banco || '—'}</td>
+                  <td>${m.concepto}</td>
+                  <td style="color:${m.tipo === 'INGRESO' ? '#03543f' : '#991b1b'}; font-weight:800;">${m.cuentas_bancarias?.moneda} ${Number(m.monto).toFixed(2)}</td>
+                  <td>${m.tipo}</td>
+                </tr>
+              `).join('') || '<tr><td colspan="5" style="text-align:center;">Sin movimientos en este rango.</td></tr>'}
+            </tbody>
+          </table>`
+      }
+      else if (tipo === 'productos') {
+        const { data, error } = await supabase.from('pedidos').select('fecha, codigo_pedido, detalles').gte('fecha', desde).lte('fecha', hasta + 'T23:59:59').neq('estado_despacho', 'Anulado')
+        if (error) throw error
+
+        let movs = []
+        ;(data||[]).forEach(p => {
+          if (p.detalles && Array.isArray(p.detalles)) {
+            p.detalles.forEach(d => {
+              movs.push({ fecha: p.fecha, orden: p.codigo_pedido, producto: d.nombre, formula: d.variante, cantidad: d.cantidad })
+            })
+          }
+        })
+
+        container.innerHTML = `
+          <table class="data-table">
+            <thead><tr><th>Fecha</th><th>Orden</th><th>Producto</th><th>Fórmula</th><th>Cant. Salida</th></tr></thead>
+            <tbody>
+              ${movs.map(m => `
+                <tr>
+                  <td>${new Date(m.fecha).toLocaleDateString()}</td>
+                  <td>#${m.orden}</td>
+                  <td>${m.producto}</td>
+                  <td>${m.formula}</td>
+                  <td><strong>${m.cantidad} unids</strong></td>
+                </tr>
+              `).join('') || '<tr><td colspan="5" style="text-align:center;">Sin salidas en este rango.</td></tr>'}
+            </tbody>
+          </table>`
+      }
+    } catch (err) {
+      container.innerHTML = `<p style="text-align:center; color:#991b1b; padding:2rem;">Error: ${err.message}</p>`
+    }
+  })
+
+  // INICIALIZACIÓN
+  async function cargarTodo() {
+    await cargarCatalogos()
+    await cargarClientes()
+    await cargarSaldosBancarios()
+    await cargarCouriers() // Carga couriers y refresca pedidos
+    await cargarPedidosAdmin()
+    await cargarConciliacion()
+    await cargarInventarioData()
+    await cargarMetodosPago()
+    await cargarParametros()
+    await cargarDashboard()
+  }
+</script>
+
+</body>
+</html>
