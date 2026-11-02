@@ -73,6 +73,7 @@
     .banco-card p { font-size: 0.78rem; color: #64748b; margin-bottom: 0.5rem; }
     .banco-card__monto { font-family: 'Montserrat', sans-serif; font-size: 1.45rem; font-weight: 900; color: #111827; }
 
+    .excel-zone { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; background: #f8fafc; border: 2px dashed #93c5fd; padding: 1.25rem 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; }
     .filtros-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: .8rem; margin-bottom: 1.2rem; }
     .btn-group { display: flex; gap: .5rem; }
     .btn-cancelar { display: none; background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; }
@@ -281,6 +282,23 @@
     <!-- 5. INVENTARIO Y FÓRMULAS -->
     <section class="tab-content no-print" id="tab-inventario">
       <div class="main-header"><h1>5. Inventario y Graduaciones</h1><p>Las fórmulas repetidas se muestran unificadas sumando su stock total.</p></div>
+
+      <!-- ZONA DE IMPORTACIÓN DE EXCEL (4 COLUMNAS SIN FECHA) -->
+      <div class="excel-zone">
+        <div>
+          <h4>Importar Inventario desde Excel (CSV / XLSX)</h4>
+          <p>Columnas requeridas: <strong>sku_producto | variante | lote | cantidad</strong></p>
+        </div>
+        <div style="display:flex; gap:.8rem;">
+          <button type="button" class="btn-sm btn-sm--edit" id="btn-plantilla-inventario">📥 Descargar Plantilla</button>
+          <label class="boton boton--primario" style="margin:0; cursor:pointer;">
+            📤 Cargar Excel
+            <input type="file" id="input-excel-inv" accept=".xlsx, .xls, .csv" style="display:none;">
+          </label>
+        </div>
+      </div>
+      <div class="msg msg--ok" id="inv-excel-msg"></div>
+
       <div class="admin-grid">
         <form class="admin-form" id="form-formula-manual">
           <h3 id="inv-form-title">Asignar Fórmula / Inventario</h3>
@@ -715,11 +733,9 @@
       const esAnulado = p.estado_despacho === 'Anulado'
       const mon = p.moneda_pago === 'USD' ? '$' : 'Bs.'
       
-      const courierObj = couriersCache.find(c => c.id == p.courier_id)
-      
       let badgePago = 'badge-status--verificando'
       if (p.estado_pago === 'Pagado') badgePago = 'badge-status--aprobado'
-      if (p.estado_pago === 'Abonado' || p.estado_pago.includes('Verificar')) badgePago = 'badge-status--verificando'
+      if (p.estado_pago === 'Abonado' || (p.estado_pago && p.estado_pago.includes('Verificar'))) badgePago = 'badge-status--verificando'
 
       return `
         <tr style="${esAnulado ? 'background:#fef2f2; opacity:0.75;' : ''}">
@@ -836,29 +852,23 @@
         const nuevoEstado = chk.checked
 
         try {
-          // 1. Intentar actualizar el PEDIDO primero
           if (pago.pedido_id) {
             const { data: ped, error: errPed } = await supabase.from('pedidos').select('total').eq('id', pago.pedido_id).single()
             if (errPed) throw errPed;
 
-            // Obtener pagos aprobados (incluyendo el actual si nuevoEstado es true)
             const { data: pagosAprobados, error: errAprobados } = await supabase.from('pagos').select('monto').eq('pedido_id', pago.pedido_id).eq('conciliado', true)
             if (errAprobados) throw errAprobados;
 
             let totalAprobado = pagosAprobados.reduce((sum, p) => sum + parseFloat(p.monto), 0)
             
-            // Si estamos marcando el check, sumamos este pago manualmente para el cálculo, ya que aún no está en la DB
             if (nuevoEstado) {
               totalAprobado += parseFloat(pago.monto)
             } else {
-               // Si estamos desmarcando, restamos este pago manualmente (porque la consulta anterior lo trajo como true)
                totalAprobado -= parseFloat(pago.monto)
             }
 
-            // Evitar decimales flotantes
             totalAprobado = Math.max(0, Math.round(totalAprobado * 100) / 100)
             const totalPedido = parseFloat(ped.total)
-            const saldoRestante = Math.max(0, totalPedido - totalAprobado)
 
             let nuevoEstadoPago = 'En Verificación'
             let nuevoDespacho = 'Pendiente'
@@ -876,18 +886,15 @@
               estado_despacho: nuevoDespacho
             }).eq('id', pago.pedido_id)
 
-            // SI FALLA EL PEDIDO, CANCELAMOS TODO
             if (errUpdatePed) throw new Error("Error en tabla Pedidos: " + errUpdatePed.message)
           }
 
-          // 2. Si el pedido se actualizó, actualizamos el PAGO
           const { error: errPago } = await supabase.from('pagos').update({ 
             conciliado: nuevoEstado, 
             estado_conciliacion: nuevoEstado ? 'Aprobado' : 'En verificación' 
           }).eq('id', pId)
           if (errPago) throw new Error("Error en tabla Pagos: " + errPago.message)
 
-          // 3. Actualizar Banco
           if (pago.cuenta_id) {
             const { data: cta } = await supabase.from('cuentas_bancarias').select('*').eq('id', pago.cuenta_id).single()
             if (cta) {
@@ -914,7 +921,7 @@
         } catch (err) {
           console.error(err)
           alert("Error al conciliar: " + err.message)
-          chk.checked = !nuevoEstado // Revertir visualmente si falla
+          chk.checked = !nuevoEstado
         }
       })
     })
@@ -975,7 +982,7 @@
     $('#form-retiro').reset(); cargarSaldosBancarios()
   })
 
-  // ================= 5. INVENTARIO Y FÓRMULAS =================
+  // ================= 5. INVENTARIO Y FÓRMULAS (CON EXCEL Y BORRADO SEGURO) =================
   let prodsCache = [], lotesCache = [], catsCache = [], invCache = []
   
   async function cargarInventarioData() {
@@ -990,6 +997,7 @@
     const groupedMap = new Map()
     invCache.forEach(i => {
       const vId = i.variante_id
+      if (!vId) return; // Ignora registros corruptos
       if (!groupedMap.has(vId)) {
         groupedMap.set(vId, { ...i, stock: 0, lotesArray: [] })
       }
@@ -1026,7 +1034,7 @@
           <td>$${Number(p?.precio || 0).toFixed(2)}</td>
           <td>
             <button class="btn-sm btn-sm--edit" data-edit-inv='${JSON.stringify(i)}'>Editar</button>
-            <button class="btn-sm btn-sm--danger" data-del-inv="${i.id}">Borrar</button>
+            <button class="btn-sm btn-sm--danger" data-del-var="${i.variante_id}" data-formula="${i.variantes?.nombre || ''}">Borrar</button>
           </td>
         </tr>
       `
@@ -1047,8 +1055,27 @@
       $('#inv-btn-cancelar').style.display = 'block'
     }))
 
-    document.querySelectorAll('[data-del-inv]').forEach(btn => btn.addEventListener('click', async () => {
-      if (confirm('¿Eliminar variante?')) { await supabase.from('inventario_lotes').delete().eq('id', btn.dataset.delInv); cargarInventarioData() }
+    // CORRECCIÓN BLINDADA CONTRA EL BORRADO TOTAL
+    document.querySelectorAll('[data-del-var]').forEach(btn => btn.addEventListener('click', async () => {
+      const vId = parseInt(btn.dataset.delVar)
+      const formula = btn.dataset.formula || 'esta variante'
+
+      if (!vId || isNaN(vId) || vId <= 0) {
+        alert('Error de seguridad: ID de variante inválido. Operación cancelada.')
+        return
+      }
+
+      if (!confirm(`¿Eliminar la fórmula "${formula}" del inventario? Se eliminarán todos los lotes de esta fórmula.`)) return
+
+      // Elimina estrictamente los registros asociados a ese variante_id específico
+      const { error: errInv } = await supabase.from('inventario_lotes').delete().eq('variante_id', vId)
+      if (errInv) {
+        alert('Error al eliminar inventario: ' + errInv.message)
+        return
+      }
+
+      await supabase.from('variantes').delete().eq('id', vId).maybeSingle()
+      cargarInventarioData()
     }))
   }
 
@@ -1100,6 +1127,115 @@
     $('#inv-btn-cancelar').style.display = 'none'
     $('#tag-prod-info').textContent = 'SKU: — | Cat: — | Precio Base: —'
     $('#tag-lote-info').textContent = 'Lote: — | Vence: —'
+  })
+
+  // Descarga de Plantilla Oficial de Inventario (4 Columnas)
+  $('#btn-plantilla-inventario').addEventListener('click', () => {
+    const ws_data = [
+      ["sku_producto", "variante", "lote", "cantidad"],
+      ["FORM-HDX2", "-1.00 / -0.75 x 90", "OPT-2026-A1", 24],
+      ["FORM-HDX2", "-1.25 / -0.75 x 90", "OPT-2026-A1", 12],
+      ["COSM-MQF", "Verde Esmeralda", "OPT-2026-B2", 30]
+    ]
+    const wb = XLSX.utils.book_new()
+    const ws = XLSX.utils.aoa_to_sheet(ws_data)
+    XLSX.utils.book_append_sheet(wb, ws, "Inventario")
+    XLSX.writeFile(wb, "plantilla_inventario_optiline.xlsx")
+  })
+
+  // Carga Masiva desde Excel (4 Columnas)
+  $('#input-excel-inv').addEventListener('change', async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = async (evt) => {
+      try {
+        const data = new Uint8Array(evt.target.result)
+        const workbook = XLSX.read(data, { type: 'array' })
+        const sheetName = workbook.SheetNames[0]
+        const json = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName])
+
+        if (!json.length) throw new Error('El archivo Excel está vacío.')
+
+        showMsg('inv-excel-msg', `Procesando ${json.length} registros...`, 'ok')
+
+        // Caché de productos por SKU
+        const { data: dbProds } = await supabase.from('productos').select('id, sku')
+        const prodMap = new Map((dbProds || []).map(p => [(p.sku || '').trim().toUpperCase(), p.id]))
+
+        // Caché de lotes por código
+        const { data: dbLotes } = await supabase.from('lotes').select('id, codigo_lote')
+        const loteMap = new Map((dbLotes || []).map(l => [(l.codigo_lote || '').trim().toUpperCase(), l.id]))
+
+        let proc = 0
+        let errores = []
+
+        for (const fila of json) {
+          const sku = String(fila.sku_producto || fila.SKU || '').trim().toUpperCase()
+          const varianteNom = String(fila.variante || fila.formula || fila.variable || '').trim()
+          const loteCod = String(fila.lote || fila.codigo_lote || '').trim().toUpperCase()
+          const cant = parseInt(fila.cantidad || fila.stock || 0) || 0
+
+          if (!sku || !varianteNom || !loteCod) {
+            errores.push(`Fila omitida por datos incompletos: SKU ${sku || 'vacío'}`)
+            continue
+          }
+
+          const pId = prodMap.get(sku)
+          if (!pId) {
+            errores.push(`SKU "${sku}" no existe en el catálogo de productos.`)
+            continue
+          }
+
+          // Verificación / asignación de lote existente
+          let lId = loteMap.get(loteCod)
+          if (!lId) {
+            const { data: nl, error: errLote } = await supabase.from('lotes').insert({ codigo_lote: loteCod, fecha_vencimiento: '2028-12-31' }).select('id').single()
+            if (errLote || !nl) {
+              errores.push(`Error al registrar lote ${loteCod}`)
+              continue
+            }
+            lId = nl.id
+            loteMap.set(loteCod, lId)
+          }
+
+          // Verificación / creación de variante
+          let { data: varData } = await supabase.from('variantes').select('id').eq('producto_id', pId).eq('nombre', varianteNom).maybeSingle()
+          let vId = varData?.id
+          if (!vId) {
+            const { data: nv, error: errVar } = await supabase.from('variantes').insert({ producto_id: pId, nombre: varianteNom }).select('id').single()
+            if (errVar || !nv) {
+              errores.push(`Error al crear variante ${varianteNom}`)
+              continue
+            }
+            vId = nv.id
+          }
+
+          // Upsert en inventario_lotes
+          const { error: errInv } = await supabase.from('inventario_lotes').upsert({
+            variante_id: vId,
+            lote_id: lId,
+            stock: cant
+          }, { onConflict: 'variante_id,lote_id' })
+
+          if (errInv) {
+            errores.push(`Error de stock para ${sku} / ${varianteNom}`)
+          } else {
+            proc++
+          }
+        }
+
+        const msgFinal = `✓ Se importaron ${proc} registros exitosamente.` + (errores.length ? ` (${errores.length} omitidos por error)` : '')
+        showMsg('inv-excel-msg', msgFinal, errores.length ? 'error' : 'ok')
+        cargarInventarioData()
+      } catch (err) {
+        showMsg('inv-excel-msg', 'Error al procesar Excel: ' + err.message, 'error')
+      } finally {
+        e.target.value = ''
+      }
+    }
+    reader.readAsArrayBuffer(file)
   })
 
   // ================= 6, 7, 8. PRODUCTOS, LOTES Y CATEGORÍAS =================
