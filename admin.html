@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
   <title>Admin B2B · Optiline</title>
   <link rel="icon" type="image/png" href="img/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="js/vendor/xlsx.full.min.js"></script>
 
   <style>
     :root { --sidebar-width: 250px; --sidebar-bg: #0b4d8c; --sidebar-hover: #083a6b; --sidebar-active: #f39200; }
@@ -122,6 +123,16 @@
       .admin-form { position: static; }
       .bancos-grid { grid-template-columns: 1fr; }
     }
+
+    .admin-form__preview { width: 100%; height: 120px; border: 1px dashed #d1d5db; border-radius: 6px; display: flex; align-items: center; justify-content: center; background: #f8fafc; color: #9ca3af; font-size: .8rem; overflow: hidden; }
+    .admin-form__preview img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .admin-form__file { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; padding: .55rem .9rem; border: 1px solid #d1d5db; border-radius: 6px; background: #f8fafc; font-size: .8rem; font-weight: 700; color: #334155; cursor: pointer; margin-bottom: .85rem; }
+    .admin-form__file:hover { background: #eef2f7; }
+    .table-thumb { display: flex; align-items: center; justify-content: center; overflow: hidden; background: #fff; border-radius: 4px; color: #94a3b8; font-size: .65rem; }
+    .table-thumb img { width: 100%; height: 100%; object-fit: contain; }
+    .info-tag { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: .35rem .55rem; }
+    .loading { display: inline-block; width: 14px; height: 14px; margin-right: 6px; border: 2px solid rgba(255,255,255,.45); border-top-color: #fff; border-radius: 50%; animation: admin-spin .7s linear infinite; vertical-align: middle; }
+    @keyframes admin-spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -200,7 +211,7 @@
         </div>
         <div class="table-responsive">
           <table class="data-table">
-            <thead><tr><th>Código</th><th>Razón Social</th><th>RIF</th><th>Contacto</th><th>Estado</th><th>Clave Actual</th><th>Acciones</th></tr></thead>
+            <thead><tr><th>Código</th><th>Razón Social</th><th>RIF</th><th>Contacto</th><th>Estado</th><th>Acciones</th></tr></thead>
             <tbody id="tbody-clientes"></tbody>
           </table>
         </div>
@@ -288,6 +299,16 @@
         <div>
           <h4>Importar Inventario desde Excel (CSV / XLSX)</h4>
           <p>Columnas requeridas: <strong>sku_producto | variante | lote | cantidad</strong></p>
+          <div style="display:flex; flex-wrap:wrap; gap:1.1rem; margin-top:.7rem; font-size:.82rem; color:#475569;">
+            <label style="display:flex; align-items:center; gap:.4rem; margin:0; cursor:pointer; font-weight:600;">
+              <input type="checkbox" id="inv-crear-faltantes">
+              Crear productos faltantes (precio $0, ocultos del catálogo)
+            </label>
+            <label style="display:flex; align-items:center; gap:.4rem; margin:0; cursor:pointer; font-weight:600;">
+              <input type="checkbox" id="inv-omitir-ceros">
+              Omitir filas con cantidad 0
+            </label>
+          </div>
         </div>
         <div style="display:flex; gap:.8rem;">
           <button type="button" class="btn-sm btn-sm--edit" id="btn-plantilla-inventario">📥 Descargar Plantilla</button>
@@ -298,6 +319,7 @@
         </div>
       </div>
       <div class="msg msg--ok" id="inv-excel-msg"></div>
+      <div id="inv-excel-resultados" style="display:none;"></div>
 
       <div class="admin-grid">
         <form class="admin-form" id="form-formula-manual">
@@ -534,58 +556,126 @@
 </div>
 
 <script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+  import { supabase } from './js/config.js'
+  import { escapeHtml, mensajeError } from './js/ui.js'
 
-  const SUPABASE_URL = 'https://fdkdzyjrrtuaotiumbym.supabase.co'
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZka2R6eWpycnR1YW90aXVtYnltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0MDc1MzAsImV4cCI6MjEwNjk4MzUzMH0.RC_ueLB8le0c95RMemtkQf4Yj-bFTrfYLaAcbdRDbXs'
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   const $ = (s) => document.querySelector(s)
 
-  function showMsg(id, text, type = 'ok') {
+  function showMsg (id, text, type = 'ok') {
     const el = document.getElementById(id)
     if (!el) return
     el.textContent = text
     el.className = `msg msg--${type} visible`
-    setTimeout(() => el.classList.remove('visible'), 4000)
+    setTimeout(() => el.classList.remove('visible'), 5000)
   }
 
-  function setLoading(btn, loading, defaultText = 'Guardar') {
-    if (loading) { btn.disabled = true; btn.innerHTML = '<span class="loading"></span>Guardando...' }
-    else { btn.disabled = false; btn.textContent = defaultText }
+  function setLoading (btn, loading, defaultText = 'Guardar') {
+    if (!btn) return
+    if (loading) {
+      btn.disabled = true
+      btn.innerHTML = '<span class="loading"></span>Guardando...'
+    } else {
+      btn.disabled = false
+      btn.textContent = defaultText
+    }
   }
 
-  async function subirImagen(file, folder = 'productos') {
-    const ext = file.name.split('.').pop()
+  async function subirImagen (file, folder = 'productos') {
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '')
     const fileName = `${folder}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${ext}`
-    const { data, error } = await supabase.storage.from('productos').upload(fileName, file, { cacheControl: '3600', upsert: false })
+    const { data, error } = await supabase.storage
+      .from('productos')
+      .upload(fileName, file, { cacheControl: '3600', upsert: false, contentType: file.type || undefined })
     if (error) throw error
     return supabase.storage.from('productos').getPublicUrl(data.path).data.publicUrl
+  }
+
+  // Los comprobantes nuevos se guardan como ruta privada; los viejos, como URL.
+  function rutaComprobante (valor) {
+    if (!valor) return null
+    const match = String(valor).match(/\/storage\/v1\/object\/(?:public|sign)\/comprobantes\/(.+?)(?:\?|$)/)
+    if (match) return decodeURIComponent(match[1])
+    if (/^https?:\/\//i.test(valor)) return null
+    return valor
+  }
+
+  async function verComprobante (valor) {
+    if (!valor) return
+    const ruta = rutaComprobante(valor)
+    if (!ruta) {
+      window.open(valor, '_blank', 'noopener')
+      return
+    }
+    const { data, error } = await supabase.storage.from('comprobantes').createSignedUrl(ruta, 300)
+    if (error) {
+      alert('No se pudo abrir el comprobante: ' + mensajeError(error))
+      return
+    }
+    window.open(data.signedUrl, '_blank', 'noopener')
   }
 
   $('#btn-toggle-menu').addEventListener('click', () => { $('#admin-sidebar').classList.toggle('abierto'); $('#sidebar-overlay').classList.toggle('abierto') })
   $('#sidebar-overlay').addEventListener('click', () => { $('#admin-sidebar').classList.remove('abierto'); $('#sidebar-overlay').classList.remove('abierto') })
 
-  // Auth
+  // ================= AUTENTICACIÓN =================
+  // El panel usa Supabase Auth para el administrador. Después de iniciar
+  // sesión se comprueba el rol contra la función es_admin() de la base.
+  async function verificarAdmin () {
+    const { data, error } = await supabase.rpc('es_admin')
+    if (error) throw error
+    return data === true
+  }
+
+  async function iniciarSesion (user) {
+    let esAdmin = false
+    try {
+      esAdmin = await verificarAdmin()
+    } catch (err) {
+      await supabase.auth.signOut()
+      $('#login-error').textContent = 'No se pudo verificar el rol de administrador. Ejecute la migración de seguridad. Detalle: ' + mensajeError(err)
+      $('#login-error').classList.add('visible')
+      return
+    }
+
+    if (!esAdmin) {
+      await supabase.auth.signOut()
+      $('#login-error').textContent = 'Esta cuenta no tiene permisos de administrador.'
+      $('#login-error').classList.add('visible')
+      return
+    }
+
+    $('#login-view').style.display = 'none'
+    $('#panel-view').classList.add('activo')
+    $('#user-email').textContent = user?.email || ''
+    cargarTodo()
+  }
+
   $('#login-form').addEventListener('submit', async (e) => {
     e.preventDefault()
     $('#login-error').classList.remove('visible')
-    setLoading($('#login-btn'), true, 'Entrando...')
-    const { data, error } = await supabase.auth.signInWithPassword({ email: $('#login-email').value.trim(), password: $('#login-password').value })
-    setLoading($('#login-btn'), false, 'Entrar al Sistema')
-    if (error) { $('#login-error').textContent = error.message; $('#login-error').classList.add('visible'); return }
-    iniciarSesion(data.user)
+    const btn = $('#login-btn')
+    setLoading(btn, true, 'Entrando...')
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: $('#login-email').value.trim(),
+        password: $('#login-password').value
+      })
+      if (error) throw error
+      $('#login-password').value = ''
+      await iniciarSesion(data.user)
+    } catch (err) {
+      $('#login-error').textContent = mensajeError(err)
+      $('#login-error').classList.add('visible')
+    } finally {
+      setLoading(btn, false, 'Entrar al Sistema')
+    }
   })
 
   $('#logout-btn').addEventListener('click', async () => { await supabase.auth.signOut(); location.reload() })
+
   const { data: { session } } = await supabase.auth.getSession()
   if (session) iniciarSesion(session.user)
-
-  function iniciarSesion(user) {
-    $('#login-view').style.display = 'none'
-    $('#panel-view').classList.add('activo')
-    $('#user-email').textContent = user.email
-    cargarTodo()
-  }
 
   document.querySelectorAll('.sidebar-item').forEach(tab => {
     tab.addEventListener('click', () => {
@@ -600,27 +690,36 @@
   })
 
   // ================= 0. DASHBOARD =================
-  async function cargarDashboard() {
+  async function cargarDashboard () {
     const ahora = new Date()
     const primerDiaMes = new Date(ahora.getFullYear(), ahora.getMonth(), 1).toISOString()
-    const { data: ventasMes } = await supabase.from('pedidos').select('total, total_usd, total_bs, cliente_id, detalles').neq('estado_despacho', 'Anulado').gte('fecha', primerDiaMes)
-    
-    let sumUSD = 0, sumBs = 0, clientesMap = {}, productosMap = {}, formulasMap = {}
+    const { data: ventasMes } = await supabase
+      .from('pedidos')
+      .select('total, total_usd, total_bs, cliente_id, detalles')
+      .neq('estado_despacho', 'Anulado')
+      .gte('fecha', primerDiaMes)
+
+    let sumUSD = 0
+    let sumBs = 0
+    const clientesMap = {}
+    const productosMap = {}
+    const formulasMap = {}
 
     if (ventasMes) {
       ventasMes.forEach(p => {
-        sumUSD += Number(p.total_usd || 0); sumBs += Number(p.total_bs || 0)
+        sumUSD += Number(p.total_usd || 0)
+        sumBs += Number(p.total_bs || 0)
         if (!clientesMap[p.cliente_id]) clientesMap[p.cliente_id] = 0
         clientesMap[p.cliente_id] += Number(p.total_usd || 0)
-        if (p.detalles && Array.isArray(p.detalles)) {
-          p.detalles.forEach(item => {
-            if (!productosMap[item.nombre]) productosMap[item.nombre] = 0
-            productosMap[item.nombre] += item.cantidad
-            const keyFormula = `${item.nombre} [${item.variante}]`
-            if (!formulasMap[keyFormula]) formulasMap[keyFormula] = 0
-            formulasMap[keyFormula] += item.cantidad
-          })
-        }
+        const detalles = Array.isArray(p.detalles) ? p.detalles : []
+        detalles.forEach(item => {
+          const nombre = item?.nombre || '—'
+          if (!productosMap[nombre]) productosMap[nombre] = 0
+          productosMap[nombre] += Number(item.cantidad || 0)
+          const keyFormula = `${nombre} [${item.variante || '—'}]`
+          if (!formulasMap[keyFormula]) formulasMap[keyFormula] = 0
+          formulasMap[keyFormula] += Number(item.cantidad || 0)
+        })
       })
     }
 
@@ -628,28 +727,35 @@
     $('#dash-ventas-bs').textContent = `Bs. ${sumBs.toLocaleString('es-VE', { minimumFractionDigits: 2 })}`
 
     const { data: clientesDB } = await supabase.from('clientes').select('id, empresa')
-    const topClientes = Object.entries(clientesMap).sort((a,b) => b[1] - a[1]).slice(0, 3)
+    const topClientes = Object.entries(clientesMap).sort((a, b) => b[1] - a[1]).slice(0, 3)
     $('#dash-top-clientes').innerHTML = topClientes.map(([id, monto]) => {
       const cli = clientesDB?.find(c => c.id == id)
-      return `<div class="dash-list-item"><span>${cli?.empresa || 'Desconocido'}</span> <strong>$${monto.toFixed(2)}</strong></div>`
+      return `<div class="dash-list-item"><span>${escapeHtml(cli?.empresa || 'Desconocido')}</span> <strong>$${monto.toFixed(2)}</strong></div>`
     }).join('') || '<p style="font-size:0.8rem; color:#9ca3af;">Sin ventas este mes.</p>'
 
-    const topProductos = Object.entries(productosMap).sort((a,b) => b[1] - a[1]).slice(0, 3)
-    $('#dash-top-productos').innerHTML = topProductos.map(([nombre, cant]) => `<div class="dash-list-item"><span>${nombre}</span> <strong>${cant} unids</strong></div>`).join('') || '<p style="font-size:0.8rem; color:#9ca3af;">Sin ventas este mes.</p>'
+    const topProductos = Object.entries(productosMap).sort((a, b) => b[1] - a[1]).slice(0, 3)
+    $('#dash-top-productos').innerHTML = topProductos.map(([nombre, cant]) => `<div class="dash-list-item"><span>${escapeHtml(nombre)}</span> <strong>${cant} unids</strong></div>`).join('') || '<p style="font-size:0.8rem; color:#9ca3af;">Sin ventas este mes.</p>'
 
-    const topFormulas = Object.entries(formulasMap).sort((a,b) => b[1] - a[1]).slice(0, 5)
-    $('#dash-top-formulas').innerHTML = topFormulas.map(([formula, cant]) => `<div class="dash-list-item"><span style="font-size:0.8rem;">${formula}</span> <strong>${cant} unids</strong></div>`).join('') || '<p style="font-size:0.8rem; color:#9ca3af;">Sin ventas este mes.</p>'
+    const topFormulas = Object.entries(formulasMap).sort((a, b) => b[1] - a[1]).slice(0, 5)
+    $('#dash-top-formulas').innerHTML = topFormulas.map(([formula, cant]) => `<div class="dash-list-item"><span style="font-size:0.8rem;">${escapeHtml(formula)}</span> <strong>${cant} unids</strong></div>`).join('') || '<p style="font-size:0.8rem; color:#9ca3af;">Sin ventas este mes.</p>'
   }
 
   // ================= 1. CLIENTES =================
   let clientesCache = []
-  async function cargarClientes() {
-    const { data } = await supabase.from('clientes').select('*').order('id', { ascending: false })
+  async function cargarClientes () {
+    const { data, error } = await supabase
+      .from('clientes')
+      .select('id, codigo_usuario, rif, empresa, nombre_completo, telefono, email, estado_verificado, inactivo, fecha_aprobacion, ultima_compra')
+      .order('id', { ascending: false })
+    if (error) {
+      $('#tbody-clientes').innerHTML = `<tr><td colspan="6" style="text-align:center;padding:2rem;color:#991b1b;">Error: ${escapeHtml(mensajeError(error))}</td></tr>`
+      return
+    }
     clientesCache = data || []
     renderClientes()
   }
 
-  function calcularInactividad(c) {
+  function calcularInactividad (c) {
     if (!c.estado_verificado) return { estado: 'Pendiente', color: 'badge-status--verificando' }
     if (c.inactivo) return { estado: 'Inactivo', color: 'badge-status--rechazado' }
 
@@ -665,14 +771,15 @@
     return { estado: 'Activo', color: 'badge-status--aprobado' }
   }
 
-  function renderClientes() {
-    const q = $('#filtro-clientes').value.trim().toLowerCase(), filtroEst = $('#filtro-clientes-estado').value
+  function renderClientes () {
+    const q = $('#filtro-clientes').value.trim().toLowerCase()
+    const filtroEst = $('#filtro-clientes-estado').value
     const filtrados = clientesCache.filter(c => {
       const info = calcularInactividad(c)
       if (filtroEst === 'pendientes' && c.estado_verificado) return false
       if (filtroEst === 'activos' && (!c.estado_verificado || c.inactivo || info.marcarInactivo)) return false
       if (filtroEst === 'inactivos' && (!c.inactivo && !info.marcarInactivo)) return false
-      if (q && !`${c.codigo_usuario} ${c.rif} ${c.empresa} ${c.email}`.toLowerCase().includes(q)) return false
+      if (q && !`${c.codigo_usuario || ''} ${c.rif || ''} ${c.empresa || ''} ${c.email || ''}`.toLowerCase().includes(q)) return false
       return true
     })
 
@@ -680,28 +787,41 @@
       const info = calcularInactividad(c)
       return `
         <tr>
-          <td><strong>${c.codigo_usuario}</strong></td>
-          <td>${c.empresa}</td>
-          <td><code>${c.rif}</code></td>
-          <td>${c.nombre_completo || '—'}<br><small style="color:#64748b;">${c.telefono || ''}</small></td>
-          <td><span class="badge-status ${info.color}">${info.estado}</span></td>
-          <td><code>${c.password_hash || 'Sin clave'}</code></td>
+          <td><strong>${escapeHtml(c.codigo_usuario || '—')}</strong></td>
+          <td>${escapeHtml(c.empresa || '—')}</td>
+          <td><code>${escapeHtml(c.rif || '—')}</code></td>
+          <td>${escapeHtml(c.nombre_completo || '—')}<br><small style="color:#64748b;">${escapeHtml(c.telefono || '')}</small></td>
+          <td><span class="badge-status ${info.color}">${escapeHtml(info.estado)}</span></td>
           <td>
-            ${!c.estado_verificado ? `<button class="btn-sm btn-sm--success" data-aprobar-c="${c.id}" data-empresa="${c.empresa}">Aprobar y Asignar Clave</button>` : `<button class="btn-sm ${c.inactivo ? 'btn-sm--success' : 'btn-sm--warning'}" data-toggle-c="${c.id}" data-inactivo="${c.inactivo}">${c.inactivo ? 'Reactivar' : 'Desactivar'}</button>`}
+            ${!c.estado_verificado
+              ? `<button class="btn-sm btn-sm--success" data-aprobar-c="${c.id}" data-empresa="${escapeHtml(c.empresa || '')}">Aprobar y Asignar Clave</button>`
+              : `<button class="btn-sm ${c.inactivo ? 'btn-sm--success' : 'btn-sm--warning'}" data-toggle-c="${c.id}" data-inactivo="${c.inactivo ? 'true' : 'false'}" data-empresa="${escapeHtml(c.empresa || '')}">${c.inactivo ? 'Reactivar' : 'Desactivar'}</button>`}
           </td>
         </tr>
       `
-    }).join('') || '<tr><td colspan="7" style="text-align:center;padding:2rem;">Sin clientes.</td></tr>'
+    }).join('') || '<tr><td colspan="6" style="text-align:center;padding:2rem;">Sin clientes.</td></tr>'
 
     document.querySelectorAll('[data-aprobar-c]').forEach(btn => btn.addEventListener('click', async () => {
-      const clave = prompt(`Asignar contraseña inicial para ${btn.dataset.empresa}:`, 'optiline2026')
+      const clave = prompt(`Asignar contraseña inicial para ${btn.dataset.empresa}:`, 'Optiline2026!')
       if (!clave) return
-      await supabase.from('clientes').update({ estado_verificado: true, inactivo: false, password_hash: clave.trim(), fecha_aprobacion: new Date().toISOString() }).eq('id', btn.dataset.aprobarC)
-      alert('✓ Óptica aprobada.'); cargarClientes()
+      if (clave.trim().length < 8) return alert('La contraseña debe tener al menos 8 caracteres.')
+      const { error } = await supabase.rpc('aprobar_cliente', {
+        p_cliente_id: Number(btn.dataset.aprobarC),
+        p_password: clave.trim()
+      })
+      if (error) return alert('Error al aprobar: ' + mensajeError(error))
+      alert('✓ Óptica aprobada. Comparta la clave por un canal seguro.')
+      cargarClientes()
     }))
 
     document.querySelectorAll('[data-toggle-c]').forEach(btn => btn.addEventListener('click', async () => {
-      await supabase.from('clientes').update({ inactivo: btn.dataset.inactivo !== 'true' }).eq('id', btn.dataset.toggleC)
+      const nuevoEstado = btn.dataset.inactivo !== 'true'
+      if (nuevoEstado && !confirm(`¿Desactivar a ${btn.dataset.empresa}? Se cerrarán sus sesiones.`)) return
+      const { error } = await supabase.rpc('toggle_cliente', {
+        p_cliente_id: Number(btn.dataset.toggleC),
+        p_inactivo: nuevoEstado
+      })
+      if (error) return alert('Error: ' + mensajeError(error))
       cargarClientes()
     }))
   }
@@ -709,45 +829,48 @@
   $('#filtro-clientes-estado').addEventListener('change', renderClientes)
 
   // ================= 2. PEDIDOS =================
-  let pedidosCache = [], couriersCache = []
-  async function cargarPedidosAdmin() {
+  let pedidosCache = []
+  let couriersCache = []
+
+  async function cargarPedidosAdmin () {
     const { data, error } = await supabase.from('pedidos').select('*, clientes(empresa, rif)').order('id', { ascending: false })
     if (error) {
-      console.error("Error cargando pedidos:", error)
-      $('#tbody-pedidos-admin').innerHTML = `<tr><td colspan="9" style="text-align:center;padding:2rem;color:#991b1b;">Error al cargar pedidos: ${error.message}</td></tr>`
+      console.error('Error cargando pedidos:', error)
+      $('#tbody-pedidos-admin').innerHTML = `<tr><td colspan="9" style="text-align:center;padding:2rem;color:#991b1b;">Error al cargar pedidos: ${escapeHtml(mensajeError(error))}</td></tr>`
       return
     }
     pedidosCache = data || []
     renderPedidosAdmin()
   }
 
-  function renderPedidosAdmin() {
-    const q = $('#filtro-pedidos-busqueda').value.trim().toLowerCase(), est = $('#filtro-pedidos-estado').value
+  function renderPedidosAdmin () {
+    const q = $('#filtro-pedidos-busqueda').value.trim().toLowerCase()
+    const est = $('#filtro-pedidos-estado').value
     const filtrados = pedidosCache.filter(p => {
       if (est && p.estado_despacho !== est) return false
-      if (q && !`${p.codigo_pedido} ${p.clientes?.empresa} ${p.clientes?.rif}`.toLowerCase().includes(q)) return false
+      if (q && !`${p.codigo_pedido || ''} ${p.clientes?.empresa || ''} ${p.clientes?.rif || ''}`.toLowerCase().includes(q)) return false
       return true
     })
 
     $('#tbody-pedidos-admin').innerHTML = filtrados.map(p => {
       const esAnulado = p.estado_despacho === 'Anulado'
       const mon = p.moneda_pago === 'USD' ? '$' : 'Bs.'
-      
+
       let badgePago = 'badge-status--verificando'
       if (p.estado_pago === 'Pagado') badgePago = 'badge-status--aprobado'
       if (p.estado_pago === 'Abonado' || (p.estado_pago && p.estado_pago.includes('Verificar'))) badgePago = 'badge-status--verificando'
 
       return `
         <tr style="${esAnulado ? 'background:#fef2f2; opacity:0.75;' : ''}">
-          <td><strong>#${p.codigo_pedido}</strong></td>
+          <td><strong>#${escapeHtml(p.codigo_pedido || '—')}</strong></td>
           <td>${new Date(p.fecha).toLocaleDateString()}</td>
-          <td>${p.clientes?.empresa || '—'}<br><small style="color:#64748b;">${p.clientes?.rif || ''}</small></td>
-          <td><strong>${mon} ${Number(p.total).toFixed(2)}</strong></td>
+          <td>${escapeHtml(p.clientes?.empresa || '—')}<br><small style="color:#64748b;">${escapeHtml(p.clientes?.rif || '')}</small></td>
+          <td><strong>${mon} ${Number(p.total || 0).toFixed(2)}</strong></td>
           <td><strong style="color:${Number(p.saldo_pendiente) > 0 ? '#f39200' : '#03543f'};">${mon} ${Number(p.saldo_pendiente || 0).toFixed(2)}</strong></td>
-          <td><span class="badge-status ${badgePago}">${p.estado_pago}</span></td>
-          
+          <td><span class="badge-status ${badgePago}">${escapeHtml(p.estado_pago || '—')}</span></td>
+
           <td>
-            ${esAnulado ? `<span class="badge-status badge-status--rechazado">Anulado</span>` : `
+            ${esAnulado ? '<span class="badge-status badge-status--rechazado">Anulado</span>' : `
               <select class="check-despacho-select" data-ped-id="${p.id}" style="padding:0.3rem; border-radius:4px; border:1px solid #ccc; font-size:0.75rem;">
                 <option value="Pendiente" ${p.estado_despacho === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
                 <option value="Procesado" ${p.estado_despacho === 'Procesado' ? 'selected' : ''}>Procesado</option>
@@ -761,16 +884,18 @@
               <div style="display:flex; flex-direction:column; gap:0.2rem;">
                 <select id="courier-sel-${p.id}" style="padding:0.2rem; border:1px solid #ccc; border-radius:4px; font-size:0.75rem;">
                   <option value="">Courier...</option>
-                  ${couriersCache.map(c => `<option value="${c.id}" ${p.courier_id == c.id ? 'selected' : ''}>${c.nombre}</option>`).join('')}
+                  ${couriersCache.map(c => `<option value="${Number(c.id)}" ${p.courier_id == c.id ? 'selected' : ''}>${escapeHtml(c.nombre)}</option>`).join('')}
                 </select>
-                <input type="text" id="guia-inp-${p.id}" value="${p.guia_despacho || ''}" placeholder="Guía" style="padding:0.2rem; border:1px solid #ccc; border-radius:4px; font-size:0.75rem; width:80px;">
+                <input type="text" id="guia-inp-${p.id}" value="${escapeHtml(p.guia_despacho || '')}" placeholder="Guía" style="padding:0.2rem; border:1px solid #ccc; border-radius:4px; font-size:0.75rem; width:80px;">
                 <button class="btn-sm btn-sm--edit" data-save-ship="${p.id}">Guardar</button>
               </div>
             ` : '—'}
           </td>
 
           <td>
-            ${!esAnulado ? `<button class="btn-sm btn-sm--danger" data-anular-ped="${p.id}" data-codigo="${p.codigo_pedido}" data-detalles='${JSON.stringify(p.detalles || [])}'>Anular</button>` : `<span style="font-size:0.75rem; color:#991b1b; font-weight:700;">Sin acción</span>`}
+            ${!esAnulado
+              ? `<button class="btn-sm btn-sm--danger" data-anular-ped="${p.id}" data-codigo="${escapeHtml(p.codigo_pedido || '')}">Anular</button>`
+              : '<span style="font-size:0.75rem; color:#991b1b; font-weight:700;">Sin acción</span>'}
           </td>
         </tr>
       `
@@ -778,7 +903,12 @@
 
     document.querySelectorAll('.check-despacho-select').forEach(sel => {
       sel.addEventListener('change', async () => {
-        await supabase.from('pedidos').update({ estado_despacho: sel.value }).eq('id', sel.dataset.pedId)
+        const { error } = await supabase.from('pedidos').update({ estado_despacho: sel.value }).eq('id', sel.dataset.pedId)
+        if (error) {
+          alert('No se pudo cambiar el estado: ' + mensajeError(error))
+          cargarPedidosAdmin()
+          return
+        }
         cargarPedidosAdmin()
       })
     })
@@ -788,7 +918,8 @@
         const pId = btn.dataset.saveShip
         const cId = $(`#courier-sel-${pId}`).value || null
         const guia = $(`#guia-inp-${pId}`).value.trim() || null
-        await supabase.from('pedidos').update({ courier_id: cId, guia_despacho: guia }).eq('id', pId)
+        const { error } = await supabase.from('pedidos').update({ courier_id: cId, guia_despacho: guia }).eq('id', pId)
+        if (error) return alert('Error: ' + mensajeError(error))
         alert('✓ Datos de envío guardados.')
         cargarPedidosAdmin()
       })
@@ -796,19 +927,11 @@
 
     document.querySelectorAll('[data-anular-ped]').forEach(btn => btn.addEventListener('click', async () => {
       if (!confirm(`¿Anular pedido #${btn.dataset.codigo}? El stock reservado se devolverá.`)) return
-      const items = JSON.parse(btn.dataset.detalles || '[]')
-      for (const item of items) {
-        if (item.variante_id && item.cantidad) {
-          const { data: lote } = await supabase.from('inventario_lotes').select('id, stock').eq('variante_id', item.variante_id).order('id', { ascending: true }).limit(1).maybeSingle()
-          if (lote) await supabase.from('inventario_lotes').update({ stock: lote.stock + item.cantidad }).eq('id', lote.id)
-        } else if (item.invId && item.cantidad) {
-          const { data: inv } = await supabase.from('inventario_lotes').select('stock').eq('id', item.invId).single()
-          if (inv) await supabase.from('inventario_lotes').update({ stock: inv.stock + item.cantidad }).eq('id', item.invId)
-        }
-      }
-      await supabase.from('pedidos').update({ estado_despacho: 'Anulado', saldo_pendiente: 0.00 }).eq('id', btn.dataset.anularPed)
+      const { error } = await supabase.rpc('anular_pedido', { p_pedido_id: Number(btn.dataset.anularPed) })
+      if (error) return alert('Error al anular: ' + mensajeError(error))
       alert('✓ Pedido anulado y stock devuelto.')
-      cargarPedidosAdmin(); cargarInventarioData()
+      cargarPedidosAdmin()
+      cargarInventarioData()
     }))
   }
   $('#filtro-pedidos-busqueda').addEventListener('input', renderPedidosAdmin)
@@ -816,113 +939,70 @@
 
   // ================= 3. CONCILIACIÓN =================
   let pagosCache = []
-  async function cargarConciliacion() {
-    const { data } = await supabase.from('pagos').select('*, pedidos(codigo_pedido), clientes(empresa, rif), cuentas_bancarias(nombre_banco, moneda)').order('id', { ascending: false })
+  async function cargarConciliacion () {
+    const { data, error } = await supabase
+      .from('pagos')
+      .select('*, pedidos(codigo_pedido), clientes(empresa, rif), cuentas_bancarias(nombre_banco, moneda)')
+      .order('id', { ascending: false })
+    if (error) {
+      $('#tbody-conciliacion').innerHTML = `<tr><td colspan="9" style="text-align:center;padding:2rem;color:#991b1b;">Error: ${escapeHtml(mensajeError(error))}</td></tr>`
+      return
+    }
     pagosCache = data || []
     renderConciliacion()
   }
 
-  function renderConciliacion() {
-    const q = $('#filtro-concil-busqueda').value.trim().toLowerCase(), bId = $('#filtro-concil-banco').value, est = $('#filtro-concil-estado').value
+  function renderConciliacion () {
+    const q = $('#filtro-concil-busqueda').value.trim().toLowerCase()
+    const bId = $('#filtro-concil-banco').value
+    const est = $('#filtro-concil-estado').value
     const filtrados = pagosCache.filter(p => {
       if (bId && p.cuenta_id != bId) return false
       if (est !== '' && String(p.conciliado) !== est) return false
-      if (q && !`${p.pedidos?.codigo_pedido} ${p.referencia} ${p.clientes?.empresa}`.toLowerCase().includes(q)) return false
+      if (q && !`${p.pedidos?.codigo_pedido || ''} ${p.referencia || ''} ${p.clientes?.empresa || ''}`.toLowerCase().includes(q)) return false
       return true
     })
 
     $('#tbody-conciliacion').innerHTML = filtrados.map(p => `
       <tr style="${p.conciliado ? 'background:#f0fdf4;' : ''}">
-        <td>${p.fecha_pago}</td>
-        <td><strong>#${p.pedidos?.codigo_pedido || '—'}</strong></td>
-        <td>${p.clientes?.empresa || '—'}<br><small style="color:#64748b;">${p.clientes?.rif || ''}</small></td>
-        <td><strong>${p.cuentas_bancarias?.moneda || '$'} ${Number(p.monto).toFixed(2)}</strong></td>
-        <td>${p.metodo_pago}</td>
-        <td><strong>${p.cuentas_bancarias?.nombre_banco || p.banco_origen || 'Por asignar'}</strong></td>
-        <td><code>${p.referencia}</code></td>
-        <td>${p.comprobante_url ? `<a href="${p.comprobante_url}" target="_blank" style="color:#0b4d8c;font-weight:700;text-decoration:underline;">Ver Voucher</a>` : '<span style="color:#94a3b8;">Sin archivo</span>'}</td>
+        <td>${escapeHtml(p.fecha_pago || '')}</td>
+        <td><strong>#${escapeHtml(p.pedidos?.codigo_pedido || '—')}</strong></td>
+        <td>${escapeHtml(p.clientes?.empresa || '—')}<br><small style="color:#64748b;">${escapeHtml(p.clientes?.rif || '')}</small></td>
+        <td><strong>${escapeHtml(p.cuentas_bancarias?.moneda || '$')} ${Number(p.monto || 0).toFixed(2)}</strong></td>
+        <td>${escapeHtml(p.metodo_pago || '—')}</td>
+        <td><strong>${escapeHtml(p.cuentas_bancarias?.nombre_banco || p.banco_origen || 'Por asignar')}</strong></td>
+        <td><code>${escapeHtml(p.referencia || '—')}</code></td>
+        <td>${p.comprobante_url
+          ? `<button type="button" class="btn-sm btn-sm--edit" data-ver-comprobante="${escapeHtml(p.comprobante_url)}">Ver Voucher</button>`
+          : '<span style="color:#94a3b8;">Sin archivo</span>'}</td>
         <td style="text-align:center;"><input type="checkbox" style="width:20px; height:20px; cursor:pointer;" data-check-pago="${p.id}" ${p.conciliado ? 'checked' : ''}></td>
       </tr>
     `).join('') || '<tr><td colspan="9" style="text-align:center;padding:2rem;">Sin pagos.</td></tr>'
 
+    document.querySelectorAll('[data-ver-comprobante]').forEach(btn => {
+      btn.addEventListener('click', () => verComprobante(btn.dataset.verComprobante))
+    })
+
     document.querySelectorAll('[data-check-pago]').forEach(chk => {
       chk.addEventListener('change', async () => {
-        const pId = chk.dataset.checkPago, pago = pagosCache.find(x => x.id == pId)
-        if (!pago) return
+        const pId = chk.dataset.checkPago
         const nuevoEstado = chk.checked
+        chk.disabled = true
 
-        try {
-          if (pago.pedido_id) {
-            const { data: ped, error: errPed } = await supabase.from('pedidos').select('total').eq('id', pago.pedido_id).single()
-            if (errPed) throw errPed;
+        const { error } = await supabase.rpc('conciliar_pago', {
+          p_pago_id: Number(pId),
+          p_aprobar: nuevoEstado
+        })
 
-            const { data: pagosAprobados, error: errAprobados } = await supabase.from('pagos').select('monto').eq('pedido_id', pago.pedido_id).eq('conciliado', true)
-            if (errAprobados) throw errAprobados;
+        chk.disabled = false
 
-            let totalAprobado = pagosAprobados.reduce((sum, p) => sum + parseFloat(p.monto), 0)
-            
-            if (nuevoEstado) {
-              totalAprobado += parseFloat(pago.monto)
-            } else {
-               totalAprobado -= parseFloat(pago.monto)
-            }
-
-            totalAprobado = Math.max(0, Math.round(totalAprobado * 100) / 100)
-            const totalPedido = parseFloat(ped.total)
-
-            let nuevoEstadoPago = 'En Verificación'
-            let nuevoDespacho = 'Pendiente'
-
-            if (totalAprobado >= totalPedido - 0.01) {
-              nuevoEstadoPago = 'Pagado'
-              nuevoDespacho = 'Procesado'
-            } else if (totalAprobado > 0) {
-              nuevoEstadoPago = 'Abonado'
-            }
-
-            const { error: errUpdatePed } = await supabase.from('pedidos').update({
-              monto_pagado: totalAprobado,
-              estado_pago: nuevoEstadoPago,
-              estado_despacho: nuevoDespacho
-            }).eq('id', pago.pedido_id)
-
-            if (errUpdatePed) throw new Error("Error en tabla Pedidos: " + errUpdatePed.message)
-          }
-
-          const { error: errPago } = await supabase.from('pagos').update({ 
-            conciliado: nuevoEstado, 
-            estado_conciliacion: nuevoEstado ? 'Aprobado' : 'En verificación' 
-          }).eq('id', pId)
-          if (errPago) throw new Error("Error en tabla Pagos: " + errPago.message)
-
-          if (pago.cuenta_id) {
-            const { data: cta } = await supabase.from('cuentas_bancarias').select('*').eq('id', pago.cuenta_id).single()
-            if (cta) {
-              const delta = nuevoEstado ? parseFloat(pago.monto) : -parseFloat(pago.monto)
-              const nuevoSaldo = parseFloat(cta.saldo_actual) + delta
-              
-              await supabase.from('cuentas_bancarias').update({ saldo_actual: nuevoSaldo }).eq('id', cta.id)
-              
-              if (nuevoEstado) {
-                await supabase.from('movimientos_tesoreria').insert({
-                  cuenta_id: cta.id, tipo: 'INGRESO', monto: pago.monto,
-                  concepto: `Pago Orden #${pago.pedidos?.codigo_pedido || ''} (${pago.metodo_pago})`,
-                  referencia: pago.referencia, pedido_id: pago.pedido_id, pago_id: pago.id, saldo_resultante: nuevoSaldo
-                })
-              } else {
-                await supabase.from('movimientos_tesoreria').delete().eq('pago_id', pago.id)
-              }
-            }
-          }
-
-          await cargarConciliacion()
-          await cargarPedidosAdmin()
-          await cargarSaldosBancarios()
-        } catch (err) {
-          console.error(err)
-          alert("Error al conciliar: " + err.message)
+        if (error) {
+          alert('Error al conciliar: ' + mensajeError(error))
           chk.checked = !nuevoEstado
+          return
         }
+
+        await Promise.all([cargarConciliacion(), cargarPedidosAdmin(), cargarSaldosBancarios()])
       })
     })
   }
@@ -932,72 +1012,111 @@
 
   // ================= 4. SALDOS Y BANCOS =================
   let cuentasCache = []
-  async function cargarSaldosBancarios() {
-    const { data } = await supabase.from('cuentas_bancarias').select('*').order('id')
+  async function cargarSaldosBancarios () {
+    const { data, error } = await supabase.from('cuentas_bancarias').select('*').order('id')
+    if (error) {
+      $('#grid-bancos-saldos').innerHTML = `<p style="color:#991b1b;">Error: ${escapeHtml(mensajeError(error))}</p>`
+      return
+    }
     cuentasCache = data || []
     $('#grid-bancos-saldos').innerHTML = cuentasCache.map(b => `
       <div class="banco-card ${b.moneda === 'Bs.' ? 'bs' : ''}">
-        <h4>${b.nombre_banco}</h4>
-        <p>${b.titular || 'Sin titular'} · Moneda: <strong>${b.moneda}</strong></p>
-        <div class="banco-card__monto">${b.moneda} ${Number(b.saldo_actual).toLocaleString('es-VE', { minimumFractionDigits: 2 })}</div>
+        <h4>${escapeHtml(b.nombre_banco)}</h4>
+        <p>${escapeHtml(b.titular || 'Sin titular')} · Moneda: <strong>${escapeHtml(b.moneda || '—')}</strong></p>
+        <div class="banco-card__monto">${escapeHtml(b.moneda || '$')} ${Number(b.saldo_actual || 0).toLocaleString('es-VE', { minimumFractionDigits: 2 })}</div>
       </div>
     `).join('')
 
-    const opts = '<option value="">Selecciona banco físico...</option>' + cuentasCache.map(b => `<option value="${b.id}">${b.nombre_banco} (${b.moneda})</option>`).join('')
+    const opts = '<option value="">Selecciona banco físico...</option>' + cuentasCache.map(b => `<option value="${Number(b.id)}">${escapeHtml(b.nombre_banco)} (${escapeHtml(b.moneda || '')})</option>`).join('')
     $('#retiro-banco').innerHTML = opts
     $('#filtro-mov-banco').innerHTML = opts
-    $('#filtro-concil-banco').innerHTML = '<option value="">Todos los bancos físicos</option>' + cuentasCache.map(b => `<option value="${b.id}">${b.nombre_banco}</option>`).join('')
-    $('#tbody-cuentas').innerHTML = cuentasCache.map(b => `<tr><td><strong>${b.nombre_banco}</strong></td><td>${b.titular || '—'}</td><td><strong>${b.moneda}</strong></td><td>${b.moneda} ${Number(b.saldo_actual).toFixed(2)}</td><td><button class="btn-sm btn-sm--danger" data-del-cta="${b.id}">Borrar</button></td></tr>`).join('') || '<tr><td colspan="5" style="text-align:center;padding:1.5rem;">Sin cuentas.</td></tr>'
-    
+    $('#filtro-concil-banco').innerHTML = '<option value="">Todos los bancos físicos</option>' + cuentasCache.map(b => `<option value="${Number(b.id)}">${escapeHtml(b.nombre_banco)}</option>`).join('')
+    $('#tbody-cuentas').innerHTML = cuentasCache.map(b => `<tr><td><strong>${escapeHtml(b.nombre_banco)}</strong></td><td>${escapeHtml(b.titular || '—')}</td><td><strong>${escapeHtml(b.moneda || '—')}</strong></td><td>${escapeHtml(b.moneda || '$')} ${Number(b.saldo_actual || 0).toFixed(2)}</td><td><button class="btn-sm btn-sm--danger" data-del-cta="${b.id}">Borrar</button></td></tr>`).join('') || '<tr><td colspan="5" style="text-align:center;padding:1.5rem;">Sin cuentas.</td></tr>'
+
     document.querySelectorAll('[data-del-cta]').forEach(btn => btn.addEventListener('click', async () => {
-      if (confirm('¿Eliminar cuenta?')) { await supabase.from('cuentas_bancarias').delete().eq('id', btn.dataset.delCta); cargarSaldosBancarios() }
+      if (!confirm('¿Eliminar cuenta? Esta acción no se puede deshacer.')) return
+      const { error } = await supabase.from('cuentas_bancarias').delete().eq('id', btn.dataset.delCta)
+      if (error) return alert('Error: ' + mensajeError(error))
+      cargarSaldosBancarios()
     }))
   }
 
   $('#filtro-mov-banco').addEventListener('change', async (e) => {
     const bId = e.target.value
-    if (!bId) { $('#tbody-movimientos').innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;">Selecciona un banco físico arriba.</td></tr>'; return }
-    const { data } = await supabase.from('movimientos_tesoreria').select('*').eq('cuenta_id', bId).order('id', { ascending: false })
+    if (!bId) {
+      $('#tbody-movimientos').innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;">Selecciona un banco físico arriba.</td></tr>'
+      return
+    }
+    const { data, error } = await supabase.from('movimientos_tesoreria').select('*').eq('cuenta_id', bId).order('id', { ascending: false })
+    if (error) {
+      $('#tbody-movimientos').innerHTML = `<tr><td colspan="5" style="text-align:center;padding:2rem;color:#991b1b;">Error: ${escapeHtml(mensajeError(error))}</td></tr>`
+      return
+    }
     const cta = cuentasCache.find(c => c.id == bId)
     $('#tbody-movimientos').innerHTML = (data && data.length) ? data.map(m => `
       <tr>
         <td>${new Date(m.fecha).toLocaleDateString()}</td>
-        <td><strong>${m.concepto}</strong><br><small style="color:#64748b;">Ref: ${m.referencia || '—'}</small></td>
+        <td><strong>${escapeHtml(m.concepto || '—')}</strong><br><small style="color:#64748b;">Ref: ${escapeHtml(m.referencia || '—')}</small></td>
         <td>${m.tipo === 'INGRESO' ? 'Abono / Cobranza' : 'Egreso / Retiro'}</td>
-        <td style="color:${m.tipo === 'INGRESO' ? '#03543f' : '#991b1b'}; font-weight:800;">${m.tipo === 'INGRESO' ? '+' : '-'} ${cta?.moneda} ${Number(m.monto).toFixed(2)}</td>
-        <td><strong>${cta?.moneda} ${Number(m.saldo_resultante).toFixed(2)}</strong></td>
+        <td style="color:${m.tipo === 'INGRESO' ? '#03543f' : '#991b1b'}; font-weight:800;">${m.tipo === 'INGRESO' ? '+' : '-'} ${escapeHtml(cta?.moneda || '')} ${Number(m.monto || 0).toFixed(2)}</td>
+        <td><strong>${escapeHtml(cta?.moneda || '')} ${Number(m.saldo_resultante || 0).toFixed(2)}</strong></td>
       </tr>
     `).join('') : '<tr><td colspan="5" style="text-align:center;padding:2rem;">Sin movimientos.</td></tr>'
   })
 
   $('#form-retiro').addEventListener('submit', async (e) => {
     e.preventDefault()
-    const ctaId = $('#retiro-banco').value, monto = parseFloat($('#retiro-monto').value), cta = cuentasCache.find(c => c.id == ctaId)
-    if (!cta) return
-    const nuevoSaldo = parseFloat(cta.saldo_actual) - monto
-    await supabase.from('retiros').insert({ cuenta_id: ctaId, fecha: $('#retiro-fecha').value, monto, concepto: $('#retiro-concepto').value.trim(), referencia: $('#retiro-referencia').value.trim() || null })
-    await supabase.from('movimientos_tesoreria').insert({ cuenta_id: ctaId, tipo: 'EGRESO', monto, concepto: $('#retiro-concepto').value.trim(), referencia: $('#retiro-referencia').value.trim() || null, saldo_resultante: nuevoSaldo })
-    await supabase.from('cuentas_bancarias').update({ saldo_actual: nuevoSaldo }).eq('id', ctaId)
+    const ctaId = $('#retiro-banco').value
+    const monto = parseFloat($('#retiro-monto').value)
+    if (!ctaId) return alert('Seleccione un banco.')
+    if (!Number.isFinite(monto) || monto <= 0) return alert('Indique un monto válido.')
+
+    const btn = $('#retiro-btn')
+    setLoading(btn, true, 'Registrar Egreso')
+    const { error } = await supabase.rpc('registrar_retiro', {
+      p_cuenta_id: Number(ctaId),
+      p_fecha: $('#retiro-fecha').value || null,
+      p_monto: monto,
+      p_concepto: $('#retiro-concepto').value.trim(),
+      p_referencia: $('#retiro-referencia').value.trim() || null
+    })
+    setLoading(btn, false, 'Registrar Egreso')
+
+    if (error) return alert('Error al registrar egreso: ' + mensajeError(error))
     showMsg('retiro-msg', '✓ Egreso registrado con éxito.')
-    $('#form-retiro').reset(); cargarSaldosBancarios()
+    $('#form-retiro').reset()
+    cargarSaldosBancarios()
   })
 
-  // ================= 5. INVENTARIO Y FÓRMULAS (CON EXCEL Y BORRADO SEGURO) =================
-  let prodsCache = [], lotesCache = [], catsCache = [], invCache = []
-  
-  async function cargarInventarioData() {
-    const { data: inv } = await supabase.from('inventario_lotes').select('id, stock, variante_id, lote_id, variantes(id, nombre, productos(id, sku, nombre, precio, categorias(id, nombre))), lotes(id, codigo_lote, fecha_vencimiento)').order('id', { ascending: false })
-    invCache = inv || []
+  // ================= 5. INVENTARIO Y FÓRMULAS =================
+  let prodsCache = []
+  let lotesCache = []
+  let catsCache = []
+  let invCache = []
+  let invGroups = []
+
+  async function cargarInventarioData () {
+    const { data, error } = await supabase
+      .from('inventario_lotes')
+      .select('id, stock, variante_id, lote_id, variantes(id, nombre, productos(id, sku, nombre, precio, categorias(id, nombre))), lotes(id, codigo_lote, fecha_vencimiento)')
+      .order('id', { ascending: false })
+    if (error) {
+      $('#tbody-inventario').innerHTML = `<tr><td colspan="8" style="text-align:center;padding:2rem;color:#991b1b;">Error: ${escapeHtml(mensajeError(error))}</td></tr>`
+      return
+    }
+    invCache = data || []
     renderInventario()
   }
 
-  function renderInventario() {
-    const q = $('#filtro-inv-busqueda').value.trim().toLowerCase(), cId = $('#filtro-inv-categoria').value, pId = $('#filtro-inv-producto').value
+  function renderInventario () {
+    const q = $('#filtro-inv-busqueda').value.trim().toLowerCase()
+    const cId = $('#filtro-inv-categoria').value
+    const pId = $('#filtro-inv-producto').value
 
     const groupedMap = new Map()
     invCache.forEach(i => {
       const vId = i.variante_id
-      if (!vId) return; // Ignora registros corruptos
+      if (!vId) return
       if (!groupedMap.has(vId)) {
         groupedMap.set(vId, { ...i, stock: 0, lotesArray: [] })
       }
@@ -1007,41 +1126,42 @@
         item.lotesArray.push(i.lotes.codigo_lote)
       }
     })
-    
+
     const groupedArray = Array.from(groupedMap.values())
 
-    const filtrados = groupedArray.filter(i => {
+    invGroups = groupedArray.filter(i => {
       const p = i.variantes?.productos
       if (cId && p?.categorias?.id != cId) return false
       if (pId && p?.id != pId) return false
       const loteStr = i.lotesArray.join(', ')
-      if (q && !`${p?.sku} ${p?.nombre} ${i.variantes?.nombre} ${loteStr}`.toLowerCase().includes(q)) return false
+      if (q && !`${p?.sku || ''} ${p?.nombre || ''} ${i.variantes?.nombre || ''} ${loteStr}`.toLowerCase().includes(q)) return false
       return true
     })
 
-    $('#tbody-inventario').innerHTML = filtrados.map(i => {
+    $('#tbody-inventario').innerHTML = invGroups.map(i => {
       const p = i.variantes?.productos
       const loteStr = i.lotesArray.join(', ')
-      
+
       return `
         <tr>
-          <td><strong>${p?.sku || '—'}</strong></td>
-          <td>${p?.nombre || '—'}</td>
-          <td>${p?.categorias?.nombre || '—'}</td>
-          <td>${i.variantes?.nombre || '—'}</td>
-          <td><strong style="font-size:0.75rem;">${loteStr || '—'}</strong></td>
+          <td><strong>${escapeHtml(p?.sku || '—')}</strong></td>
+          <td>${escapeHtml(p?.nombre || '—')}</td>
+          <td>${escapeHtml(p?.categorias?.nombre || '—')}</td>
+          <td>${escapeHtml(i.variantes?.nombre || '—')}</td>
+          <td><strong style="font-size:0.75rem;">${escapeHtml(loteStr || '—')}</strong></td>
           <td><strong style="color:${i.stock > 0 ? '#0b4d8c' : '#991b1b'};">${i.stock} unids</strong></td>
           <td>$${Number(p?.precio || 0).toFixed(2)}</td>
           <td>
-            <button class="btn-sm btn-sm--edit" data-edit-inv='${JSON.stringify(i)}'>Editar</button>
-            <button class="btn-sm btn-sm--danger" data-del-var="${i.variante_id}" data-formula="${i.variantes?.nombre || ''}">Borrar</button>
+            <button class="btn-sm btn-sm--edit" data-edit-inv="${Number(i.variante_id)}">Editar</button>
+            <button class="btn-sm btn-sm--danger" data-del-var="${Number(i.variante_id)}" data-formula="${escapeHtml(i.variantes?.nombre || '')}">Borrar</button>
           </td>
         </tr>
       `
     }).join('') || '<tr><td colspan="8" style="text-align:center;padding:2rem;">Sin inventario.</td></tr>'
 
     document.querySelectorAll('[data-edit-inv]').forEach(btn => btn.addEventListener('click', () => {
-      const i = JSON.parse(btn.dataset.editInv)
+      const i = invGroups.find(x => String(x.variante_id) === String(btn.dataset.editInv))
+      if (!i) return
       $('#inv-edit-id').value = i.id
       $('#manual-producto').value = i.variantes?.productos?.id || ''
       $('#manual-producto').dispatchEvent(new Event('change'))
@@ -1049,13 +1169,12 @@
       $('#manual-lote').dispatchEvent(new Event('change'))
       $('#manual-formula').value = i.variantes?.nombre || ''
       $('#manual-stock').value = i.stock
-      
+
       $('#inv-form-title').textContent = 'Editar Inventario'
       $('#manual-btn').textContent = 'Actualizar Inventario'
       $('#inv-btn-cancelar').style.display = 'block'
     }))
 
-    // CORRECCIÓN BLINDADA CONTRA EL BORRADO TOTAL
     document.querySelectorAll('[data-del-var]').forEach(btn => btn.addEventListener('click', async () => {
       const vId = parseInt(btn.dataset.delVar)
       const formula = btn.dataset.formula || 'esta variante'
@@ -1067,14 +1186,18 @@
 
       if (!confirm(`¿Eliminar la fórmula "${formula}" del inventario? Se eliminarán todos los lotes de esta fórmula.`)) return
 
-      // Elimina estrictamente los registros asociados a ese variante_id específico
       const { error: errInv } = await supabase.from('inventario_lotes').delete().eq('variante_id', vId)
       if (errInv) {
-        alert('Error al eliminar inventario: ' + errInv.message)
+        alert('Error al eliminar inventario: ' + mensajeError(errInv))
         return
       }
 
-      await supabase.from('variantes').delete().eq('id', vId).maybeSingle()
+      const { error: errVar } = await supabase.from('variantes').delete().eq('id', vId)
+      if (errVar) {
+        alert('Se eliminó el inventario, pero no la fórmula: ' + mensajeError(errVar))
+        cargarInventarioData()
+        return
+      }
       cargarInventarioData()
     }))
   }
@@ -1084,7 +1207,9 @@
   $('#filtro-inv-producto').addEventListener('change', renderInventario)
   $('#manual-producto').addEventListener('change', (e) => {
     const p = prodsCache.find(x => x.id == e.target.value)
-    $('#tag-prod-info').textContent = p ? `SKU: ${p.sku || 'Sin SKU'} | Cat: ${p.categorias?.nombre || '—'} | Precio Base: $${Number(p.precio).toFixed(2)}` : 'SKU: — | Cat: — | Precio Base: —'
+    $('#tag-prod-info').textContent = p
+      ? `SKU: ${p.sku || 'Sin SKU'} | Cat: ${p.categorias?.nombre || '—'} | Precio Base: $${Number(p.precio || 0).toFixed(2)}`
+      : 'SKU: — | Cat: — | Precio Base: —'
   })
   $('#manual-lote').addEventListener('change', (e) => {
     const l = lotesCache.find(x => x.id == e.target.value)
@@ -1093,30 +1218,48 @@
 
   $('#form-formula-manual').addEventListener('submit', async (e) => {
     e.preventDefault()
-    const pId = parseInt($('#manual-producto').value), lId = parseInt($('#manual-lote').value)
-    const formula = $('#manual-formula').value.trim(), stock = parseInt($('#manual-stock').value) || 0
+    const pId = parseInt($('#manual-producto').value)
+    const lId = parseInt($('#manual-lote').value)
+    const formula = $('#manual-formula').value.trim()
+    const stock = parseInt($('#manual-stock').value) || 0
     const editId = $('#inv-edit-id').value
 
-    let { data: varData } = await supabase.from('variantes').select('id').eq('producto_id', pId).eq('nombre', formula).maybeSingle()
-    let vId = varData?.id
-    if (!vId) {
-      const { data: nv } = await supabase.from('variantes').insert({ producto_id: pId, nombre: formula }).select('id').single()
-      if (nv) vId = nv.id
-    }
+    if (!pId || !lId || !formula) return alert('Complete producto, lote y fórmula.')
+    if (stock < 0) return alert('El stock no puede ser negativo.')
 
-    if (editId) {
-      await supabase.from('inventario_lotes').update({ variante_id: vId, lote_id: lId, stock }).eq('id', editId)
-    } else {
-      const { data: existing } = await supabase.from('inventario_lotes').select('id, stock').eq('variante_id', vId).eq('lote_id', lId).maybeSingle()
-      if (existing) {
-        await supabase.from('inventario_lotes').update({ stock: existing.stock + stock }).eq('id', existing.id)
-      } else {
-        await supabase.from('inventario_lotes').insert({ variante_id: vId, lote_id: lId, stock })
+    const btn = $('#manual-btn')
+    setLoading(btn, true, 'Guardar en Inventario')
+
+    try {
+      let { data: varData } = await supabase.from('variantes').select('id').eq('producto_id', pId).eq('nombre', formula).maybeSingle()
+      let vId = varData?.id
+      if (!vId) {
+        const { data: nv, error: errVar } = await supabase.from('variantes').insert({ producto_id: pId, nombre: formula }).select('id').single()
+        if (errVar) throw errVar
+        vId = nv.id
       }
+
+      if (editId) {
+        const { error } = await supabase.from('inventario_lotes').update({ variante_id: vId, lote_id: lId, stock }).eq('id', editId)
+        if (error) throw error
+      } else {
+        const { data: existing } = await supabase.from('inventario_lotes').select('id, stock').eq('variante_id', vId).eq('lote_id', lId).maybeSingle()
+        if (existing) {
+          const { error } = await supabase.from('inventario_lotes').update({ stock: Number(existing.stock || 0) + stock }).eq('id', existing.id)
+          if (error) throw error
+        } else {
+          const { error } = await supabase.from('inventario_lotes').insert({ variante_id: vId, lote_id: lId, stock })
+          if (error) throw error
+        }
+      }
+
+      $('#inv-btn-cancelar').click()
+      cargarInventarioData()
+    } catch (err) {
+      alert('Error al guardar inventario: ' + mensajeError(err))
+    } finally {
+      setLoading(btn, false, $('#inv-edit-id').value ? 'Actualizar Inventario' : 'Guardar en Inventario')
     }
-    
-    $('#inv-btn-cancelar').click()
-    cargarInventarioData()
   })
 
   $('#inv-btn-cancelar').addEventListener('click', () => {
@@ -1132,21 +1275,134 @@
   // Descarga de Plantilla Oficial de Inventario (4 Columnas)
   $('#btn-plantilla-inventario').addEventListener('click', () => {
     const ws_data = [
-      ["sku_producto", "variante", "lote", "cantidad"],
-      ["FORM-HDX2", "-1.00 / -0.75 x 90", "OPT-2026-A1", 24],
-      ["FORM-HDX2", "-1.25 / -0.75 x 90", "OPT-2026-A1", 12],
-      ["COSM-MQF", "Verde Esmeralda", "OPT-2026-B2", 30]
+      ['sku_producto', 'variante', 'lote', 'cantidad'],
+      ['FORM-HDX2', '-1.00 / -0.75 x 90', 'OPT-2026-A1', 24],
+      ['FORM-HDX2', '-1.25 / -0.75 x 90', 'OPT-2026-A1', 12],
+      ['COSM-MQF', 'Verde Esmeralda', 'OPT-2026-B2', 30]
+    ]
+    const instrucciones = [
+      ['Instrucciones para importar inventario'],
+      [''],
+      ['1. Use la hoja "Inventario". No cambie los nombres de las columnas.'],
+      ['2. Columnas obligatorias: sku_producto, variante, lote, cantidad.'],
+      ['3. Columna opcional: vencimiento (formato AAAA-MM-DD). Si falta, el lote nuevo se crea con 2028-12-31.'],
+      ['4. La importación es ABSOLUTA por combinación variante + lote: la cantidad del Excel reemplaza el stock actual.'],
+      ['5. Una cantidad 0 deja el stock en 0. Para no tocar esas filas, active "Omitir filas con cantidad 0" antes de cargar.'],
+      ['6. No se permiten cantidades negativas.'],
+      ['7. Si un SKU no existe en el catálogo, esa fila se omite y se reporta.'],
+      ['   Para crearlo automáticamente active "Crear productos faltantes".'],
+      ['   Esos productos quedan con precio $0, sin categoría y ocultos del catálogo hasta que los edite.'],
+      ['8. Los lotes y variantes que no existan se crean automáticamente.'],
+      ['9. Evite repetir la misma combinación SKU + variante + lote: la última fila gana.'],
+      ['10. Al terminar, el panel muestra procesadas, creadas, omitidas por cero, SKUs faltantes y errores por fila.']
     ]
     const wb = XLSX.utils.book_new()
     const ws = XLSX.utils.aoa_to_sheet(ws_data)
-    XLSX.utils.book_append_sheet(wb, ws, "Inventario")
-    XLSX.writeFile(wb, "plantilla_inventario_optiline.xlsx")
+    ws['!cols'] = [{ wch: 18 }, { wch: 26 }, { wch: 16 }, { wch: 12 }]
+    XLSX.utils.book_append_sheet(wb, ws, 'Inventario')
+    const wsInstr = XLSX.utils.aoa_to_sheet(instrucciones)
+    wsInstr['!cols'] = [{ wch: 110 }]
+    XLSX.utils.book_append_sheet(wb, wsInstr, 'Instrucciones')
+    XLSX.writeFile(wb, 'plantilla_inventario_optiline.xlsx')
   })
 
-  // Carga Masiva desde Excel (4 Columnas)
+  // Resumen visual de la importación. Antes el detalle solo iba a la consola
+  // y el usuario no podía saber qué SKUs o filas habían fallado.
+  function mostrarResultadoImportacion (result, totalFilas) {
+    const cont = $('#inv-excel-resultados')
+    const total = Number(result?.total ?? totalFilas ?? 0)
+    const procesados = Number(result?.procesados || 0)
+    const creados = Number(result?.creados || 0)
+    const productosCreados = Array.isArray(result?.productos_creados) ? result.productos_creados : []
+    const ceros = Number(result?.ceros || 0)
+    const omitidosCero = Number(result?.omitidos_cero || 0)
+    const faltantes = Array.isArray(result?.faltantes) ? result.faltantes : []
+    const errores = Array.isArray(result?.errores) ? result.errores : []
+    const filasFaltantes = faltantes.reduce((acc, f) => acc + Number(f.filas || 0), 0)
+
+    const chip = (etiqueta, valor, color, fondo) => `
+      <div style="background:${fondo}; border:1px solid ${color}; border-radius:8px; padding:.7rem .9rem; min-width:120px;">
+        <div style="font-size:.7rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; color:${color};">${etiqueta}</div>
+        <div style="font-family:'Montserrat',sans-serif; font-size:1.35rem; font-weight:900; color:#111827;">${valor}</div>
+      </div>`
+
+    let html = `
+      <div class="admin-panel-box" style="padding:1.1rem 1.25rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; margin-bottom:.9rem;">
+          <h3 style="margin:0; font-family:'Montserrat',sans-serif; font-size:1rem; font-weight:800; color:#0b4d8c;">Resultado de la importación</h3>
+          <span style="font-size:.8rem; color:#64748b;">Filas en el archivo: <strong>${total}</strong></span>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:.6rem; margin-bottom:1rem;">
+          ${chip('Procesadas', procesados, '#03543f', '#def7ec')}
+          ${chip('Con stock 0', ceros, '#713f12', '#fef9c3')}
+          ${chip('Omitidas por cero', omitidosCero, '#475569', '#f1f5f9')}
+          ${chip('Productos creados', creados, '#0369a1', '#e0f2fe')}
+          ${chip('SKUs faltantes', faltantes.length, '#991b1b', '#fee2e2')}
+          ${chip('Errores', errores.length, '#991b1b', '#fee2e2')}
+        </div>`
+
+    if (faltantes.length) {
+      html += `
+        <div style="margin-bottom:1rem;">
+          <p style="margin:0 0 .4rem; font-size:.85rem; font-weight:700; color:#991b1b;">
+            ${faltantes.length} SKU(s) no existen en el catálogo (${filasFaltantes} fila(s) sin importar):
+          </p>
+          <div style="display:flex; flex-wrap:wrap; gap:.35rem;">
+            ${faltantes.map(f => `<span style="background:#fee2e2; color:#991b1b; border-radius:4px; padding:.15rem .5rem; font-size:.75rem; font-weight:700;">${escapeHtml(f.sku)} <span style="opacity:.7;">(${Number(f.filas || 0)})</span></span>`).join('')}
+          </div>
+          <p style="margin:.5rem 0 0; font-size:.78rem; color:#64748b;">Active “Crear productos faltantes” y vuelva a cargar el Excel, o cree esos productos antes de importar.</p>
+        </div>`
+    }
+
+    if (productosCreados.length) {
+      html += `
+        <div style="margin-bottom:1rem;">
+          <p style="margin:0 0 .4rem; font-size:.85rem; font-weight:700; color:#0369a1;">Productos creados con precio $0 (edítelos antes de publicarlos):</p>
+          <div style="display:flex; flex-wrap:wrap; gap:.35rem;">
+            ${productosCreados.map(sku => `<span style="background:#e0f2fe; color:#0369a1; border-radius:4px; padding:.15rem .5rem; font-size:.75rem; font-weight:700;">${escapeHtml(sku)}</span>`).join('')}
+          </div>
+        </div>`
+    }
+
+    if (errores.length) {
+      html += `
+        <div>
+          <p style="margin:0 0 .4rem; font-size:.85rem; font-weight:700; color:#991b1b;">Filas con error:</p>
+          <div class="table-responsive" style="max-height:260px; overflow-y:auto;">
+            <table class="data-table" style="font-size:.78rem;">
+              <thead><tr><th>Fila</th><th>SKU</th><th>Variante</th><th>Lote</th><th>Motivo</th></tr></thead>
+              <tbody>
+                ${errores.map(e => `<tr>
+                  <td>${Number(e.fila || 0)}</td>
+                  <td>${escapeHtml(e.sku || '—')}</td>
+                  <td>${escapeHtml(e.variante || '—')}</td>
+                  <td>${escapeHtml(e.lote || '—')}</td>
+                  <td style="color:#991b1b;">${escapeHtml(e.error || 'Error desconocido')}</td>
+                </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>`
+    }
+
+    html += '</div>'
+    cont.innerHTML = html
+    cont.style.display = 'block'
+  }
+
+  // Carga Masiva desde Excel: el navegador solo lee el archivo y la RPC
+  // hace la importación transaccional en el servidor (una sola petición).
   $('#input-excel-inv').addEventListener('change', async (e) => {
     const file = e.target.files[0]
     if (!file) return
+
+    const crearFaltantes = $('#inv-crear-faltantes').checked
+    const omitirCeros = $('#inv-omitir-ceros').checked
+
+    if (crearFaltantes && !confirm('Se crearán los productos cuyo SKU no exista, con precio $0 y sin categoría. Quedarán ocultos del catálogo hasta que les asigne precio.\n\n¿Continuar?')) {
+      e.target.value = ''
+      return
+    }
 
     const reader = new FileReader()
     reader.onload = async (evt) => {
@@ -1158,79 +1414,44 @@
 
         if (!json.length) throw new Error('El archivo Excel está vacío.')
 
-        showMsg('inv-excel-msg', `Procesando ${json.length} registros...`, 'ok')
-
-        // Caché de productos por SKU
-        const { data: dbProds } = await supabase.from('productos').select('id, sku')
-        const prodMap = new Map((dbProds || []).map(p => [(p.sku || '').trim().toUpperCase(), p.id]))
-
-        // Caché de lotes por código
-        const { data: dbLotes } = await supabase.from('lotes').select('id, codigo_lote')
-        const loteMap = new Map((dbLotes || []).map(l => [(l.codigo_lote || '').trim().toUpperCase(), l.id]))
-
-        let proc = 0
-        let errores = []
-
-        for (const fila of json) {
-          const sku = String(fila.sku_producto || fila.SKU || '').trim().toUpperCase()
-          const varianteNom = String(fila.variante || fila.formula || fila.variable || '').trim()
-          const loteCod = String(fila.lote || fila.codigo_lote || '').trim().toUpperCase()
-          const cant = parseInt(fila.cantidad || fila.stock || 0) || 0
-
-          if (!sku || !varianteNom || !loteCod) {
-            errores.push(`Fila omitida por datos incompletos: SKU ${sku || 'vacío'}`)
-            continue
+        const items = json.map(fila => {
+          const vencimiento = String(fila.vencimiento || fila.fecha_vencimiento || '').trim()
+          return {
+            sku: String(fila.sku_producto || fila.SKU || '').trim(),
+            variante: String(fila.variante || fila.formula || fila.variable || '').trim(),
+            lote: String(fila.lote || fila.codigo_lote || '').trim(),
+            cantidad: parseInt(fila.cantidad || fila.stock || 0, 10) || 0,
+            vencimiento: /^\d{4}-\d{2}-\d{2}$/.test(vencimiento) ? vencimiento : ''
           }
+        })
 
-          const pId = prodMap.get(sku)
-          if (!pId) {
-            errores.push(`SKU "${sku}" no existe en el catálogo de productos.`)
-            continue
-          }
+        $('#inv-excel-resultados').style.display = 'none'
+        showMsg('inv-excel-msg', `Procesando ${items.length} registros...`, 'ok')
 
-          // Verificación / asignación de lote existente
-          let lId = loteMap.get(loteCod)
-          if (!lId) {
-            const { data: nl, error: errLote } = await supabase.from('lotes').insert({ codigo_lote: loteCod, fecha_vencimiento: '2028-12-31' }).select('id').single()
-            if (errLote || !nl) {
-              errores.push(`Error al registrar lote ${loteCod}`)
-              continue
-            }
-            lId = nl.id
-            loteMap.set(loteCod, lId)
-          }
+        const { data: result, error } = await supabase.rpc('importar_inventario', {
+          p_items: items,
+          p_crear_faltantes: crearFaltantes,
+          p_omitir_ceros: omitirCeros
+        })
+        if (error) throw error
 
-          // Verificación / creación de variante
-          let { data: varData } = await supabase.from('variantes').select('id').eq('producto_id', pId).eq('nombre', varianteNom).maybeSingle()
-          let vId = varData?.id
-          if (!vId) {
-            const { data: nv, error: errVar } = await supabase.from('variantes').insert({ producto_id: pId, nombre: varianteNom }).select('id').single()
-            if (errVar || !nv) {
-              errores.push(`Error al crear variante ${varianteNom}`)
-              continue
-            }
-            vId = nv.id
-          }
+        const procesados = Number(result?.procesados || 0)
+        const faltantes = Array.isArray(result?.faltantes) ? result.faltantes : []
+        const errores = Array.isArray(result?.errores) ? result.errores : []
+        const creados = Number(result?.creados || 0)
 
-          // Upsert en inventario_lotes
-          const { error: errInv } = await supabase.from('inventario_lotes').upsert({
-            variante_id: vId,
-            lote_id: lId,
-            stock: cant
-          }, { onConflict: 'variante_id,lote_id' })
+        mostrarResultadoImportacion(result, items.length)
 
-          if (errInv) {
-            errores.push(`Error de stock para ${sku} / ${varianteNom}`)
-          } else {
-            proc++
-          }
-        }
+        const partes = [`✓ ${procesados} de ${items.length} filas importadas`]
+        if (creados) partes.push(`${creados} producto(s) creado(s)`)
+        if (faltantes.length) partes.push(`${faltantes.length} SKU(s) inexistente(s)`)
+        if (errores.length) partes.push(`${errores.length} error(es)`)
+        showMsg('inv-excel-msg', partes.join(' · '), (faltantes.length || errores.length) ? 'error' : 'ok')
 
-        const msgFinal = `✓ Se importaron ${proc} registros exitosamente.` + (errores.length ? ` (${errores.length} omitidos por error)` : '')
-        showMsg('inv-excel-msg', msgFinal, errores.length ? 'error' : 'ok')
-        cargarInventarioData()
+        await cargarCatalogos()
+        await cargarInventarioData()
       } catch (err) {
-        showMsg('inv-excel-msg', 'Error al procesar Excel: ' + err.message, 'error')
+        showMsg('inv-excel-msg', 'Error al procesar Excel: ' + mensajeError(err), 'error')
       } finally {
         e.target.value = ''
       }
@@ -1239,11 +1460,26 @@
   })
 
   // ================= 6, 7, 8. PRODUCTOS, LOTES Y CATEGORÍAS =================
-  let prodFile = null, catFile = null
-  $('#prod-imagen').addEventListener('change', (e) => { prodFile = e.target.files[0]; if (prodFile) { const r = new FileReader(); r.onload = (ev) => $('#prod-preview').innerHTML = `<img src="${ev.target.result}">`; r.readAsDataURL(prodFile) } })
-  $('#cat-imagen').addEventListener('change', (e) => { catFile = e.target.files[0]; if (catFile) { const r = new FileReader(); r.onload = (ev) => $('#cat-preview').innerHTML = `<img src="${ev.target.result}">`; r.readAsDataURL(catFile) } })
+  let prodFile = null
+  let catFile = null
+  $('#prod-imagen').addEventListener('change', (e) => {
+    prodFile = e.target.files[0]
+    if (prodFile) {
+      const r = new FileReader()
+      r.onload = (ev) => { $('#prod-preview').innerHTML = `<img src="${ev.target.result}" alt="Vista previa">` }
+      r.readAsDataURL(prodFile)
+    }
+  })
+  $('#cat-imagen').addEventListener('change', (e) => {
+    catFile = e.target.files[0]
+    if (catFile) {
+      const r = new FileReader()
+      r.onload = (ev) => { $('#cat-preview').innerHTML = `<img src="${ev.target.result}" alt="Vista previa">` }
+      r.readAsDataURL(catFile)
+    }
+  })
 
-  async function cargarCatalogos() {
+  async function cargarCatalogos () {
     const { data: p } = await supabase.from('productos').select('*, categorias(nombre)').order('id', { ascending: false })
     prodsCache = p || []
     const { data: l } = await supabase.from('lotes').select('*').order('fecha_vencimiento', { ascending: true })
@@ -1251,137 +1487,253 @@
     const { data: c } = await supabase.from('categorias').select('*').order('id')
     catsCache = c || []
 
-    $('#manual-producto').innerHTML = '<option value="">Seleccionar producto...</option>' + prodsCache.map(x => `<option value="${x.id}">${x.nombre} (${x.sku || 'Sin SKU'})</option>`).join('')
-    $('#manual-lote').innerHTML = '<option value="">Seleccionar lote...</option>' + lotesCache.map(x => `<option value="${x.id}">${x.codigo_lote} (Vence: ${x.fecha_vencimiento})</option>`).join('')
-    $('#filtro-inv-categoria').innerHTML = '<option value="">Todas las categorías</option>' + catsCache.map(x => `<option value="${x.id}">${x.nombre}</option>`).join('')
-    $('#filtro-inv-producto').innerHTML = '<option value="">Todos los productos</option>' + prodsCache.map(x => `<option value="${x.id}">${x.nombre}</option>`).join('')
-    $('#prod-categoria').innerHTML = '<option value="">Selecciona categoría</option>' + catsCache.map(x => `<option value="${x.id}">${x.nombre}</option>`).join('')
+    $('#manual-producto').innerHTML = '<option value="">Seleccionar producto...</option>' + prodsCache.map(x => `<option value="${Number(x.id)}">${escapeHtml(x.nombre)} (${escapeHtml(x.sku || 'Sin SKU')})</option>`).join('')
+    $('#manual-lote').innerHTML = '<option value="">Seleccionar lote...</option>' + lotesCache.map(x => `<option value="${Number(x.id)}">${escapeHtml(x.codigo_lote)} (Vence: ${escapeHtml(x.fecha_vencimiento || '')})</option>`).join('')
+    $('#filtro-inv-categoria').innerHTML = '<option value="">Todas las categorías</option>' + catsCache.map(x => `<option value="${Number(x.id)}">${escapeHtml(x.nombre)}</option>`).join('')
+    $('#filtro-inv-producto').innerHTML = '<option value="">Todos los productos</option>' + prodsCache.map(x => `<option value="${Number(x.id)}">${escapeHtml(x.nombre)}</option>`).join('')
+    $('#prod-categoria').innerHTML = '<option value="">Selecciona categoría</option>' + catsCache.map(x => `<option value="${Number(x.id)}">${escapeHtml(x.nombre)}</option>`).join('')
 
     $('#tbody-productos').innerHTML = prodsCache.map(x => `
       <tr>
-        <td><div class="table-thumb" style="width:44px;height:44px;border:1px solid #e2e8f0;">${x.imagen_url ? `<img src="${x.imagen_url}" style="width:100%;height:100%;object-fit:contain;">` : 'Sin img'}</div></td>
-        <td><strong>${x.sku}</strong></td>
-        <td>${x.nombre}</td>
-        <td>${x.categorias?.nombre || '—'}</td>
-        <td>$${Number(x.precio).toFixed(2)}</td>
-        <td><button class="btn-sm btn-sm--edit" data-edit-p='${JSON.stringify(x)}'>Editar</button><button class="btn-sm btn-sm--danger" data-del-p="${x.id}">Borrar</button></td>
+        <td><div class="table-thumb" style="width:44px;height:44px;border:1px solid #e2e8f0;">${x.imagen_url ? `<img src="${escapeHtml(x.imagen_url)}" alt="">` : 'Sin img'}</div></td>
+        <td><strong>${escapeHtml(x.sku || '—')}</strong></td>
+        <td>${escapeHtml(x.nombre || '—')}</td>
+        <td>${escapeHtml(x.categorias?.nombre || '—')}</td>
+        <td>$${Number(x.precio || 0).toFixed(2)}${Number(x.precio || 0) <= 0 ? ' <span class="badge-status badge-status--verificando" style="font-size:.6rem;">Sin precio</span>' : ''}</td>
+        <td><button class="btn-sm btn-sm--edit" data-edit-p="${Number(x.id)}">Editar</button><button class="btn-sm btn-sm--danger" data-del-p="${Number(x.id)}">Borrar</button></td>
       </tr>
     `).join('') || '<tr><td colspan="6" style="text-align:center;padding:2rem;">Sin productos.</td></tr>'
 
     $('#tbody-categorias').innerHTML = catsCache.map(x => `
       <tr>
-        <td><div class="table-thumb" style="width:44px;height:44px;border:1px solid #e2e8f0;">${x.imagen_url ? `<img src="${x.imagen_url}" style="width:100%;height:100%;object-fit:contain;">` : 'Sin img'}</div></td>
-        <td><strong>${x.sku_prefijo || '—'}</strong></td>
-        <td>${x.nombre}</td>
-        <td><code>${x.slug}</code></td>
-        <td><button class="btn-sm btn-sm--edit" data-edit-cat='${JSON.stringify(x)}'>Editar</button><button class="btn-sm btn-sm--danger" data-del-cat="${x.id}">Borrar</button></td>
+        <td><div class="table-thumb" style="width:44px;height:44px;border:1px solid #e2e8f0;">${x.imagen_url ? `<img src="${escapeHtml(x.imagen_url)}" alt="">` : 'Sin img'}</div></td>
+        <td><strong>${escapeHtml(x.sku_prefijo || '—')}</strong></td>
+        <td>${escapeHtml(x.nombre || '—')}</td>
+        <td><code>${escapeHtml(x.slug || '—')}</code></td>
+        <td><button class="btn-sm btn-sm--edit" data-edit-cat="${Number(x.id)}">Editar</button><button class="btn-sm btn-sm--danger" data-del-cat="${Number(x.id)}">Borrar</button></td>
       </tr>
     `).join('') || '<tr><td colspan="5" style="text-align:center;padding:2rem;">Sin categorías.</td></tr>'
 
     $('#tbody-lotes').innerHTML = lotesCache.map(x => `
       <tr>
-        <td><strong>${x.codigo_lote}</strong></td>
-        <td>${x.fecha_vencimiento}</td>
-        <td><button class="btn-sm btn-sm--edit" data-edit-lot='${JSON.stringify(x)}'>Editar</button><button class="btn-sm btn-sm--danger" data-del-lot="${x.id}">Borrar</button></td>
+        <td><strong>${escapeHtml(x.codigo_lote || '—')}</strong></td>
+        <td>${escapeHtml(x.fecha_vencimiento || '—')}</td>
+        <td><button class="btn-sm btn-sm--edit" data-edit-lot="${Number(x.id)}">Editar</button><button class="btn-sm btn-sm--danger" data-del-lot="${Number(x.id)}">Borrar</button></td>
       </tr>
     `).join('') || '<tr><td colspan="3" style="text-align:center;padding:2rem;">Sin lotes.</td></tr>'
 
     document.querySelectorAll('[data-edit-p]').forEach(btn => btn.addEventListener('click', () => {
-      const p = JSON.parse(btn.dataset.editP)
-      $('#prod-id').value = p.id; $('#prod-sku').value = p.sku; $('#prod-precio').value = p.precio; $('#prod-nombre').value = p.nombre
-      $('#prod-categoria').value = p.categoria_id; $('#prod-desc').value = p.descripcion || ''
-      $('#prod-preview').innerHTML = p.imagen_url ? `<img src="${p.imagen_url}">` : '<span>Sin imagen</span>'
-      $('#prod-form-title').textContent = 'Editar producto'; $('#prod-btn').textContent = 'Actualizar producto'; $('#prod-btn-cancelar').style.display = 'block'
+      const p = prodsCache.find(x => String(x.id) === String(btn.dataset.editP))
+      if (!p) return
+      $('#prod-id').value = p.id
+      $('#prod-sku').value = p.sku || ''
+      $('#prod-precio').value = p.precio
+      $('#prod-nombre').value = p.nombre || ''
+      $('#prod-categoria').value = p.categoria_id
+      $('#prod-desc').value = p.descripcion || ''
+      $('#prod-preview').innerHTML = p.imagen_url ? `<img src="${escapeHtml(p.imagen_url)}" alt="">` : '<span>Sin imagen</span>'
+      $('#prod-imagen').value = ''
+      prodFile = null
+      $('#prod-form-title').textContent = 'Editar producto'
+      $('#prod-btn').textContent = 'Actualizar producto'
+      $('#prod-btn-cancelar').style.display = 'block'
     }))
-    document.querySelectorAll('[data-del-p]').forEach(b => b.addEventListener('click', async () => { if (confirm('¿Eliminar producto?')) { await supabase.from('productos').delete().eq('id', b.dataset.delP); cargarCatalogos() } }))
+    document.querySelectorAll('[data-del-p]').forEach(b => b.addEventListener('click', async () => {
+      if (!confirm('¿Eliminar producto?')) return
+      const { error } = await supabase.from('productos').delete().eq('id', b.dataset.delP)
+      if (error) return alert('Error: ' + mensajeError(error))
+      cargarCatalogos()
+    }))
 
     document.querySelectorAll('[data-edit-cat]').forEach(btn => btn.addEventListener('click', () => {
-      const c = JSON.parse(btn.dataset.editCat)
-      $('#cat-id').value = c.id; $('#cat-sku').value = c.sku_prefijo || ''; $('#cat-nombre').value = c.nombre; $('#cat-slug').value = c.slug
-      $('#cat-preview').innerHTML = c.imagen_url ? `<img src="${c.imagen_url}">` : '<span>Sin imagen</span>'
-      $('#cat-form-title').textContent = 'Editar categoría'; $('#cat-btn').textContent = 'Actualizar categoría'; $('#cat-btn-cancelar').style.display = 'block'
+      const c = catsCache.find(x => String(x.id) === String(btn.dataset.editCat))
+      if (!c) return
+      $('#cat-id').value = c.id
+      $('#cat-sku').value = c.sku_prefijo || ''
+      $('#cat-nombre').value = c.nombre || ''
+      $('#cat-slug').value = c.slug || ''
+      $('#cat-preview').innerHTML = c.imagen_url ? `<img src="${escapeHtml(c.imagen_url)}" alt="">` : '<span>Sin imagen</span>'
+      $('#cat-imagen').value = ''
+      catFile = null
+      $('#cat-form-title').textContent = 'Editar categoría'
+      $('#cat-btn').textContent = 'Actualizar categoría'
+      $('#cat-btn-cancelar').style.display = 'block'
     }))
-    document.querySelectorAll('[data-del-cat]').forEach(b => b.addEventListener('click', async () => { if (confirm('¿Eliminar categoría?')) { await supabase.from('categorias').delete().eq('id', b.dataset.delCat); cargarCatalogos() } }))
+    document.querySelectorAll('[data-del-cat]').forEach(b => b.addEventListener('click', async () => {
+      if (!confirm('¿Eliminar categoría?')) return
+      const { error } = await supabase.from('categorias').delete().eq('id', b.dataset.delCat)
+      if (error) return alert('Error: ' + mensajeError(error))
+      cargarCatalogos()
+    }))
 
     document.querySelectorAll('[data-edit-lot]').forEach(btn => btn.addEventListener('click', () => {
-      const l = JSON.parse(btn.dataset.editLot)
-      $('#lote-id').value = l.id; $('#lote-codigo').value = l.codigo_lote; $('#lote-vencimiento').value = l.fecha_vencimiento
-      $('#lote-form-title').textContent = 'Editar lote'; $('#lote-btn').textContent = 'Actualizar lote'; $('#lote-btn-cancelar').style.display = 'block'
+      const l = lotesCache.find(x => String(x.id) === String(btn.dataset.editLot))
+      if (!l) return
+      $('#lote-id').value = l.id
+      $('#lote-codigo').value = l.codigo_lote || ''
+      $('#lote-vencimiento').value = l.fecha_vencimiento || ''
+      $('#lote-form-title').textContent = 'Editar lote'
+      $('#lote-btn').textContent = 'Actualizar lote'
+      $('#lote-btn-cancelar').style.display = 'block'
     }))
-    document.querySelectorAll('[data-del-lot]').forEach(b => b.addEventListener('click', async () => { if (confirm('¿Eliminar lote?')) { await supabase.from('lotes').delete().eq('id', b.dataset.delLot); cargarCatalogos() } }))
+    document.querySelectorAll('[data-del-lot]').forEach(b => b.addEventListener('click', async () => {
+      if (!confirm('¿Eliminar lote?')) return
+      const { error } = await supabase.from('lotes').delete().eq('id', b.dataset.delLot)
+      if (error) return alert('Error: ' + mensajeError(error))
+      cargarCatalogos()
+    }))
   }
 
-  $('#prod-btn-cancelar').addEventListener('click', () => { $('#prod-id').value = ''; $('#form-producto').reset(); $('#prod-preview').innerHTML = '<span>Sin imagen</span>'; $('#prod-form-title').textContent = 'Nuevo producto'; $('#prod-btn').textContent = 'Guardar producto'; $('#prod-btn-cancelar').style.display = 'none' })
-  $('#cat-btn-cancelar').addEventListener('click', () => { $('#cat-id').value = ''; $('#form-categoria').reset(); $('#cat-preview').innerHTML = '<span>Sin imagen</span>'; $('#cat-form-title').textContent = 'Nueva categoría'; $('#cat-btn').textContent = 'Guardar categoría'; $('#cat-btn-cancelar').style.display = 'none' })
+  $('#prod-btn-cancelar').addEventListener('click', () => { $('#prod-id').value = ''; $('#form-producto').reset(); prodFile = null; $('#prod-preview').innerHTML = '<span>Sin imagen</span>'; $('#prod-form-title').textContent = 'Nuevo producto'; $('#prod-btn').textContent = 'Guardar producto'; $('#prod-btn-cancelar').style.display = 'none' })
+  $('#cat-btn-cancelar').addEventListener('click', () => { $('#cat-id').value = ''; $('#form-categoria').reset(); catFile = null; $('#cat-preview').innerHTML = '<span>Sin imagen</span>'; $('#cat-form-title').textContent = 'Nueva categoría'; $('#cat-btn').textContent = 'Guardar categoría'; $('#cat-btn-cancelar').style.display = 'none' })
   $('#lote-btn-cancelar').addEventListener('click', () => { $('#lote-id').value = ''; $('#form-lote').reset(); $('#lote-form-title').textContent = 'Nuevo lote'; $('#lote-btn').textContent = 'Guardar lote'; $('#lote-btn-cancelar').style.display = 'none' })
 
   $('#form-producto').addEventListener('submit', async (e) => {
     e.preventDefault()
-    let img = null; if (prodFile) img = await subirImagen(prodFile, 'productos')
-    await supabase.from('productos').upsert({ id: $('#prod-id').value || undefined, sku: $('#prod-sku').value.trim(), precio: parseFloat($('#prod-precio').value), nombre: $('#prod-nombre').value.trim(), categoria_id: parseInt($('#prod-categoria').value), descripcion: $('#prod-desc').value.trim() || null, imagen_url: img || undefined })
-    $('#prod-btn-cancelar').click(); cargarCatalogos()
+    const btn = $('#prod-btn')
+    setLoading(btn, true, 'Guardar producto')
+    try {
+      let img = null
+      if (prodFile) img = await subirImagen(prodFile, 'productos')
+      const payload = {
+        sku: $('#prod-sku').value.trim(),
+        precio: parseFloat($('#prod-precio').value),
+        nombre: $('#prod-nombre').value.trim(),
+        categoria_id: parseInt($('#prod-categoria').value),
+        descripcion: $('#prod-desc').value.trim() || null
+      }
+      const id = $('#prod-id').value
+      if (id) payload.id = Number(id)
+      if (img) payload.imagen_url = img
+      const { error } = await supabase.from('productos').upsert(payload)
+      if (error) throw error
+      $('#prod-btn-cancelar').click()
+      cargarCatalogos()
+    } catch (err) {
+      alert('Error al guardar producto: ' + mensajeError(err))
+    } finally {
+      setLoading(btn, false, $('#prod-id').value ? 'Actualizar producto' : 'Guardar producto')
+    }
   })
 
   $('#form-categoria').addEventListener('submit', async (e) => {
     e.preventDefault()
-    let img = null; if (catFile) img = await subirImagen(catFile, 'categorias')
-    await supabase.from('categorias').upsert({ id: $('#cat-id').value || undefined, sku_prefijo: $('#cat-sku').value.trim(), nombre: $('#cat-nombre').value.trim(), slug: $('#cat-slug').value.trim().toLowerCase(), imagen_url: img || undefined })
-    $('#cat-btn-cancelar').click(); cargarCatalogos()
+    const btn = $('#cat-btn')
+    setLoading(btn, true, 'Guardar categoría')
+    try {
+      let img = null
+      if (catFile) img = await subirImagen(catFile, 'categorias')
+      const payload = {
+        sku_prefijo: $('#cat-sku').value.trim(),
+        nombre: $('#cat-nombre').value.trim(),
+        slug: $('#cat-slug').value.trim().toLowerCase()
+      }
+      const id = $('#cat-id').value
+      if (id) payload.id = Number(id)
+      if (img) payload.imagen_url = img
+      const { error } = await supabase.from('categorias').upsert(payload)
+      if (error) throw error
+      $('#cat-btn-cancelar').click()
+      cargarCatalogos()
+    } catch (err) {
+      alert('Error al guardar categoría: ' + mensajeError(err))
+    } finally {
+      setLoading(btn, false, $('#cat-id').value ? 'Actualizar categoría' : 'Guardar categoría')
+    }
   })
 
   $('#form-lote').addEventListener('submit', async (e) => {
     e.preventDefault()
-    await supabase.from('lotes').upsert({ id: $('#lote-id').value || undefined, codigo_lote: $('#lote-codigo').value.trim(), fecha_vencimiento: $('#lote-vencimiento').value })
-    $('#lote-btn-cancelar').click(); cargarCatalogos()
+    const btn = $('#lote-btn')
+    setLoading(btn, true, 'Guardar lote')
+    try {
+      const payload = {
+        codigo_lote: $('#lote-codigo').value.trim(),
+        fecha_vencimiento: $('#lote-vencimiento').value
+      }
+      const id = $('#lote-id').value
+      if (id) payload.id = Number(id)
+      const { error } = await supabase.from('lotes').upsert(payload)
+      if (error) throw error
+      $('#lote-btn-cancelar').click()
+      cargarCatalogos()
+    } catch (err) {
+      alert('Error al guardar lote: ' + mensajeError(err))
+    } finally {
+      setLoading(btn, false, $('#lote-id').value ? 'Actualizar lote' : 'Guardar lote')
+    }
   })
 
   // ================= 9. MÉTODOS, CUENTAS Y COURIERS =================
   let metodosCache = []
-  async function cargarMetodosPago() {
+  async function cargarMetodosPago () {
     const { data } = await supabase.from('metodos_pago').select('*').order('id')
     metodosCache = data || []
-    $('#tbody-metodos').innerHTML = metodosCache.map(m => `<tr><td><strong>${m.nombre}</strong></td><td><span style="font-size:0.75rem; font-weight:700; color:${m.activo ? '#03543f' : '#991b1b'};">${m.activo ? 'ACTIVO' : 'INACTIVO'}</span></td><td><button class="btn-sm btn-sm--edit" data-toggle-metodo="${m.id}" data-status="${m.activo}">${m.activo ? 'Pausar' : 'Activar'}</button><button class="btn-sm btn-sm--danger" data-del-metodo="${m.id}">Borrar</button></td></tr>`).join('') || '<tr><td colspan="3" style="text-align:center;padding:1.5rem;">Sin métodos.</td></tr>'
-    
+    $('#tbody-metodos').innerHTML = metodosCache.map(m => `<tr><td><strong>${escapeHtml(m.nombre)}</strong></td><td><span style="font-size:0.75rem; font-weight:700; color:${m.activo ? '#03543f' : '#991b1b'};">${m.activo ? 'ACTIVO' : 'INACTIVO'}</span></td><td><button class="btn-sm btn-sm--edit" data-toggle-metodo="${m.id}" data-status="${m.activo ? 'true' : 'false'}">${m.activo ? 'Pausar' : 'Activar'}</button><button class="btn-sm btn-sm--danger" data-del-metodo="${m.id}">Borrar</button></td></tr>`).join('') || '<tr><td colspan="3" style="text-align:center;padding:1.5rem;">Sin métodos.</td></tr>'
+
     document.querySelectorAll('[data-toggle-metodo]').forEach(btn => btn.addEventListener('click', async () => {
-      await supabase.from('metodos_pago').update({ activo: btn.dataset.status !== 'true' }).eq('id', btn.dataset.toggleMetodo); cargarMetodosPago()
+      const { error } = await supabase.from('metodos_pago').update({ activo: btn.dataset.status !== 'true' }).eq('id', btn.dataset.toggleMetodo)
+      if (error) return alert('Error: ' + mensajeError(error))
+      cargarMetodosPago()
     }))
     document.querySelectorAll('[data-del-metodo]').forEach(btn => btn.addEventListener('click', async () => {
-      if (confirm('¿Eliminar método?')) { await supabase.from('metodos_pago').delete().eq('id', btn.dataset.delMetodo); cargarMetodosPago() }
+      if (!confirm('¿Eliminar método?')) return
+      const { error } = await supabase.from('metodos_pago').delete().eq('id', btn.dataset.delMetodo)
+      if (error) return alert('Error: ' + mensajeError(error))
+      cargarMetodosPago()
     }))
   }
 
   $('#form-metodo-pago').addEventListener('submit', async (e) => {
     e.preventDefault()
-    const n = $('#metodo-nombre').value.trim(); if (!n) return
-    await supabase.from('metodos_pago').insert({ nombre: n, activo: true }); $('#metodo-nombre').value = ''; cargarMetodosPago()
+    const n = $('#metodo-nombre').value.trim()
+    if (!n) return
+    const { error } = await supabase.from('metodos_pago').insert({ nombre: n, activo: true })
+    if (error) return alert('Error: ' + mensajeError(error))
+    $('#metodo-nombre').value = ''
+    cargarMetodosPago()
   })
 
   $('#form-cuenta-banco').addEventListener('submit', async (e) => {
     e.preventDefault()
-    await supabase.from('cuentas_bancarias').insert({ nombre_banco: $('#banco-nombre').value.trim(), titular: $('#banco-titular').value.trim() || null, moneda: $('#banco-moneda').value, saldo_actual: parseFloat($('#banco-saldo-inicial').value) || 0 })
-    $('#form-cuenta-banco').reset(); cargarSaldosBancarios()
+    const { error } = await supabase.from('cuentas_bancarias').insert({
+      nombre_banco: $('#banco-nombre').value.trim(),
+      titular: $('#banco-titular').value.trim() || null,
+      moneda: $('#banco-moneda').value,
+      saldo_actual: parseFloat($('#banco-saldo-inicial').value) || 0
+    })
+    if (error) return alert('Error: ' + mensajeError(error))
+    $('#form-cuenta-banco').reset()
+    cargarSaldosBancarios()
   })
 
-  async function cargarCouriers() {
+  async function cargarCouriers () {
     const { data } = await supabase.from('couriers').select('*').order('id')
     couriersCache = data || []
-    $('#tbody-couriers').innerHTML = couriersCache.map(c => `<tr><td><strong>${c.nombre}</strong></td><td><button class="btn-sm btn-sm--danger" data-del-courier="${c.id}">Borrar</button></td></tr>`).join('') || '<tr><td colspan="2" style="text-align:center;padding:1.5rem;">Sin couriers.</td></tr>'
-    
+    $('#tbody-couriers').innerHTML = couriersCache.map(c => `<tr><td><strong>${escapeHtml(c.nombre)}</strong></td><td><button class="btn-sm btn-sm--danger" data-del-courier="${c.id}">Borrar</button></td></tr>`).join('') || '<tr><td colspan="2" style="text-align:center;padding:1.5rem;">Sin couriers.</td></tr>'
+
     renderPedidosAdmin()
 
     document.querySelectorAll('[data-del-courier]').forEach(btn => btn.addEventListener('click', async () => {
-      if (confirm('¿Eliminar courier?')) { await supabase.from('couriers').delete().eq('id', btn.dataset.delCourier); cargarCouriers() }
+      if (!confirm('¿Eliminar courier?')) return
+      const { error } = await supabase.from('couriers').delete().eq('id', btn.dataset.delCourier)
+      if (error) return alert('Error: ' + mensajeError(error))
+      cargarCouriers()
     }))
   }
 
   $('#form-courier').addEventListener('submit', async (e) => {
     e.preventDefault()
-    const n = $('#courier-nombre').value.trim(); if (!n) return
-    await supabase.from('couriers').insert({ nombre: n }); $('#courier-nombre').value = ''; cargarCouriers()
+    const n = $('#courier-nombre').value.trim()
+    if (!n) return
+    const { error } = await supabase.from('couriers').insert({ nombre: n })
+    if (error) return alert('Error: ' + mensajeError(error))
+    $('#courier-nombre').value = ''
+    cargarCouriers()
   })
 
   // ================= 10. PARÁMETROS =================
-  async function cargarParametros() {
+  async function cargarParametros () {
     const { data } = await supabase.from('parametros').select('*').eq('id', 1).maybeSingle()
     if (data) {
       $('#param-tasa-catalogo').value = data.tasa_catalogo || 1000.00
@@ -1391,25 +1743,38 @@
     consultarBcvEnVivo()
   }
 
-  async function consultarBcvEnVivo() {
-    const statusTxt = $('#txt-bcv-status'); statusTxt.textContent = 'Consultando cotización oficial BCV...'
+  async function consultarBcvEnVivo () {
+    const statusTxt = $('#txt-bcv-status')
+    statusTxt.textContent = 'Consultando cotización oficial BCV...'
     try {
-      const res = await fetch('https://ve.dolarapi.com/v1/dolares/oficial'); if (!res.ok) throw new Error('API indisponible')
+      const res = await fetch('https://ve.dolarapi.com/v1/dolares/oficial')
+      if (!res.ok) throw new Error('API indisponible')
       const json = await res.json()
       if (json && json.promedio) {
         $('#param-tasa-bcv').value = Number(json.promedio).toFixed(2)
         statusTxt.textContent = `✓ Tasa oficial BCV sincronizada: Bs. ${Number(json.promedio).toFixed(2)}`
         statusTxt.style.color = '#03543f'
       }
-    } catch (err) { statusTxt.textContent = 'Nota: Sin conexión a la API BCV.'; statusTxt.style.color = '#713f12' }
+    } catch (err) {
+      statusTxt.textContent = 'Nota: Sin conexión a la API BCV.'
+      statusTxt.style.color = '#713f12'
+    }
   }
 
   $('#btn-sync-bcv').addEventListener('click', consultarBcvEnVivo)
   $('#form-parametros').addEventListener('submit', async (e) => {
     e.preventDefault()
-    setLoading($('#btn-save-param'), true)
-    await supabase.from('parametros').upsert({ id: 1, tasa_catalogo: parseFloat($('#param-tasa-catalogo').value) || 1000.00, tasa_bcv: parseFloat($('#param-tasa-bcv').value) || 900.00, telefono_whatsapp: $('#param-whatsapp').value.trim().replace(/[^0-9]/g, ''), updated_at: new Date().toISOString() })
-    setLoading($('#btn-save-param'), false, 'Actualizar Parámetros del Sistema')
+    const btn = $('#btn-save-param')
+    setLoading(btn, true, 'Actualizar Parámetros del Sistema')
+    const { error } = await supabase.from('parametros').upsert({
+      id: 1,
+      tasa_catalogo: parseFloat($('#param-tasa-catalogo').value) || 1000.00,
+      tasa_bcv: parseFloat($('#param-tasa-bcv').value) || 900.00,
+      telefono_whatsapp: $('#param-whatsapp').value.trim().replace(/[^0-9]/g, ''),
+      updated_at: new Date().toISOString()
+    })
+    setLoading(btn, false, 'Actualizar Parámetros del Sistema')
+    if (error) return alert('Error: ' + mensajeError(error))
     showMsg('param-msg', '✓ Parámetros actualizados con éxito.')
   })
 
@@ -1419,7 +1784,7 @@
     const hasta = $('#rep-fecha-hasta').value
     const tipo = $('#rep-tipo').value
     const container = $('#rep-tabla-container')
-    
+
     if (!desde || !hasta) return alert('Debes seleccionar ambas fechas.')
 
     container.innerHTML = '<p style="text-align:center; padding:2rem; color:#0b4d8c; font-weight:700;">Generando reporte...</p>'
@@ -1435,24 +1800,23 @@
           <table class="data-table" id="tabla-reporte">
             <thead><tr><th>Fecha</th><th>Orden</th><th>Cliente</th><th>Total USD</th><th>Total Bs</th><th>Estado</th></tr></thead>
             <tbody>
-              ${(data||[]).map(p => `
+              ${(data || []).map(p => `
                 <tr>
                   <td>${new Date(p.fecha).toLocaleDateString()}</td>
-                  <td>#${p.codigo_pedido}</td>
-                  <td>${p.clientes?.empresa}</td>
-                  <td>$${Number(p.total_usd).toFixed(2)}</td>
-                  <td>Bs. ${Number(p.total_bs).toFixed(2)}</td>
-                  <td>${p.estado_pago}</td>
+                  <td>#${escapeHtml(p.codigo_pedido || '—')}</td>
+                  <td>${escapeHtml(p.clientes?.empresa || '—')}</td>
+                  <td>$${Number(p.total_usd || 0).toFixed(2)}</td>
+                  <td>Bs. ${Number(p.total_bs || 0).toFixed(2)}</td>
+                  <td>${escapeHtml(p.estado_pago || '—')}</td>
                 </tr>
               `).join('') || '<tr><td colspan="6" style="text-align:center;">Sin ventas en este rango.</td></tr>'}
             </tbody>
           </table>`
-      } 
-      else if (tipo === 'bancos') {
+      } else if (tipo === 'bancos') {
         const { data, error } = await supabase.from('movimientos_tesoreria').select('*, cuentas_bancarias(nombre_banco, moneda)').gte('fecha', desde).lte('fecha', hasta + 'T23:59:59')
         if (error) throw error
 
-        const sorted = (data||[]).sort((a,b) => {
+        const sorted = (data || []).sort((a, b) => {
           const bankA = a.cuentas_bancarias?.nombre_banco || ''
           const bankB = b.cuentas_bancarias?.nombre_banco || ''
           if (bankA !== bankB) return bankA.localeCompare(bankB)
@@ -1465,30 +1829,35 @@
             <tbody>
               ${sorted.map(m => `
                 <tr>
-                  <td><strong>${m.cuentas_bancarias?.nombre_banco || '—'}</strong></td>
+                  <td><strong>${escapeHtml(m.cuentas_bancarias?.nombre_banco || '—')}</strong></td>
                   <td>${new Date(m.fecha).toLocaleDateString()}</td>
-                  <td>${m.concepto}</td>
-                  <td style="color:${m.tipo === 'INGRESO' ? '#03543f' : '#991b1b'}; font-weight:800;">${m.cuentas_bancarias?.moneda} ${Number(m.monto).toFixed(2)}</td>
-                  <td>${m.tipo}</td>
+                  <td>${escapeHtml(m.concepto || '—')}</td>
+                  <td style="color:${m.tipo === 'INGRESO' ? '#03543f' : '#991b1b'}; font-weight:800;">${escapeHtml(m.cuentas_bancarias?.moneda || '')} ${Number(m.monto || 0).toFixed(2)}</td>
+                  <td>${escapeHtml(m.tipo || '—')}</td>
                 </tr>
               `).join('') || '<tr><td colspan="5" style="text-align:center;">Sin movimientos en este rango.</td></tr>'}
             </tbody>
           </table>`
-      }
-      else if (tipo === 'productos') {
+      } else if (tipo === 'productos') {
         const { data, error } = await supabase.from('pedidos').select('fecha, codigo_pedido, detalles').gte('fecha', desde).lte('fecha', hasta + 'T23:59:59').neq('estado_despacho', 'Anulado')
         if (error) throw error
 
-        let movs = []
-        ;(data||[]).forEach(p => {
-          if (p.detalles && Array.isArray(p.detalles)) {
-            p.detalles.forEach(d => {
-              movs.push({ fecha: p.fecha, orden: p.codigo_pedido, lote: d.lote || 'S/L', producto: d.nombre, formula: d.variante, cantidad: d.cantidad })
+        const movs = []
+        ;(data || []).forEach(p => {
+          const detalles = Array.isArray(p.detalles) ? p.detalles : []
+          detalles.forEach(d => {
+            movs.push({
+              fecha: p.fecha,
+              orden: p.codigo_pedido || '',
+              lote: d.lote || 'S/L',
+              producto: d.nombre || '',
+              formula: d.variante || '',
+              cantidad: d.cantidad || 0
             })
-          }
+          })
         })
 
-        movs.sort((a,b) => {
+        movs.sort((a, b) => {
           if (a.lote !== b.lote) return a.lote.localeCompare(b.lote)
           if (a.producto !== b.producto) return a.producto.localeCompare(b.producto)
           return new Date(a.fecha) - new Date(b.fecha)
@@ -1500,40 +1869,39 @@
             <tbody>
               ${movs.map(m => `
                 <tr>
-                  <td><strong>${m.lote}</strong></td>
-                  <td>${m.producto}</td>
-                  <td>${m.formula}</td>
+                  <td><strong>${escapeHtml(m.lote)}</strong></td>
+                  <td>${escapeHtml(m.producto)}</td>
+                  <td>${escapeHtml(m.formula)}</td>
                   <td>${new Date(m.fecha).toLocaleDateString()}</td>
-                  <td>#${m.orden}</td>
-                  <td><strong>${m.cantidad} unids</strong></td>
+                  <td>#${escapeHtml(m.orden)}</td>
+                  <td><strong>${Number(m.cantidad)} unids</strong></td>
                 </tr>
               `).join('') || '<tr><td colspan="6" style="text-align:center;">Sin salidas en este rango.</td></tr>'}
             </tbody>
           </table>`
       }
-      
+
       $('#btn-export-excel').style.display = 'inline-flex'
       $('#btn-imprimir-reporte').style.display = 'inline-flex'
-
     } catch (err) {
-      container.innerHTML = `<p style="text-align:center; color:#991b1b; padding:2rem;">Error: ${err.message}</p>`
+      container.innerHTML = `<p style="text-align:center; color:#991b1b; padding:2rem;">Error: ${escapeHtml(mensajeError(err))}</p>`
     }
   })
 
   $('#btn-export-excel').addEventListener('click', () => {
     const table = document.getElementById('tabla-reporte')
     if (!table) return alert('Primero genere un reporte.')
-    const wb = XLSX.utils.table_to_book(table, { sheet: "Reporte" })
+    const wb = XLSX.utils.table_to_book(table, { sheet: 'Reporte' })
     XLSX.writeFile(wb, `Reporte_Optiline_${new Date().toISOString().split('T')[0]}.xlsx`)
   })
 
   $('#btn-imprimir-reporte').addEventListener('click', () => { window.print() })
 
-  async function cargarTodo() {
+  async function cargarTodo () {
     await cargarCatalogos()
     await cargarClientes()
     await cargarSaldosBancarios()
-    await cargarCouriers() 
+    await cargarCouriers()
     await cargarPedidosAdmin()
     await cargarConciliacion()
     await cargarInventarioData()
