@@ -173,75 +173,91 @@
   </div>
 
   <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+    import { supabase } from './js/config.js'
+    import {
+      escapeHtml, formatoBs, getToken, setSesion, clearSesion,
+      getClienteLocal, mensajeError
+    } from './js/ui.js'
 
-    const SUPABASE_URL = 'https://fdkdzyjrrtuaotiumbym.supabase.co'
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZka2R6eWpycnR1YW90aXVtYnltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0MDc1MzAsImV4cCI6MjEwNjk4MzUzMH0.RC_ueLB8le0c95RMemtkQf4Yj-bFTrfYLaAcbdRDbXs'
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
     const $ = (s) => document.querySelector(s)
 
-    let carrito = JSON.parse(localStorage.getItem('optiline_cart') || '[]')
-    let catalogoProductos = [], inventarioReal = []
-    let tasaCatalogo = 1000.00, tasaBcv = 900.00, telefonoWhatsapp = '584120000000'
+    let carrito = []
+    try { carrito = JSON.parse(localStorage.getItem('optiline_cart') || '[]') } catch { carrito = [] }
 
-    let clienteActivo = null;
-    try { clienteActivo = JSON.parse(localStorage.getItem('optiline_cliente') || 'null') } catch(e) {}
-    let esClienteVerificado = !!(clienteActivo && clienteActivo.estado_verificado && !clienteActivo.inactivo)
+    let catalogoProductos = []
+    let categorias = []
+    let tasaCatalogo = 1000.00
+    let tasaBcv = 900.00
+    let telefonoWhatsapp = '584120000000'
 
-    if (clienteActivo) { $('#nav-btn-cuenta').textContent = clienteActivo.empresa || 'Mi Cuenta' }
+    let clienteActivo = getClienteLocal()
+    let esClienteVerificado = false
 
-    function formatoBs(monto) { return 'Bs. ' + Number(monto).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }
+    if (clienteActivo) $('#nav-btn-cuenta').textContent = clienteActivo.empresa || 'Mi Cuenta'
 
-    async function cargarParametrosCambiarios() {
-      const { data } = await supabase.from('parametros').select('*').eq('id', 1).maybeSingle()
-      if (data) {
-        tasaCatalogo = parseFloat(data.tasa_catalogo) || 1000.00
-        tasaBcv = parseFloat(data.tasa_bcv) || 900.00
-        telefonoWhatsapp = data.telefono_whatsapp || '584120000000'
+    async function inicializarCatalogo () {
+      const token = getToken()
+      const { data, error } = await supabase.rpc('catalogo', { p_token: token || null })
+
+      if (error) {
+        $('#txt-total-productos').textContent = 'No se pudo cargar el catálogo.'
+        $('#grid-catalogo').innerHTML = `<div style="grid-column:1/-1; padding:2rem; text-align:center; color:#991b1b; background:#fff; border:1px solid #fecaca; border-radius:8px;">${escapeHtml(mensajeError(error))}</div>`
+        return
       }
-    }
 
-    async function inicializarCatalogo() {
-      await cargarParametrosCambiarios()
+      esClienteVerificado = !!data?.verificado
+      if (token && !esClienteVerificado) {
+        // Token vencido o cuenta desactivada: se pide iniciar sesión de nuevo.
+        clearSesion()
+        clienteActivo = null
+        $('#nav-btn-cuenta').textContent = 'Mi Cuenta'
+      }
 
-      const { data: cats } = await supabase.from('categorias').select('*').order('nombre')
-      $('#select-filtro-categoria').innerHTML = '<option value="">Todas las Categorías</option>' + (cats || []).map(c => `<option value="${c.id}">${c.nombre}</option>`).join('')
+      const params = data?.parametros || {}
+      tasaCatalogo = Number(params.tasa_catalogo) || 1000
+      tasaBcv = Number(params.tasa_bcv) || 900
+      telefonoWhatsapp = params.telefono_whatsapp || '584120000000'
 
-      const { data: prods } = await supabase.from('productos').select('*, categorias(nombre)').order('id')
-      catalogoProductos = prods || []
+      categorias = Array.isArray(data?.categorias) ? data.categorias : []
+      catalogoProductos = Array.isArray(data?.productos) ? data.productos : []
 
-      const { data: inv, error: invErr } = await supabase.from('inventario_lotes').select('id, stock, variante_id, variantes(id, nombre, producto_id), lotes(codigo_lote, fecha_vencimiento)')
-      if (invErr) console.error("Error cargando stock:", invErr)
-      inventarioReal = inv || []
+      $('#select-filtro-categoria').innerHTML = '<option value="">Todas las Categorías</option>' +
+        categorias.map(c => `<option value="${Number(c.id)}">${escapeHtml(c.nombre)}</option>`).join('')
 
       actualizarBadgeCarrito()
       renderCatalogo()
     }
 
-    function renderCatalogo() {
+    function stockDeProducto (p) {
+      return (p.variantes || []).reduce((sum, v) => sum + Number(v.stock || 0), 0)
+    }
+
+    function renderCatalogo () {
       const cId = $('#select-filtro-categoria').value
-      const filtrados = catalogoProductos.filter(p => !cId || p.categoria_id == cId)
+      const filtrados = catalogoProductos.filter(p => !cId || String(p.categoria_id) === String(cId))
       $('#txt-total-productos').textContent = `Mostrando ${filtrados.length} productos disponibles`
 
       $('#grid-catalogo').innerHTML = filtrados.map(p => {
-        const itemsInv = inventarioReal.filter(i => i.variantes?.producto_id === p.id)
-        const stockTotal = itemsInv.reduce((sum, item) => sum + (item.stock || 0), 0)
+        const stockTotal = stockDeProducto(p)
         const tieneStock = stockTotal > 0
-        const precioBaseUSD = parseFloat(p.precio) || 0.00
-        const precioBs = precioBaseUSD * tasaCatalogo
+        const precioBs = Number(p.precio || 0) * tasaCatalogo
+        const nombre = escapeHtml(p.nombre)
+        const categoria = escapeHtml(p.categoria_nombre || 'General')
 
         return `
           <article class="catalogo-producto">
             <div class="catalogo-producto__media">
-              ${p.imagen_url ? `<img src="${p.imagen_url}" alt="${p.nombre}">` : '<div style="color:#9ca3af; font-size:0.8rem;">Sin imagen</div>'}
+              ${p.imagen_url ? `<img src="${escapeHtml(p.imagen_url)}" alt="${nombre}">` : '<div style="color:#9ca3af; font-size:0.8rem;">Sin imagen</div>'}
             </div>
             <div class="catalogo-producto__cuerpo">
-              <h3 class="catalogo-producto__titulo">${p.nombre}</h3>
-              <p class="catalogo-producto__precio-desc">${p.categorias?.nombre || 'General'}</p>
-              
+              <h3 class="catalogo-producto__titulo">${nombre}</h3>
+              <p class="catalogo-producto__precio-desc">${categoria}</p>
+
               ${esClienteVerificado ? `
                 <div style="margin-bottom:0.5rem;">
-                  ${tieneStock ? `<span style="font-size:0.78rem; font-weight:700; color:#03543f; background:#def7ec; padding:0.2rem 0.5rem; border-radius:4px; display:inline-block;">Stock: ${stockTotal} unids</span>` : `<span style="font-size:0.78rem; font-weight:700; color:#991b1b; background:#fee2e2; padding:0.2rem 0.5rem; border-radius:4px; display:inline-block;">Agotado (0 unids)</span>`}
+                  ${tieneStock
+                    ? `<span style="font-size:0.78rem; font-weight:700; color:#03543f; background:#def7ec; padding:0.2rem 0.5rem; border-radius:4px; display:inline-block;">Stock: ${stockTotal} unids</span>`
+                    : '<span style="font-size:0.78rem; font-weight:700; color:#991b1b; background:#fee2e2; padding:0.2rem 0.5rem; border-radius:4px; display:inline-block;">Agotado (0 unids)</span>'}
                 </div>
                 <div class="catalogo-producto__precio">${formatoBs(precioBs)}</div>
               ` : `
@@ -251,7 +267,7 @@
 
             ${esClienteVerificado ? `
               <div style="padding: 0 1.25rem 1.25rem;">
-                <button type="button" class="boton boton--primario boton--bloque ${tieneStock ? '' : 'disabled'}" data-abrir-prod="${p.id}" ${!tieneStock ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>
+                <button type="button" class="boton boton--primario boton--bloque ${tieneStock ? '' : 'disabled'}" data-abrir-prod="${Number(p.id)}" ${!tieneStock ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>
                   ${tieneStock ? 'Seleccionar Unidades' : 'Sin Stock'}
                 </button>
               </div>
@@ -263,43 +279,41 @@
             `}
           </article>
         `
-      }).join('')
+      }).join('') || '<div style="grid-column:1/-1; padding:2rem; text-align:center; color:#6b7280;">No hay productos en esta categoría.</div>'
 
-      document.querySelectorAll('[data-abrir-prod]').forEach(btn => btn.addEventListener('click', () => abrirModalUnidades(parseInt(btn.dataset.abrirProd))))
-      document.querySelectorAll('.btn-fast-login-trigger').forEach(btn => btn.addEventListener('click', () => { $('#modal-fast-login').classList.add('activo') }))
+      document.querySelectorAll('[data-abrir-prod]').forEach(btn => {
+        btn.addEventListener('click', () => abrirModalUnidades(Number(btn.dataset.abrirProd)))
+      })
+      document.querySelectorAll('.btn-fast-login-trigger').forEach(btn => {
+        btn.addEventListener('click', () => $('#modal-fast-login').classList.add('activo'))
+      })
     }
 
     $('#select-filtro-categoria').addEventListener('change', renderCatalogo)
 
-    let productoActualModal = null, currentGroupedVariants = []
-    function abrirModalUnidades(pId) {
-      productoActualModal = catalogoProductos.find(p => p.id === pId)
+    let productoActualModal = null
+    let currentGroupedVariants = []
+    function abrirModalUnidades (pId) {
+      productoActualModal = catalogoProductos.find(p => Number(p.id) === Number(pId))
       if (!productoActualModal) return
-      
-      const itemsDisponiblesModal = inventarioReal.filter(i => i.variantes?.producto_id === pId && i.stock > 0)
-      
-      // AGRUPACIÓN POR VARIANTE ID
-      const groupedMap = {}
-      itemsDisponiblesModal.forEach(i => {
-        const vId = i.variante_id
-        if (!groupedMap[vId]) {
-          groupedMap[vId] = { variante_id: vId, nombre: i.variantes?.nombre, stock: 0, lotes: [] }
-        }
-        groupedMap[vId].stock += i.stock
-        groupedMap[vId].lotes.push(i.lotes?.codigo_lote)
-      })
-      
-      currentGroupedVariants = Object.values(groupedMap)
+
+      currentGroupedVariants = (productoActualModal.variantes || []).filter(v => Number(v.stock || 0) > 0)
+      if (!currentGroupedVariants.length) {
+        alert('Este producto no tiene stock disponible.')
+        return
+      }
 
       $('#modal-prod-nombre').textContent = productoActualModal.nombre
       $('#modal-prod-desc').textContent = productoActualModal.descripcion || 'Selecciona graduación y cantidad.'
-      
-      $('#modal-select-variante').innerHTML = '<option value="">Selecciona graduación...</option>' + currentGroupedVariants.map((g, idx) => {
-        const lotesStr = g.lotes.join(', ')
-        return `<option value="${idx}" data-stock="${g.stock}">${g.nombre} (Lotes: ${lotesStr} | Disp: ${g.stock} unids)</option>`
-      }).join('')
-      
+
+      $('#modal-select-variante').innerHTML = '<option value="">Selecciona graduación...</option>' +
+        currentGroupedVariants.map((v, idx) => {
+          const lotes = (v.lotes || []).join(', ')
+          return `<option value="${idx}" data-stock="${Number(v.stock || 0)}">${escapeHtml(v.nombre)} (Lotes: ${escapeHtml(lotes)} | Disp: ${Number(v.stock || 0)} unids)</option>`
+        }).join('')
+
       $('#modal-cantidad').value = '1'
+      $('#modal-cantidad').max = ''
       $('#modal-stock-info').textContent = ''
       $('#modal-units').classList.add('activo')
     }
@@ -310,7 +324,9 @@
         const sMax = parseInt(opt.dataset.stock)
         $('#modal-cantidad').max = sMax
         $('#modal-stock-info').textContent = `Máximo: ${sMax} unids`
-      } else { $('#modal-stock-info').textContent = '' }
+      } else {
+        $('#modal-stock-info').textContent = ''
+      }
     })
 
     $('#btn-modal-cancel').addEventListener('click', () => $('#modal-units').classList.remove('activo'))
@@ -319,33 +335,39 @@
       e.preventDefault()
       const selectedIdx = $('#modal-select-variante').value
       if (selectedIdx === '') return alert('Selecciona una fórmula válida.')
-      
+
       const cant = parseInt($('#modal-cantidad').value)
-      const group = currentGroupedVariants[selectedIdx]
-      
-      if (!group || cant <= 0 || cant > group.stock) return alert('Selecciona cantidad válida.')
+      const grupo = currentGroupedVariants[selectedIdx]
+      if (!grupo || cant <= 0 || cant > Number(grupo.stock || 0)) return alert('Selecciona una cantidad válida.')
 
-      const lotesStr = group.lotes.join(', ')
-
-      carrito.push({ 
-        variante_id: group.variante_id, 
-        productoId: productoActualModal.id, 
-        nombre: productoActualModal.nombre, 
-        variante: group.nombre, 
-        lote: lotesStr, 
-        cantidad: cant, 
-        precioUSD: parseFloat(productoActualModal.precio || 0) 
+      carrito.push({
+        variante_id: Number(grupo.id),
+        productoId: Number(productoActualModal.id),
+        nombre: productoActualModal.nombre,
+        variante: grupo.nombre,
+        lote: (grupo.lotes || []).join(', '),
+        cantidad: cant,
+        precioUSD: Number(productoActualModal.precio || 0)
       })
-      
+
       localStorage.setItem('optiline_cart', JSON.stringify(carrito))
       actualizarBadgeCarrito()
       $('#modal-units').classList.remove('activo')
       abrirDrawerCarrito()
     })
 
-    function actualizarBadgeCarrito() { $('#cart-counter').textContent = carrito.reduce((sum, item) => sum + item.cantidad, 0) }
-    function abrirDrawerCarrito() { $('#cart-backdrop').classList.add('activo'); $('#cart-drawer').classList.add('activo'); renderCarrito() }
-    function cerrarDrawerCarrito() { $('#cart-backdrop').classList.remove('activo'); $('#cart-drawer').classList.remove('activo') }
+    function actualizarBadgeCarrito () {
+      $('#cart-counter').textContent = carrito.reduce((sum, item) => sum + Number(item.cantidad || 0), 0)
+    }
+    function abrirDrawerCarrito () {
+      $('#cart-backdrop').classList.add('activo')
+      $('#cart-drawer').classList.add('activo')
+      renderCarrito()
+    }
+    function cerrarDrawerCarrito () {
+      $('#cart-backdrop').classList.remove('activo')
+      $('#cart-drawer').classList.remove('activo')
+    }
 
     $('#btn-abrir-carrito').addEventListener('click', abrirDrawerCarrito)
     $('#btn-cerrar-carrito').addEventListener('click', cerrarDrawerCarrito)
@@ -353,11 +375,13 @@
     $('#btn-seguir-comprando').addEventListener('click', cerrarDrawerCarrito)
     $('#cart-moneda-pago').addEventListener('change', renderCarrito)
 
-    function renderCarrito() {
+    function renderCarrito () {
       if (!carrito.length) {
         $('#cart-items-container').innerHTML = '<p style="text-align:center; color:#9ca3af; margin-top:3rem;">Tu carrito está vacío.</p>'
-        $('#txt-subtotal-bs').textContent = formatoBs(0); $('#txt-total-bs').textContent = formatoBs(0)
-        $('#row-descuento-bs').style.display = 'none'; $('#row-total-divisa').style.display = 'none'
+        $('#txt-subtotal-bs').textContent = formatoBs(0)
+        $('#txt-total-bs').textContent = formatoBs(0)
+        $('#row-descuento-bs').style.display = 'none'
+        $('#row-total-divisa').style.display = 'none'
         return
       }
 
@@ -365,15 +389,15 @@
       let totalUSD = 0
 
       $('#cart-items-container').innerHTML = carrito.map((item, idx) => {
-        const itemTotalUSD = item.cantidad * item.precioUSD
+        const itemTotalUSD = Number(item.cantidad || 0) * Number(item.precioUSD || 0)
         totalUSD += itemTotalUSD
         return `
           <div class="cart-item">
             <div>
-              <h4 style="font-family:var(--fuente-titulos);">${item.nombre}</h4>
-              <p>Fórmula: <strong>${item.variante}</strong></p>
-              <p style="font-size:0.8rem; color:#64748b;">Lotes: ${item.lote}</p>
-              <p>${item.cantidad} unids x ${formatoBs(item.precioUSD * tasaCatalogo)}</p>
+              <h4 style="font-family:var(--fuente-titulos);">${escapeHtml(item.nombre)}</h4>
+              <p>Fórmula: <strong>${escapeHtml(item.variante)}</strong></p>
+              <p style="font-size:0.8rem; color:#64748b;">Lotes: ${escapeHtml(item.lote)}</p>
+              <p>${Number(item.cantidad)} unids x ${formatoBs(Number(item.precioUSD || 0) * tasaCatalogo)}</p>
             </div>
             <div style="text-align:right;">
               <strong style="display:block; margin-bottom:0.25rem;">${formatoBs(itemTotalUSD * tasaCatalogo)}</strong>
@@ -386,21 +410,25 @@
       const subtotalBs = totalUSD * tasaCatalogo
       if (moneda === 'USD') {
         const totalBsCompensado = totalUSD * tasaBcv
-        $('#row-descuento-bs').style.display = 'flex'; $('#row-total-divisa').style.display = 'flex'
+        $('#row-descuento-bs').style.display = 'flex'
+        $('#row-total-divisa').style.display = 'flex'
         $('#txt-subtotal-bs').textContent = formatoBs(subtotalBs)
         $('#txt-descuento-bs').textContent = '- ' + formatoBs(subtotalBs - totalBsCompensado)
         $('#txt-total-bs').textContent = formatoBs(totalBsCompensado)
         $('#txt-total-divisa').textContent = `$${totalUSD.toFixed(2)}`
       } else {
-        $('#row-descuento-bs').style.display = 'none'; $('#row-total-divisa').style.display = 'none'
-        $('#txt-subtotal-bs').textContent = formatoBs(subtotalBs); $('#txt-total-bs').textContent = formatoBs(subtotalBs)
+        $('#row-descuento-bs').style.display = 'none'
+        $('#row-total-divisa').style.display = 'none'
+        $('#txt-subtotal-bs').textContent = formatoBs(subtotalBs)
+        $('#txt-total-bs').textContent = formatoBs(subtotalBs)
       }
 
       document.querySelectorAll('[data-del-cart]').forEach(btn => {
         btn.addEventListener('click', () => {
           carrito.splice(parseInt(btn.dataset.delCart), 1)
           localStorage.setItem('optiline_cart', JSON.stringify(carrito))
-          actualizarBadgeCarrito(); renderCarrito()
+          actualizarBadgeCarrito()
+          renderCarrito()
         })
       })
     }
@@ -408,92 +436,94 @@
     $('#btn-fast-cancel').addEventListener('click', () => $('#modal-fast-login').classList.remove('activo'))
     $('#form-fast-login').addEventListener('submit', async (e) => {
       e.preventDefault()
-      const cred = $('#fast-credencial').value.trim(), pass = $('#fast-password').value.trim()
-      const errBox = $('#fast-login-error'); errBox.style.display = 'none'
+      const cred = $('#fast-credencial').value.trim()
+      const pass = $('#fast-password').value.trim()
+      const errBox = $('#fast-login-error')
+      const btn = $('#btn-fast-login')
+      errBox.style.display = 'none'
+      btn.disabled = true
+      btn.textContent = 'Ingresando...'
 
-      const { data: c, error } = await supabase.from('clientes').select('*').or(`codigo_usuario.eq.${cred},email.eq.${cred}`).maybeSingle()
-      if (error || !c || (c.password_hash && c.password_hash !== pass)) {
-        errBox.textContent = 'Credenciales no válidas.'; errBox.style.display = 'block'; return
-      }
-      if (!c.estado_verificado || c.inactivo) {
-        errBox.textContent = 'Su cuenta está en proceso de verificación o se encuentra inactiva.'; errBox.style.display = 'block'; return
-      }
+      try {
+        const { data, error } = await supabase.rpc('login_cliente', {
+          p_credencial: cred,
+          p_password: pass
+        })
+        if (error) throw error
+        if (!data?.token) throw new Error('No se pudo iniciar la sesión.')
 
-      localStorage.setItem('optiline_cliente', JSON.stringify(c))
-      clienteActivo = c; esClienteVerificado = true
-      $('#nav-btn-cuenta').textContent = c.empresa || 'Mi Cuenta'
-      $('#modal-fast-login').classList.remove('activo')
-      renderCatalogo()
+        setSesion(data.token, data.cliente)
+        clienteActivo = data.cliente
+        esClienteVerificado = true
+        $('#nav-btn-cuenta').textContent = data.cliente.empresa || 'Mi Cuenta'
+        $('#fast-password').value = ''
+        $('#modal-fast-login').classList.remove('activo')
+        await inicializarCatalogo()
+      } catch (err) {
+        errBox.textContent = mensajeError(err)
+        errBox.style.display = 'block'
+      } finally {
+        btn.disabled = false
+        btn.textContent = 'Iniciar Sesión'
+      }
     })
 
     $('#btn-confirmar-pedido').addEventListener('click', async () => {
       if (!carrito.length) return alert('El carrito está vacío.')
       if (!esClienteVerificado) { $('#modal-fast-login').classList.add('activo'); return }
 
-      const btn = $('#btn-confirmar-pedido'); btn.disabled = true; btn.textContent = 'Procesando orden y stock...'
+      const btn = $('#btn-confirmar-pedido')
+      btn.disabled = true
+      btn.textContent = 'Procesando orden...'
+
+      // Se abre antes del await para que el navegador no bloquee la pestaña.
+      let waWindow = null
+      try { waWindow = window.open('', '_blank') } catch { waWindow = null }
 
       try {
-        // DESCUENTO FIFO (Primero en entrar, primero en salir) POR VARIANTE
-        for (const item of carrito) {
-          const { data: lots, error: errFetch } = await supabase
-            .from('inventario_lotes')
-            .select('id, stock')
-            .eq('variante_id', item.variante_id)
-            .gt('stock', 0)
-            .order('id', { ascending: true }) // Asumiendo que ID menor = lote más antiguo
-
-          if (errFetch) throw errFetch
-          
-          let totalDisponible = lots.reduce((sum, l) => sum + l.stock, 0)
-          if (totalDisponible < item.cantidad) {
-            throw new Error(`Stock insuficiente para ${item.nombre} (${item.variante}).`)
-          }
-
-          let restante = item.cantidad
-          for (const lote of lots) {
-            if (restante <= 0) break
-            const aDescontar = Math.min(restante, lote.stock)
-            await supabase.from('inventario_lotes').update({ stock: lote.stock - aDescontar }).eq('id', lote.id)
-            restante -= aDescontar
-          }
-        }
-
-        // GENERACIÓN DE CONSECUTIVO
-        let nuevoCodigo = ''
-        const { data: ultimoPedido } = await supabase.from('pedidos').select('id').order('id', { ascending: false }).limit(1)
-        if (ultimoPedido && ultimoPedido.length > 0) {
-          nuevoCodigo = `OPT-${String(ultimoPedido[0].id + 1).padStart(5, '0')}`
-        } else {
-          nuevoCodigo = `OPT-00001`
-        }
-
         const moneda = $('#cart-moneda-pago').value
-        const totalUSD = carrito.reduce((sum, item) => sum + (item.cantidad * item.precioUSD), 0)
-        const subtotalBs = totalUSD * tasaCatalogo
-        const totalBs = moneda === 'USD' ? (totalUSD * tasaBcv) : subtotalBs
-        const descuentoBs = moneda === 'USD' ? (subtotalBs - totalBs) : 0.00
-        const totalFinal = moneda === 'USD' ? totalUSD : totalBs
+        const items = carrito.map(item => ({
+          variante_id: Number(item.variante_id),
+          cantidad: Number(item.cantidad)
+        }))
 
-        const { error: errPed } = await supabase.from('pedidos').insert({
-          codigo_pedido: nuevoCodigo, cliente_id: clienteActivo.id, total: totalFinal, moneda_pago: moneda === 'USD' ? 'USD' : 'Bs.',
-          subtotal_bs: subtotalBs, descuento_bs: descuentoBs, total_bs: totalBs, total_usd: totalUSD,
-          monto_pagado: 0.00, estado_pago: 'Pendiente', estado_despacho: 'Pendiente', detalles: carrito
+        const { data, error } = await supabase.rpc('crear_pedido', {
+          p_token: getToken(),
+          p_items: items,
+          p_moneda: moneda
         })
-        if (errPed) throw errPed
+        if (error) throw error
 
-        await supabase.from('clientes').update({ ultima_compra: new Date().toISOString() }).eq('id', clienteActivo.id)
+        const codigo = data.codigo_pedido
+        const total = Number(data.total || 0)
+        const monedaPedido = data.moneda_pago
+        const totalTexto = monedaPedido === 'USD' ? `$${total.toFixed(2)}` : formatoBs(total)
+        const listaTexto = carrito.map(i => `• ${i.cantidad}x ${i.nombre} [${i.variante}]`).join('\n')
+        const mensajeWapp = `*NUEVA ORDEN WEB - OPTILINE*\n*Orden:* #${codigo}\n*Cliente:* ${clienteActivo?.empresa || ''} (${clienteActivo?.rif || ''})\n*Modalidad:* Pago en ${monedaPedido === 'USD' ? 'Divisas (USD)' : 'Bolívares (Bs.)'}\n\n*Detalle de Ítems:*\n${listaTexto}\n\n*Total a Pagar:* ${totalTexto}\n\n_Quedo a la espera de confirmación de despacho._`
 
-        let listaTexto = carrito.map(i => `• ${i.cantidad}x ${i.nombre} [${i.variante}]`).join('\n')
-        const mensajeWapp = `*NUEVA ORDEN WEB - OPTILINE*\n*Orden:* #${nuevoCodigo}\n*Cliente:* ${clienteActivo.empresa} (${clienteActivo.rif})\n*Modalidad:* Pago en ${moneda === 'USD' ? 'Divisas (USD)' : 'Bolívares (Bs.)'}\n\n*Detalle de Ítems:*\n${listaTexto}\n\n*Total a Pagar:* ${moneda === 'USD' ? '$'+totalFinal.toFixed(2) : formatoBs(totalFinal)}\n\n_Quedo a la espera de confirmación de despacho._`
+        carrito = []
+        localStorage.removeItem('optiline_cart')
+        actualizarBadgeCarrito()
+        cerrarDrawerCarrito()
 
-        carrito = []; localStorage.removeItem('optiline_cart'); actualizarBadgeCarrito(); cerrarDrawerCarrito()
-        window.open(`https://wa.me/${telefonoWhatsapp}?text=${encodeURIComponent(mensajeWapp)}`, '_blank')
-        alert(`✓ ¡Orden #${nuevoCodigo} generada exitosamente!\nSe ha abierto WhatsApp para que envíes el resumen.`)
+        const waUrl = `https://wa.me/${telefonoWhatsapp}?text=${encodeURIComponent(mensajeWapp)}`
+        if (waWindow) waWindow.location.href = waUrl
+        else window.open(waUrl, '_blank', 'noopener')
+
+        alert(`✓ ¡Orden #${codigo} generada exitosamente!\nSe ha abierto WhatsApp para que envíes el resumen.`)
         window.location.href = 'cuenta.html'
-      } catch (err) { alert('Error: ' + err.message) } finally {
-        btn.disabled = false; btn.textContent = 'Confirmar y Notificar Pedido'
+      } catch (err) {
+        if (waWindow) waWindow.close()
+        alert('Error: ' + mensajeError(err))
+        await inicializarCatalogo()
+      } finally {
+        btn.disabled = false
+        btn.textContent = 'Confirmar y Notificar Pedido'
       }
     })
+
+    // Limpia restos de la sesión vieja (guardaba la fila completa del cliente).
+    if (!getToken() && getClienteLocal()) clearSesion()
 
     inicializarCatalogo()
   </script>

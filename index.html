@@ -136,7 +136,7 @@
       <div class="msg msg--ok" id="registro-msg-ok"></div>
       <div class="msg msg--error" id="registro-msg-err"></div>
 
-      <form class="formulario--registro" id="form-registro-publico" novalidate>
+      <form class="formulario--registro" id="form-registro-publico">
         <div class="campo">
           <label for="reg-empresa">Razón Social / Nombre de la Óptica *</label>
           <input type="text" id="reg-empresa" placeholder="Ej: Óptica Visión Real, C.A." required>
@@ -241,24 +241,23 @@
   </div>
 </section>
 
-<!-- SCRIPT DE VALIDACIÓN RIF SENIAT Y REGISTRO SUPABASE -->
+<!-- SCRIPT DE VALIDACIÓN RIF SENIAT Y REGISTRO (RPC SEGURA) -->
 <script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-  const SUPABASE_URL = 'https://fdkdzyjrrtuaotiumbym.supabase.co'
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZka2R6eWpycnR1YW90aXVtYnltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0MDc1MzAsImV4cCI6MjEwNjk4MzUzMH0.RC_ueLB8le0c95RMemtkQf4Yj-bFTrfYLaAcbdRDbXs'
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  import { supabase } from './js/config.js'
+  import { escapeHtml, mensajeError } from './js/ui.js'
+
   const $ = (s) => document.querySelector(s)
 
   function validarRifVenezolano(rifInput) {
     const clean = rifInput.toUpperCase().trim().replace(/[-\s]/g, '')
-    if (!/^[VJEGP][0-9]{8,9}$/.test(clean)) return false
+    if (!/^[VJEGP][0-9]{9}$/.test(clean)) return false
     const tipo = clean[0]
     const cuerpo = clean.slice(1, -1).padStart(8, '0')
     const digitoVerificador = parseInt(clean.slice(-1))
-    let factorTipo = { 'V':1, 'E':2, 'J':3, 'P':4, 'G':5 }[tipo] || 0
+    const factorTipo = { 'V': 1, 'E': 2, 'J': 3, 'P': 4, 'G': 5 }[tipo] || 0
     const constantes = [4, 3, 2, 7, 6, 5, 4, 3, 2]
     const numeros = [factorTipo, ...cuerpo.split('').map(Number)]
-    let suma = numeros.reduce((acc, num, i) => acc + (num * constantes[i]), 0)
+    const suma = numeros.reduce((acc, num, i) => acc + (num * constantes[i]), 0)
     let digitoEsperado = 11 - (suma % 11)
     if (digitoEsperado >= 10) digitoEsperado = 0
     return digitoVerificador === digitoEsperado
@@ -279,8 +278,11 @@
 
   $('#form-registro-publico').addEventListener('submit', async (e) => {
     e.preventDefault()
-    const errBox = $('#registro-msg-err'), okBox = $('#registro-msg-ok'), btn = $('#btn-registro-submit')
-    errBox.style.display = 'none'; okBox.style.display = 'none'
+    const errBox = $('#registro-msg-err')
+    const okBox = $('#registro-msg-ok')
+    const btn = $('#btn-registro-submit')
+    errBox.style.display = 'none'
+    okBox.style.display = 'none'
 
     const rif = $('#reg-rif').value.trim().toUpperCase()
     if (!validarRifVenezolano(rif)) {
@@ -289,26 +291,37 @@
       return
     }
 
-    btn.disabled = true; btn.textContent = 'Enviando solicitud...'
-    const empresa = $('#reg-empresa').value.trim(), nombre = $('#reg-nombre').value.trim(), telefono = $('#reg-telefono').value.trim(), email = $('#reg-correo').value.trim().toLowerCase(), direccion = $('#reg-direccion').value.trim(), codigoUsuario = `OPT-${Date.now().toString().slice(-4)}`
+    const empresa = $('#reg-empresa').value.trim()
+    const nombre = $('#reg-nombre').value.trim()
+    const telefono = $('#reg-telefono').value.trim()
+    const email = $('#reg-correo').value.trim().toLowerCase()
+    const direccion = $('#reg-direccion').value.trim()
+
+    btn.disabled = true
+    btn.textContent = 'Enviando solicitud...'
 
     try {
-      const { data: existe } = await supabase.from('clientes').select('id').or(`rif.eq.${rif},email.eq.${email}`).maybeSingle()
-      if (existe) throw new Error('Ya existe una solicitud o cuenta con este RIF o correo electrónico.')
-
-      const { error } = await supabase.from('clientes').insert({
-        codigo_usuario: codigoUsuario, rif, empresa, nombre_completo: nombre, telefono, email, direccion_fiscal: direccion, direccion_envio: direccion, estado_verificado: false, inactivo: false, password_hash: null
+      const { data, error } = await supabase.rpc('registrar_optica', {
+        p_empresa: empresa,
+        p_rif: rif,
+        p_nombre: nombre,
+        p_telefono: telefono,
+        p_email: email,
+        p_direccion: direccion
       })
       if (error) throw error
 
-      okBox.innerHTML = `<strong>¡Solicitud recibida con éxito!</strong><br>Su código de trámite es <code>${codigoUsuario}</code>. Nuestro equipo validará sus datos y se comunicará vía WhatsApp al <strong>${telefono}</strong> para asignarle sus credenciales.`
+      const codigo = data?.codigo_usuario || ''
+      okBox.innerHTML = `<strong>¡Solicitud recibida con éxito!</strong><br>Su código de trámite es <code>${escapeHtml(codigo)}</code>. Nuestro equipo validará sus datos y se comunicará vía WhatsApp al <strong>${escapeHtml(telefono)}</strong> para asignarle sus credenciales.`
       okBox.style.display = 'block'
       $('#form-registro-publico').reset()
       $('#reg-rif-val').textContent = ''
     } catch (err) {
-      errBox.textContent = err.message; errBox.style.display = 'block'
+      errBox.textContent = mensajeError(err)
+      errBox.style.display = 'block'
     } finally {
-      btn.disabled = false; btn.textContent = 'Enviar Solicitud de Registro'
+      btn.disabled = false
+      btn.textContent = 'Enviar Solicitud de Registro'
     }
   })
 </script>

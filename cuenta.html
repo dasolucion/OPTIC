@@ -49,7 +49,7 @@
   <section class="contenedor" id="vista-login">
     <div class="auth-card">
       <h1 style="font-family:var(--fuente-titulos); font-size:1.35rem; font-weight:800; margin-bottom:0.4rem;">Portal de Ópticas</h1>
-      <p style="font-size:0.85rem; color:#6b7280; margin-bottom:1.5rem;">Ingresa con tu código de usuario de WooCommerce o correo.</p>
+      <p style="font-size:0.85rem; color:#6b7280; margin-bottom:1.5rem;">Ingresa con tu código de usuario o correo electrónico.</p>
       <div id="login-error" style="display:none; color:#b91c1c; background:#fee2e2; padding:0.75rem; border-radius:6px; font-size:0.85rem; margin-bottom:1rem;"></div>
 
       <form id="form-login">
@@ -151,62 +151,98 @@
   </div>
 
   <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+    import { supabase } from './js/config.js'
+    import {
+      escapeHtml, formatoMoneda, getToken, setSesion, clearSesion,
+      getClienteLocal, mensajeError
+    } from './js/ui.js'
 
-    const SUPABASE_URL = 'https://fdkdzyjrrtuaotiumbym.supabase.co'
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZka2R6eWpycnR1YW90aXVtYnltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0MDc1MzAsImV4cCI6MjEwNjk4MzUzMH0.RC_ueLB8le0c95RMemtkQf4Yj-bFTrfYLaAcbdRDbXs'
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
     const $ = (s) => document.querySelector(s)
+    const token = getToken()
+    let clienteSesion = null
+    let pedidosCache = []
+    let cuentasPago = []
+    let metodosPago = []
 
-    let clienteSesion = JSON.parse(localStorage.getItem('optiline_cliente') || 'null')
+    if (token) {
+      cargarPerfil()
+    } else {
+      clearSesion()
+      $('#vista-login').style.display = 'block'
+    }
 
-    if (clienteSesion) mostrarPortal(clienteSesion)
-    else $('#vista-login').style.display = 'block'
+    async function cargarPerfil () {
+      const { data, error } = await supabase.rpc('mi_perfil', { p_token: token })
+      if (error || !data) {
+        clearSesion()
+        $('#vista-login').style.display = 'block'
+        return
+      }
+      clienteSesion = data
+      setSesion(token, data)
+      mostrarPortal(data)
+    }
 
     $('#form-login').addEventListener('submit', async (e) => {
       e.preventDefault()
       const cred = $('#credencial').value.trim()
       const pass = $('#password').value.trim()
       const errorBox = $('#login-error')
+      const btn = $('#btn-login')
       errorBox.style.display = 'none'
+      btn.disabled = true
+      btn.textContent = 'Ingresando...'
 
-      const { data: c, error } = await supabase.from('clientes').select('*').or(`codigo_usuario.eq.${cred},email.eq.${cred}`).maybeSingle()
-      if (error || !c || (c.password_hash && c.password_hash !== pass)) {
-        errorBox.textContent = 'Credenciales incorrectas.'
+      try {
+        const { data, error } = await supabase.rpc('login_cliente', {
+          p_credencial: cred,
+          p_password: pass
+        })
+        if (error) throw error
+        if (!data?.token) throw new Error('No se pudo iniciar la sesión.')
+
+        setSesion(data.token, data.cliente)
+        clienteSesion = data.cliente
+        $('#password').value = ''
+        mostrarPortal(data.cliente)
+      } catch (err) {
+        errorBox.textContent = mensajeError(err)
         errorBox.style.display = 'block'
-        return
+      } finally {
+        btn.disabled = false
+        btn.textContent = 'Ingresar a mi cuenta'
       }
-
-      localStorage.setItem('optiline_cliente', JSON.stringify(c))
-      clienteSesion = c
-      mostrarPortal(c)
     })
 
-    $('#btn-logout').addEventListener('click', () => {
-      localStorage.removeItem('optiline_cliente')
+    $('#btn-logout').addEventListener('click', async () => {
+      const t = getToken()
+      if (t) await supabase.rpc('cerrar_sesion', { p_token: t })
+      clearSesion()
       location.reload()
     })
 
-    function mostrarPortal(c) {
+    function mostrarPortal (c) {
       $('#vista-login').style.display = 'none'
       $('#vista-portal').classList.add('activo')
-      $('#txt-empresa').textContent = c.empresa
-      $('#txt-rif').textContent = `RIF: ${c.rif}`
-      $('#txt-codigo').textContent = c.codigo_usuario
+      $('#txt-empresa').textContent = c.empresa || ''
+      $('#txt-rif').textContent = `RIF: ${c.rif || ''}`
+      $('#txt-codigo').textContent = c.codigo_usuario || ''
       $('#txt-fiscal').textContent = c.direccion_fiscal || 'Sin dirección fiscal registrada'
       $('#perfil-dir-fiscal').value = c.direccion_fiscal || ''
       $('#perfil-dir-envio').value = c.direccion_envio || ''
       $('#perfil-telefono').value = c.telefono || ''
-      cargarPedidos(c.id)
+      cargarPedidos()
       cargarSelectsPago()
     }
 
-    async function cargarSelectsPago() {
-      const { data: met } = await supabase.from('metodos_pago').select('*').eq('activo', true)
-      $('#pago-metodo').innerHTML = (met || []).map(m => `<option value="${m.nombre}">${m.nombre}</option>`).join('')
-
-      const { data: ctas } = await supabase.from('cuentas_bancarias').select('*').eq('activo', true)
-      $('#pago-cuenta-id').innerHTML = (ctas || []).map(b => `<option value="${b.id}">${b.nombre_banco} (${b.moneda})</option>`).join('')
+    async function cargarSelectsPago () {
+      const { data, error } = await supabase.rpc('datos_pago')
+      if (error) return
+      metodosPago = data?.metodos || []
+      cuentasPago = data?.cuentas || []
+      $('#pago-metodo').innerHTML = metodosPago
+        .map(m => `<option value="${escapeHtml(m.nombre)}">${escapeHtml(m.nombre)}</option>`)
+        .join('')
     }
 
     document.querySelectorAll('.portal-tab').forEach(tab => {
@@ -218,42 +254,48 @@
       })
     })
 
-    async function cargarPedidos(clienteId) {
-      const { data: pedidos } = await supabase.from('pedidos').select('*').eq('cliente_id', clienteId).order('id', { ascending: false })
+    async function cargarPedidos () {
+      const { data, error } = await supabase.rpc('mis_pedidos', { p_token: getToken() })
       const contenedor = $('#contenedor-pedidos')
+      if (error) {
+        contenedor.innerHTML = `<div style="background:#fff; padding:2rem; border:1px solid #fecaca; color:#991b1b; border-radius:8px;">${escapeHtml(mensajeError(error))}</div>`
+        return
+      }
 
-      if (!pedidos || !pedidos.length) {
+      pedidosCache = Array.isArray(data) ? data : []
+      if (!pedidosCache.length) {
         contenedor.innerHTML = '<div style="background:#fff; padding:3rem; text-align:center; border:1px dashed #d1d5db; border-radius:8px;">No posee pedidos registrados actualmente.</div>'
         return
       }
 
-      contenedor.innerHTML = pedidos.map(p => {
-        // CALCULO DINAMICO POR SI LA COLUMNA SALDO_PENDIENTE NO EXISTE EN LA DB
-        const abonado = Number(p.monto_pagado || 0);
-        const total = Number(p.total || 0);
-        const saldo = Math.max(0, total - abonado).toFixed(2);
-
-        const badgeClass = p.estado_pago === 'Pagado' ? 'badge--pagado' : ((p.estado_pago === 'Abonado' || p.estado_pago.includes('Verificar')) ? 'badge--abonado' : 'badge--pendiente')
+      contenedor.innerHTML = pedidosCache.map(p => {
         const mon = p.moneda_pago === 'USD' ? '$' : 'Bs.'
+        const estado = p.estado_pago || 'Pendiente'
+        const saldo = Number(p.saldo || 0)
+        const pendiente = Number(p.pendiente_verificacion || 0)
+        const badgeClass = estado === 'Pagado'
+          ? 'badge--pagado'
+          : ((estado === 'Abonado' || estado.includes('Verificar')) ? 'badge--abonado' : 'badge--pendiente')
 
         return `
           <article class="pedido-card">
             <div>
-              <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.4rem;">
-                <h4 style="font-family:var(--fuente-titulos); font-size:1.1rem; font-weight:800;">Orden #${p.codigo_pedido}</h4>
-                <span class="badge ${badgeClass}">${p.estado_pago}</span>
-                <span style="font-size:0.78rem; color:#6b7280;">· Despacho: <strong>${p.estado_despacho}</strong></span>
+              <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.4rem; flex-wrap:wrap;">
+                <h4 style="font-family:var(--fuente-titulos); font-size:1.1rem; font-weight:800;">Orden #${escapeHtml(p.codigo_pedido)}</h4>
+                <span class="badge ${badgeClass}">${escapeHtml(estado)}</span>
+                <span style="font-size:0.78rem; color:#6b7280;">· Despacho: <strong>${escapeHtml(p.estado_despacho || 'Pendiente')}</strong></span>
               </div>
               <p style="font-size:0.85rem; color:#6b7280;">Fecha: ${new Date(p.fecha).toLocaleDateString()}</p>
               <p style="font-size:0.95rem; margin-top:0.4rem;">
-                Total: <strong>${mon} ${Number(p.total).toFixed(2)}</strong> | 
-                Abonado: <strong style="color:var(--azul);">${mon} ${abonado.toFixed(2)}</strong> | 
-                Saldo Pendiente: <strong style="color:var(--naranja);">${mon} ${saldo}</strong>
+                Total: <strong>${mon} ${Number(p.total || 0).toFixed(2)}</strong> |
+                Abonado: <strong style="color:var(--azul);">${mon} ${Number(p.monto_pagado || 0).toFixed(2)}</strong> |
+                Saldo Pendiente: <strong style="color:var(--naranja);">${mon} ${saldo.toFixed(2)}</strong>
               </p>
+              ${pendiente > 0 ? `<p style="font-size:0.8rem; color:#713f12; margin-top:0.3rem;">Pago reportado en verificación: ${mon} ${pendiente.toFixed(2)}</p>` : ''}
             </div>
             <div>
-              ${Number(saldo) > 0 ? `
-                <button type="button" class="boton boton--naranja" data-abrir-pago='${JSON.stringify(p)}'>Notificar Pago</button>
+              ${saldo > 0 ? `
+                <button type="button" class="boton boton--naranja" data-abrir-pago="${Number(p.id)}">Notificar Pago</button>
               ` : `
                 <span style="font-family:var(--fuente-titulos); font-size:0.85rem; font-weight:700; color:#03543f;">✓ Solvente</span>
               `}
@@ -263,32 +305,51 @@
       }).join('')
 
       document.querySelectorAll('[data-abrir-pago]').forEach(btn => {
-        btn.addEventListener('click', () => abrirModalPago(JSON.parse(btn.dataset.abrirPago)))
+        btn.addEventListener('click', () => {
+          const pedido = pedidosCache.find(p => Number(p.id) === Number(btn.dataset.abrirPago))
+          if (pedido) abrirModalPago(pedido)
+        })
       })
+
+      // Enlace directo desde el catálogo: cuenta.html?tab=pagos
+      if (new URLSearchParams(location.search).get('tab') === 'pagos') {
+        const pendiente = pedidosCache.find(p => Number(p.saldo || 0) > 0)
+        if (pendiente) abrirModalPago(pendiente)
+      }
     }
 
     let pedidoActual = null
-    function abrirModalPago(p) {
+    function abrirModalPago (p) {
       pedidoActual = p
       const mon = p.moneda_pago === 'USD' ? '$' : 'Bs.'
-      const saldo = Math.max(0, Number(p.total) - Number(p.monto_pagado || 0)).toFixed(2);
+      const saldo = Number(p.saldo || 0).toFixed(2)
 
       $('#pago-pedido-id').value = p.id
-      $('#modal-pedido-info').innerHTML = `Abonando a orden <strong>#${p.codigo_pedido}</strong> · Saldo pendiente: <strong>${mon} ${saldo}</strong>`
+      $('#modal-pedido-info').innerHTML = `Abonando a orden <strong>#${escapeHtml(p.codigo_pedido)}</strong> · Saldo pendiente: <strong>${mon} ${saldo}</strong>`
       $('#lbl-monto-reportar').textContent = `Monto a Reportar (${mon}):`
-      $('#pago-tipo').value = 'Total'
+      $('#pago-monto').max = saldo
       $('#pago-monto').value = saldo
+      $('#pago-tipo').value = 'Total'
       $('#pago-fecha').value = new Date().toISOString().split('T')[0]
+      $('#pago-referencia').value = ''
+
+      const monedaPedido = p.moneda_pago === 'USD' ? 'USD' : 'Bs.'
+      const cuentas = cuentasPago.filter(c => (c.moneda === 'USD' ? 'USD' : 'Bs.') === monedaPedido)
+      $('#pago-cuenta-id').innerHTML = cuentas.length
+        ? cuentas.map(c => `<option value="${Number(c.id)}">${escapeHtml(c.nombre_banco)} (${escapeHtml(c.moneda)})</option>`).join('')
+        : '<option value="">No hay cuentas disponibles para esta moneda</option>'
+
       $('#modal-pago').classList.add('activo')
     }
 
     $('#pago-tipo').addEventListener('change', (e) => {
       if (!pedidoActual) return
       if (e.target.value === 'Total') {
-        const saldo = Math.max(0, Number(pedidoActual.total) - Number(pedidoActual.monto_pagado || 0)).toFixed(2);
-        $('#pago-monto').value = saldo
+        $('#pago-monto').value = Number(pedidoActual.saldo || 0).toFixed(2)
+      } else {
+        $('#pago-monto').value = ''
+        $('#pago-monto').focus()
       }
-      else { $('#pago-monto').value = ''; $('#pago-monto').focus() }
     })
     $('#btn-cerrar-modal').addEventListener('click', () => $('#modal-pago').classList.remove('activo'))
 
@@ -297,54 +358,49 @@
       const btn = $('#btn-enviar-pago')
       const file = $('#pago-comprobante').files[0]
       const monto = parseFloat($('#pago-monto').value)
-      const saldoMax = Math.max(0, Number(pedidoActual.total) - Number(pedidoActual.monto_pagado || 0))
+      const saldoMax = Number(pedidoActual?.saldo || 0)
+      const cuentaId = $('#pago-cuenta-id').value
 
-      if (monto <= 0 || monto > saldoMax + 0.01) return alert('El monto a reportar no puede superar el saldo pendiente.')
+      if (!pedidoActual) return
+      if (!cuentaId) return alert('No hay una cuenta bancaria disponible para la moneda de este pedido.')
+      if (!Number.isFinite(monto) || monto <= 0 || monto > saldoMax + 0.01) {
+        return alert('El monto a reportar no puede superar el saldo pendiente.')
+      }
 
       btn.disabled = true
       btn.textContent = 'Enviando notificación...'
 
       try {
-        let publicUrl = null
+        let comprobante = null
         if (file) {
-          const ext = file.name.split('.').pop()
+          const ext = (file.name.split('.').pop() || 'bin').toLowerCase().replace(/[^a-z0-9]/g, '')
           const ruta = `comp-${pedidoActual.codigo_pedido}-${Date.now()}.${ext}`
-          const { data: up, error: upErr } = await supabase.storage.from('comprobantes').upload(ruta, file, { upsert: false })
+          const { data: up, error: upErr } = await supabase.storage
+            .from('comprobantes')
+            .upload(ruta, file, { upsert: false, contentType: file.type || undefined })
           if (upErr) throw upErr
-          publicUrl = supabase.storage.from('comprobantes').getPublicUrl(up.path).data.publicUrl
+          comprobante = up.path
         }
 
-        const { error: errPago } = await supabase.from('pagos').insert({
-          pedido_id: pedidoActual.id,
-          cliente_id: clienteSesion.id,
-          cuenta_id: parseInt($('#pago-cuenta-id').value),
-          fecha_pago: $('#pago-fecha').value,
-          monto: monto,
-          tipo_pago: $('#pago-tipo').value,
-          metodo_pago: $('#pago-metodo').value,
-          banco_origen: $('#pago-cuenta-id').selectedOptions[0]?.text || null,
-          referencia: $('#pago-referencia').value.trim(),
-          comprobante_url: publicUrl,
-          conciliado: false,
-          estado_conciliacion: 'En verificación'
+        const { error: errPago } = await supabase.rpc('reportar_pago', {
+          p_token: getToken(),
+          p_pedido_id: Number(pedidoActual.id),
+          p_cuenta_id: Number(cuentaId),
+          p_monto: monto,
+          p_tipo: $('#pago-tipo').value,
+          p_metodo: $('#pago-metodo').value,
+          p_referencia: $('#pago-referencia').value.trim(),
+          p_fecha: $('#pago-fecha').value,
+          p_comprobante: comprobante
         })
         if (errPago) throw errPago
-
-        const nuevoPagado = parseFloat(pedidoActual.monto_pagado || 0) + monto
-        const total = parseFloat(pedidoActual.total)
-        
-        await supabase.from('pedidos').update({
-          monto_pagado: nuevoPagado,
-          estado_pago: nuevoPagado >= total - 0.01 ? 'En Verificación' : 'Abonado (Verificar)'
-        }).eq('id', pedidoActual.id)
 
         alert('✓ Pago reportado con éxito. Nuestro equipo verificará la transacción a la brevedad.')
         $('#modal-pago').classList.remove('activo')
         $('#form-notificar-pago').reset()
-        cargarPedidos(clienteSesion.id)
-
+        cargarPedidos()
       } catch (err) {
-        alert('Error: ' + err.message)
+        alert('Error: ' + mensajeError(err))
       } finally {
         btn.disabled = false
         btn.textContent = 'Registrar Pago'
@@ -352,12 +408,25 @@
     })
 
     $('#btn-guardar-datos').addEventListener('click', async () => {
-      await supabase.from('clientes').update({
-        direccion_envio: $('#perfil-dir-envio').value.trim(),
-        telefono: $('#perfil-telefono').value.trim()
-      }).eq('id', clienteSesion.id)
-      alert('✓ Datos de envío actualizados.')
+      const btn = $('#btn-guardar-datos')
+      btn.disabled = true
+      try {
+        const { error } = await supabase.rpc('actualizar_mis_datos', {
+          p_token: getToken(),
+          p_direccion_envio: $('#perfil-dir-envio').value.trim(),
+          p_telefono: $('#perfil-telefono').value.trim()
+        })
+        if (error) throw error
+        alert('✓ Datos de envío actualizados.')
+      } catch (err) {
+        alert('Error: ' + mensajeError(err))
+      } finally {
+        btn.disabled = false
+      }
     })
+
+    // Si hay una sesión vieja con datos completos, se descarta.
+    if (!getToken() && getClienteLocal()) clearSesion()
   </script>
 
 </body>
