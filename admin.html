@@ -206,6 +206,7 @@
           <h4>Importar Clientes desde WordPress (CSV / XLSX / JSON)</h4>
           <p>Columnas: <strong>empresa | rif | email | usuario_wp | password_hash | telefono | direccion</strong></p>
           <p style="font-size:.78rem; color:#64748b; margin-top:.25rem;">Opcionales: codigo, nombre, direccion_envio, verificado, inactivo.</p>
+          <p style="font-size:.78rem; color:#64748b; margin-top:.25rem;">Si no hay columna <strong>codigo</strong>, el código visible pasa a ser el usuario de WordPress; si tampoco hay usuario, se genera <strong>OPT-#####</strong>.</p>
           <div style="display:flex; flex-wrap:wrap; gap:1.1rem; margin-top:.7rem; font-size:.82rem; color:#475569;">
             <label style="display:flex; align-items:center; gap:.4rem; margin:0; cursor:pointer; font-weight:600;">
               <input type="checkbox" id="cli-actualizar">
@@ -1071,7 +1072,8 @@
       ['7. "inactivo = si" desactiva la cuenta y cierra sus sesiones.'],
       ['8. Si el cliente ya existe y no marca "Actualizar clientes existentes", la fila se omite.'],
       ['9. Nunca se muestra ni se guarda la contraseña en claro: solo el hash.'],
-      ['10. El cliente puede entrar con su correo, su usuario de WordPress o su código OPTILINE.']
+      ['10. El cliente puede entrar con su correo, su usuario de WordPress o su código OPTILINE.'],
+      ['11. Código: si la columna codigo trae valor se respeta; si no, se usa el usuario de WordPress; si tampoco hay, se genera OPT-#####.']
     ]
     const wb = XLSX.utils.book_new()
     const ws = XLSX.utils.aoa_to_sheet(filas)
