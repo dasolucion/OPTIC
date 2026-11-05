@@ -199,6 +199,35 @@
     <!-- 1. CLIENTES -->
     <section class="tab-content no-print" id="tab-clientes">
       <div class="main-header"><h1>1. Gestión y Aprobación de Ópticas</h1><p>Valida solicitudes, aprueba cuentas y audita el estado de inactividad (3 días nuevo / 90 días sin compras).</p></div>
+
+      <!-- IMPORTACIÓN DE CLIENTES DESDE WORDPRESS -->
+      <div class="excel-zone">
+        <div>
+          <h4>Importar Clientes desde WordPress (CSV / XLSX / JSON)</h4>
+          <p>Columnas: <strong>empresa | rif | email | usuario_wp | password_hash | telefono | direccion</strong></p>
+          <p style="font-size:.78rem; color:#64748b; margin-top:.25rem;">Opcionales: codigo, nombre, direccion_envio, verificado, inactivo.</p>
+          <div style="display:flex; flex-wrap:wrap; gap:1.1rem; margin-top:.7rem; font-size:.82rem; color:#475569;">
+            <label style="display:flex; align-items:center; gap:.4rem; margin:0; cursor:pointer; font-weight:600;">
+              <input type="checkbox" id="cli-actualizar">
+              Actualizar clientes existentes
+            </label>
+            <label style="display:flex; align-items:center; gap:.4rem; margin:0; cursor:pointer; font-weight:600;">
+              <input type="checkbox" id="cli-verificados" checked>
+              Marcar como verificados / aprobados
+            </label>
+          </div>
+        </div>
+        <div style="display:flex; gap:.8rem;">
+          <button type="button" class="btn-sm btn-sm--edit" id="btn-plantilla-clientes">📥 Descargar Plantilla</button>
+          <label class="boton boton--primario" style="margin:0; cursor:pointer;">
+            📤 Cargar Clientes
+            <input type="file" id="input-excel-clientes" accept=".csv, .xlsx, .xls, .json" style="display:none;">
+          </label>
+        </div>
+      </div>
+      <div class="msg msg--ok" id="cli-import-msg"></div>
+      <div id="cli-import-resultados" style="display:none;"></div>
+
       <div class="admin-panel-box">
         <div class="filtros-bar">
           <input type="text" id="filtro-clientes" placeholder="🔍 Buscar por RIF, código, empresa o correo...">
@@ -827,6 +856,264 @@
   }
   $('#filtro-clientes').addEventListener('input', renderClientes)
   $('#filtro-clientes-estado').addEventListener('change', renderClientes)
+
+  // ================= IMPORTACIÓN DE CLIENTES (WORDPRESS) =================
+  const normalizarClaveCliente = (s) => String(s ?? '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase().trim()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+
+  // Parser CSV propio: soporta comillas, comas o punto y coma y saltos CRLF.
+  function parsearCsv (texto) {
+    const limpio = String(texto ?? '').replace(/^\uFEFF/, '')
+    const primera = limpio.split(/\r?\n/)[0] || ''
+    const delim = (primera.split(';').length > primera.split(',').length) ? ';' : ','
+    const filas = []
+    let fila = []
+    let campo = ''
+    let entreComillas = false
+
+    for (let i = 0; i < limpio.length; i++) {
+      const c = limpio[i]
+      if (entreComillas) {
+        if (c === '"') {
+          if (limpio[i + 1] === '"') { campo += '"'; i++ } else { entreComillas = false }
+        } else {
+          campo += c
+        }
+      } else if (c === '"') {
+        entreComillas = true
+      } else if (c === delim) {
+        fila.push(campo); campo = ''
+      } else if (c === '\n') {
+        fila.push(campo); filas.push(fila); fila = []; campo = ''
+      } else if (c !== '\r') {
+        campo += c
+      }
+    }
+    if (campo !== '' || fila.length) { fila.push(campo); filas.push(fila) }
+
+    const utiles = filas.filter(f => f.some(v => String(v).trim() !== ''))
+    if (!utiles.length) return []
+
+    const cabeceras = utiles[0].map(normalizarClaveCliente)
+    return utiles.slice(1).map(f => {
+      const obj = {}
+      cabeceras.forEach((h, idx) => { if (h) obj[h] = f[idx] !== undefined ? f[idx] : '' })
+      return obj
+    })
+  }
+
+  function normalizarObjetosClientes (arr) {
+    return (Array.isArray(arr) ? arr : []).map(o => {
+      const out = {}
+      Object.keys(o || {}).forEach(k => { out[normalizarClaveCliente(k)] = o[k] })
+      return out
+    })
+  }
+
+  function construirClientesDesdeRegistros (registros) {
+    const texto = (v) => String(v ?? '').trim()
+    return registros.map(r => {
+      const pick = (...claves) => {
+        for (const k of claves) {
+          const v = texto(r[k])
+          if (v !== '') return v
+        }
+        return ''
+      }
+      const item = {
+        codigo: pick('codigo', 'codigo_usuario', 'codigo_cliente'),
+        empresa: pick('empresa', 'razon_social', 'company', 'billing_company', 'nombre_empresa', 'nombre_fiscal', 'nombre_comercial', 'billing_company_name'),
+        rif: pick('rif', 'billing_rif', 'rif_empresa', 'billing_vat', 'vat', 'cif', 'billing_cif', 'nif', 'billing_nif'),
+        email: pick('email', 'correo', 'correo_electronico', 'user_email', 'billing_email'),
+        usuario_wp: pick('usuario_wp', 'usuario', 'user_login', 'login', 'nombre_usuario', 'username'),
+        nombre: pick('nombre', 'nombre_completo', 'display_name', 'contacto', 'billing_first_name', 'first_name'),
+        telefono: pick('telefono', 'phone', 'billing_phone', 'celular', 'shipping_phone'),
+        direccion: pick('direccion', 'direccion_fiscal', 'billing_address_1', 'address', 'direccion1'),
+        direccion_envio: pick('direccion_envio', 'shipping_address_1', 'direccion_entrega'),
+        password: pick('password', 'password_hash', 'user_pass', 'contrasena', 'clave', 'pass')
+      }
+      const verificado = pick('verificado', 'estado_verificado', 'aprobado', 'activo')
+      if (verificado !== '') item.verificado = verificado
+      const inactivo = pick('inactivo', 'bloqueado', 'suspendido')
+      if (inactivo !== '') item.inactivo = inactivo
+      return item
+    }).filter(c => c.email || c.usuario_wp || c.codigo)
+  }
+
+  function mostrarResultadoClientes (result, totalFilas) {
+    const cont = $('#cli-import-resultados')
+    const creados = Number(result?.creados || 0)
+    const actualizados = Number(result?.actualizados || 0)
+    const omitidos = Number(result?.omitidos || 0)
+    const bcrypt = Number(result?.password_bcrypt || 0)
+    const phpass = Number(result?.password_phpass || 0)
+    const plano = Number(result?.password_plano || 0)
+    const sinPassword = Number(result?.sin_password || 0)
+    const noSoportados = Array.isArray(result?.no_soportados) ? result.no_soportados : []
+    const errores = Array.isArray(result?.errores) ? result.errores : []
+
+    const chip = (etiqueta, valor, color, fondo) => `
+      <div style="background:${fondo}; border:1px solid ${color}; border-radius:8px; padding:.7rem .9rem; min-width:120px;">
+        <div style="font-size:.7rem; font-weight:800; text-transform:uppercase; letter-spacing:.04em; color:${color};">${etiqueta}</div>
+        <div style="font-family:'Montserrat',sans-serif; font-size:1.35rem; font-weight:900; color:#111827;">${valor}</div>
+      </div>`
+
+    let html = `
+      <div class="admin-panel-box" style="padding:1.1rem 1.25rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; margin-bottom:.9rem;">
+          <h3 style="margin:0; font-family:'Montserrat',sans-serif; font-size:1rem; font-weight:800; color:#0b4d8c;">Resultado de la importación de clientes</h3>
+          <span style="font-size:.8rem; color:#64748b;">Filas en el archivo: <strong>${Number(totalFilas || 0)}</strong></span>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:.6rem; margin-bottom:1rem;">
+          ${chip('Creados', creados, '#03543f', '#def7ec')}
+          ${chip('Actualizados', actualizados, '#0369a1', '#e0f2fe')}
+          ${chip('Omitidos', omitidos, '#475569', '#f1f5f9')}
+          ${chip('Contraseña bcrypt', bcrypt, '#03543f', '#def7ec')}
+          ${chip('Contraseña phpass', phpass, '#713f12', '#fef9c3')}
+          ${chip('Contraseña en claro', plano, '#713f12', '#fef9c3')}
+          ${chip('Sin contraseña', sinPassword, '#475569', '#f1f5f9')}
+          ${chip('Errores', errores.length, '#991b1b', '#fee2e2')}
+        </div>
+        <p style="margin:0 0 1rem; font-size:.8rem; color:#475569;">
+          Los hashes <strong>phpass</strong> ($P$ / $H$) se migran solos: el cliente entra con su misma contraseña de WordPress
+          y en ese momento se guarda como bcrypt. Los hashes <strong>bcrypt</strong> ($2y$ / $wp$2y$) funcionan de inmediato.
+        </p>`
+
+    if (noSoportados.length) {
+      html += `
+        <div style="margin-bottom:1rem;">
+          <p style="margin:0 0 .4rem; font-size:.85rem; font-weight:700; color:#991b1b;">
+            ${noSoportados.length} cliente(s) con un formato de contraseña no soportado (deberán cambiarla):
+          </p>
+          <div style="display:flex; flex-wrap:wrap; gap:.35rem;">
+            ${noSoportados.map(s => `<span style="background:#fee2e2; color:#991b1b; border-radius:4px; padding:.15rem .5rem; font-size:.75rem; font-weight:700;">${escapeHtml(s.email || s.usuario || ('fila ' + s.fila))}</span>`).join('')}
+          </div>
+        </div>`
+    }
+
+    if (errores.length) {
+      html += `
+        <div>
+          <p style="margin:0 0 .4rem; font-size:.85rem; font-weight:700; color:#991b1b;">Filas con error:</p>
+          <div class="table-responsive" style="max-height:260px; overflow-y:auto;">
+            <table class="data-table" style="font-size:.78rem;">
+              <thead><tr><th>Fila</th><th>Correo</th><th>Usuario</th><th>Motivo</th></tr></thead>
+              <tbody>
+                ${errores.map(e => `<tr>
+                  <td>${Number(e.fila || 0)}</td>
+                  <td>${escapeHtml(e.email || '—')}</td>
+                  <td>${escapeHtml(e.usuario || '—')}</td>
+                  <td style="color:#991b1b;">${escapeHtml(e.error || 'Error desconocido')}</td>
+                </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>`
+    }
+
+    html += '</div>'
+    cont.innerHTML = html
+    cont.style.display = 'block'
+  }
+
+  $('#btn-plantilla-clientes').addEventListener('click', () => {
+    const filas = [
+      ['codigo', 'empresa', 'rif', 'email', 'usuario_wp', 'password_hash', 'nombre', 'telefono', 'direccion', 'direccion_envio', 'verificado', 'inactivo'],
+      ['OPT-00001', 'Óptica Ejemplo C.A.', 'J-12345678-9', 'compras@optica-ejemplo.com', 'optica_ejemplo', '$P$Bqhu.dUTHwTnRImXYObSB7QLFjT5rD.', 'María Pérez', '0414-1234567', 'Av. Principal, Local 4', 'Av. Principal, Local 4', 'si', 'no'],
+      ['', 'Óptica Sin Código', 'V-87654321-0', 'admin@opticados.com', 'optica_dos', '$2y$10$abcdefghijklmnopqrstuuJ4Yp4oQ0pQ9z3x0e', 'José Gil', '0412-7654321', 'Calle 5, Local 2', '', 'si', 'no']
+    ]
+    const instrucciones = [
+      ['Instrucciones para importar clientes desde WordPress'],
+      [''],
+      ['1. Exporte los clientes desde phpMyAdmin con la consulta incluida en supabase/wordpress_export.sql.'],
+      ['2. Guarde el resultado como CSV (UTF-8) y súbalo aquí. También acepta XLSX o JSON.'],
+      ['3. Columnas mínimas: email o usuario_wp (o codigo). El resto es opcional.'],
+      ['4. password_hash debe ser la columna user_pass de WordPress (sin modificar).'],
+      ['5. Formatos de contraseña soportados:'],
+      ['   - $P$... / $H$...      WordPress anterior a 6.8 (phpass). Se migra al primer inicio de sesión.'],
+      ['   - $2y$... / $wp$2y$... WordPress 6.8 o superior (bcrypt). Funciona de inmediato.'],
+      ['   - texto plano          Se cifra con bcrypt durante la importación.'],
+      ['   - $argon2...           No soportado: esos clientes deberán cambiar su contraseña.'],
+      ['6. "verificado = si" deja la cuenta aprobada; si se omite, se usa la casilla del panel.'],
+      ['7. "inactivo = si" desactiva la cuenta y cierra sus sesiones.'],
+      ['8. Si el cliente ya existe y no marca "Actualizar clientes existentes", la fila se omite.'],
+      ['9. Nunca se muestra ni se guarda la contraseña en claro: solo el hash.'],
+      ['10. El cliente puede entrar con su correo, su usuario de WordPress o su código OPTILINE.']
+    ]
+    const wb = XLSX.utils.book_new()
+    const ws = XLSX.utils.aoa_to_sheet(filas)
+    ws['!cols'] = [{ wch: 12 }, { wch: 28 }, { wch: 16 }, { wch: 30 }, { wch: 18 }, { wch: 38 }, { wch: 22 }, { wch: 16 }, { wch: 30 }, { wch: 30 }, { wch: 12 }, { wch: 10 }]
+    XLSX.utils.book_append_sheet(wb, ws, 'Clientes')
+    const wsInstr = XLSX.utils.aoa_to_sheet(instrucciones)
+    wsInstr['!cols'] = [{ wch: 110 }]
+    XLSX.utils.book_append_sheet(wb, wsInstr, 'Instrucciones')
+    XLSX.writeFile(wb, 'plantilla_clientes_optiline.xlsx')
+  })
+
+  $('#input-excel-clientes').addEventListener('change', (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    const actualizar = $('#cli-actualizar').checked
+    const verificados = $('#cli-verificados').checked
+    const nombre = file.name.toLowerCase()
+    const reader = new FileReader()
+
+    reader.onload = async (evt) => {
+      try {
+        let registros = []
+
+        if (nombre.endsWith('.json')) {
+          const parsed = JSON.parse(String(evt.target.result || '[]'))
+          const arr = Array.isArray(parsed) ? parsed : (Array.isArray(parsed?.clientes) ? parsed.clientes : [])
+          registros = normalizarObjetosClientes(arr)
+        } else if (nombre.endsWith('.csv') || nombre.endsWith('.txt')) {
+          registros = normalizarObjetosClientes(parsearCsv(String(evt.target.result || '')))
+        } else {
+          const wb = XLSX.read(new Uint8Array(evt.target.result), { type: 'array' })
+          const hoja = wb.Sheets[wb.SheetNames[0]]
+          registros = normalizarObjetosClientes(XLSX.utils.sheet_to_json(hoja, { defval: '' }))
+        }
+
+        const items = construirClientesDesdeRegistros(registros)
+        if (!items.length) {
+          throw new Error('No se encontraron clientes válidos. Debe existir la columna email, usuario_wp o codigo.')
+        }
+
+        $('#cli-import-resultados').style.display = 'none'
+        showMsg('cli-import-msg', `Importando ${items.length} clientes...`, 'ok')
+
+        const { data: result, error } = await supabase.rpc('importar_clientes', {
+          p_items: items,
+          p_actualizar_existentes: actualizar,
+          p_marcar_verificados: verificados
+        })
+        if (error) throw error
+
+        mostrarResultadoClientes(result, items.length)
+
+        const partes = [`✓ ${Number(result?.creados || 0)} de ${items.length} creados`]
+        if (Number(result?.actualizados || 0)) partes.push(`${result.actualizados} actualizados`)
+        if (Number(result?.omitidos || 0)) partes.push(`${result.omitidos} omitidos (ya existían)`)
+        if (Number(result?.errores_total || 0)) partes.push(`${result.errores_total} con error`)
+        showMsg('cli-import-msg', partes.join(' · '), Number(result?.errores_total || 0) ? 'error' : 'ok')
+
+        await cargarClientes()
+      } catch (err) {
+        showMsg('cli-import-msg', 'Error al importar clientes: ' + mensajeError(err), 'error')
+      } finally {
+        e.target.value = ''
+      }
+    }
+
+    if (nombre.endsWith('.csv') || nombre.endsWith('.txt') || nombre.endsWith('.json')) {
+      reader.readAsText(file, 'UTF-8')
+    } else {
+      reader.readAsArrayBuffer(file)
+    }
+  })
 
   // ================= 2. PEDIDOS =================
   let pedidosCache = []
