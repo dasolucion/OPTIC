@@ -814,11 +814,13 @@
     })
 
     const celdaAcceso = (c) => {
-      const tieneBcrypt = String(c.password_hash || '').trim() !== ''
-      const tieneWp = String(c.password_wp || '').trim() !== ''
+      const hash = String(c.password_hash || '').trim()
+      const wp = String(c.password_wp || '').trim()
       let insignia
-      if (tieneBcrypt) insignia = '<span class="badge-status badge-status--aprobado">Clave activa</span>'
-      else if (tieneWp) insignia = '<span class="badge-status badge-status--verificando">Clave WP</span>'
+      if (/^\$2[aby]\$/.test(hash)) insignia = '<span class="badge-status badge-status--aprobado">Clave activa</span>'
+      else if (/^\$wp\$2/.test(hash) || /^\$[PH]\$/.test(hash)) insignia = '<span class="badge-status badge-status--verificando">Clave WP heredada</span>'
+      else if (hash !== '') insignia = '<span class="badge-status badge-status--verificando">Clave heredada</span>'
+      else if (wp !== '') insignia = '<span class="badge-status badge-status--verificando">Clave WP</span>'
       else insignia = '<span class="badge-status badge-status--rechazado">Sin clave</span>'
       const usuario = c.usuario_wp
         ? `<code style="font-size:.72rem; color:#475569;">${escapeHtml(c.usuario_wp)}</code><br>`
