@@ -230,7 +230,7 @@
 
       <div class="admin-panel-box">
         <div class="filtros-bar">
-          <input type="text" id="filtro-clientes" placeholder="🔍 Buscar por RIF, código, empresa o correo...">
+          <input type="text" id="filtro-clientes" placeholder="🔍 Buscar por RIF, código, empresa, correo o usuario WP...">
           <select id="filtro-clientes-estado">
             <option value="">Todos los Estados</option>
             <option value="pendientes">Pendientes de Aprobación</option>
@@ -240,7 +240,7 @@
         </div>
         <div class="table-responsive">
           <table class="data-table">
-            <thead><tr><th>Código</th><th>Razón Social</th><th>RIF</th><th>Contacto</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <thead><tr><th>Código</th><th>Razón Social</th><th>RIF</th><th>Contacto</th><th>Acceso</th><th>Estado</th><th>Acciones</th></tr></thead>
             <tbody id="tbody-clientes"></tbody>
           </table>
         </div>
@@ -774,10 +774,10 @@
   async function cargarClientes () {
     const { data, error } = await supabase
       .from('clientes')
-      .select('id, codigo_usuario, rif, empresa, nombre_completo, telefono, email, estado_verificado, inactivo, fecha_aprobacion, ultima_compra')
+      .select('id, codigo_usuario, rif, empresa, nombre_completo, telefono, email, usuario_wp, password_wp, password_hash, origen, estado_verificado, inactivo, fecha_aprobacion, ultima_compra')
       .order('id', { ascending: false })
     if (error) {
-      $('#tbody-clientes').innerHTML = `<tr><td colspan="6" style="text-align:center;padding:2rem;color:#991b1b;">Error: ${escapeHtml(mensajeError(error))}</td></tr>`
+      $('#tbody-clientes').innerHTML = `<tr><td colspan="7" style="text-align:center;padding:2rem;color:#991b1b;">Error: ${escapeHtml(mensajeError(error))}</td></tr>`
       return
     }
     clientesCache = data || []
@@ -808,9 +808,22 @@
       if (filtroEst === 'pendientes' && c.estado_verificado) return false
       if (filtroEst === 'activos' && (!c.estado_verificado || c.inactivo || info.marcarInactivo)) return false
       if (filtroEst === 'inactivos' && (!c.inactivo && !info.marcarInactivo)) return false
-      if (q && !`${c.codigo_usuario || ''} ${c.rif || ''} ${c.empresa || ''} ${c.email || ''}`.toLowerCase().includes(q)) return false
+      if (q && !`${c.codigo_usuario || ''} ${c.rif || ''} ${c.empresa || ''} ${c.email || ''} ${c.nombre_completo || ''} ${c.usuario_wp || ''}`.toLowerCase().includes(q)) return false
       return true
     })
+
+    const celdaAcceso = (c) => {
+      const tieneBcrypt = String(c.password_hash || '').trim() !== ''
+      const tieneWp = String(c.password_wp || '').trim() !== ''
+      let insignia
+      if (tieneBcrypt) insignia = '<span class="badge-status badge-status--aprobado">Clave activa</span>'
+      else if (tieneWp) insignia = '<span class="badge-status badge-status--verificando">Clave WP</span>'
+      else insignia = '<span class="badge-status badge-status--rechazado">Sin clave</span>'
+      const usuario = c.usuario_wp
+        ? `<code style="font-size:.72rem; color:#475569;">${escapeHtml(c.usuario_wp)}</code><br>`
+        : ''
+      return usuario + insignia
+    }
 
     $('#tbody-clientes').innerHTML = filtrados.map(c => {
       const info = calcularInactividad(c)
@@ -820,15 +833,19 @@
           <td>${escapeHtml(c.empresa || '—')}</td>
           <td><code>${escapeHtml(c.rif || '—')}</code></td>
           <td>${escapeHtml(c.nombre_completo || '—')}<br><small style="color:#64748b;">${escapeHtml(c.telefono || '')}</small></td>
+          <td>${celdaAcceso(c)}</td>
           <td><span class="badge-status ${info.color}">${escapeHtml(info.estado)}</span></td>
           <td>
-            ${!c.estado_verificado
-              ? `<button class="btn-sm btn-sm--success" data-aprobar-c="${c.id}" data-empresa="${escapeHtml(c.empresa || '')}">Aprobar y Asignar Clave</button>`
-              : `<button class="btn-sm ${c.inactivo ? 'btn-sm--success' : 'btn-sm--warning'}" data-toggle-c="${c.id}" data-inactivo="${c.inactivo ? 'true' : 'false'}" data-empresa="${escapeHtml(c.empresa || '')}">${c.inactivo ? 'Reactivar' : 'Desactivar'}</button>`}
+            <div style="display:flex; flex-wrap:wrap; gap:.3rem;">
+              ${!c.estado_verificado
+                ? `<button class="btn-sm btn-sm--success" data-aprobar-c="${c.id}" data-empresa="${escapeHtml(c.empresa || '')}">Aprobar y Asignar Clave</button>`
+                : `<button class="btn-sm ${c.inactivo ? 'btn-sm--success' : 'btn-sm--warning'}" data-toggle-c="${c.id}" data-inactivo="${c.inactivo ? 'true' : 'false'}" data-empresa="${escapeHtml(c.empresa || '')}">${c.inactivo ? 'Reactivar' : 'Desactivar'}</button>`}
+              <button class="btn-sm btn-sm--edit" data-clave-c="${c.id}" data-empresa="${escapeHtml(c.empresa || '')}" title="Asignar o cambiar la contraseña">🔑 Clave</button>
+            </div>
           </td>
         </tr>
       `
-    }).join('') || '<tr><td colspan="6" style="text-align:center;padding:2rem;">Sin clientes.</td></tr>'
+    }).join('') || '<tr><td colspan="7" style="text-align:center;padding:2rem;">Sin clientes.</td></tr>'
 
     document.querySelectorAll('[data-aprobar-c]').forEach(btn => btn.addEventListener('click', async () => {
       const clave = prompt(`Asignar contraseña inicial para ${btn.dataset.empresa}:`, 'Optiline2026!')
@@ -851,6 +868,19 @@
         p_inactivo: nuevoEstado
       })
       if (error) return alert('Error: ' + mensajeError(error))
+      cargarClientes()
+    }))
+
+    document.querySelectorAll('[data-clave-c]').forEach(btn => btn.addEventListener('click', async () => {
+      const clave = prompt(`Nueva contraseña para ${btn.dataset.empresa}:`, '')
+      if (!clave) return
+      if (clave.trim().length < 8) return alert('La contraseña debe tener al menos 8 caracteres.')
+      const { error } = await supabase.rpc('aprobar_cliente', {
+        p_cliente_id: Number(btn.dataset.claveC),
+        p_password: clave.trim()
+      })
+      if (error) return alert('Error al asignar la clave: ' + mensajeError(error))
+      alert('✓ Clave actualizada. Compártala por un canal seguro.')
       cargarClientes()
     }))
   }
