@@ -850,14 +850,13 @@
       `
     }).join('') || '<tr><td colspan="7" style="text-align:center;padding:2rem;">Sin clientes.</td></tr>'
 
-    document.querySelectorAll('[data-aprobar-c]').forEach(btn => btn.addEventListener('click', async () => {
-      const clave = prompt(`Asignar contraseña inicial para ${btn.dataset.empresa}:`, 'Optiline2026!')
-      if (!clave) return
-      if (clave.trim().length < 8) return alert('La contraseña debe tener al menos 8 caracteres.')
-      const { error } = await supabase.rpc('aprobar_cliente', {
-        p_cliente_id: Number(btn.dataset.aprobarC),
-        p_password: clave.trim()
-      })
+document.querySelectorAll('[data-aprobar-c]').forEach(btn => btn.addEventListener('click', async () => {
+  const clave = prompt(`Asignar contraseña inicial para ${btn.dataset.empresa}:`, 'Optiline2026!')
+  if (!clave) return
+  const { error } = await supabase.rpc('aprobar_cliente', {
+    p_cliente_id: Number(btn.dataset.aprobarC),
+    p_password: clave.trim()
+  })
       if (error) return alert('Error al aprobar: ' + mensajeError(error))
       alert('✓ Óptica aprobada. Comparta la clave por un canal seguro.')
       cargarClientes()
@@ -874,14 +873,13 @@
       cargarClientes()
     }))
 
-    document.querySelectorAll('[data-clave-c]').forEach(btn => btn.addEventListener('click', async () => {
-      const clave = prompt(`Nueva contraseña para ${btn.dataset.empresa}:`, '')
-      if (!clave) return
-      if (clave.trim().length < 8) return alert('La contraseña debe tener al menos 8 caracteres.')
-      const { error } = await supabase.rpc('aprobar_cliente', {
-        p_cliente_id: Number(btn.dataset.claveC),
-        p_password: clave.trim()
-      })
+document.querySelectorAll('[data-clave-c]').forEach(btn => btn.addEventListener('click', async () => {
+  const clave = prompt(`Nueva contraseña para ${btn.dataset.empresa}:`, '')
+  if (!clave) return
+  const { error } = await supabase.rpc('aprobar_cliente', {
+    p_cliente_id: Number(btn.dataset.claveC),
+    p_password: clave.trim()
+  })
       if (error) return alert('Error al asignar la clave: ' + mensajeError(error))
       alert('✓ Clave actualizada. Compártala por un canal seguro.')
       cargarClientes()
