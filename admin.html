@@ -322,7 +322,7 @@
 
     <!-- 5. INVENTARIO Y FÓRMULAS -->
     <section class="tab-content no-print" id="tab-inventario">
-      <div class="main-header"><h1>5. Inventario y Graduaciones</h1><p>Las fórmulas repetidas se muestran unificadas sumando su stock total.</p></div>
+     <div class="main-header"><h1>5. Inventario y Graduaciones</h1><p>Cada lote aparece como una fila independiente. Edita el stock de un lote específico sin afectar los demás lotes de la misma fórmula.</p></div>
 
       <!-- ZONA DE IMPORTACIÓN DE EXCEL (4 COLUMNAS SIN FECHA) -->
       <div class="excel-zone">
@@ -376,7 +376,7 @@
           </div>
           <div class="table-responsive">
             <table class="data-table">
-              <thead><tr><th>SKU</th><th>Producto</th><th>Categoría</th><th>Fórmula</th><th>Lote(s)</th><th>Stock Total</th><th>Precio Base USD</th><th>Acciones</th></tr></thead>
+              <thead><tr><th>SKU</th><th>Producto</th><th>Categoría</th><th>Fórmula</th><th>Lote</th><th>Stock</th><th>Precio Base USD</th><th>Acciones</th></tr></thead>
               <tbody id="tbody-inventario"></tbody>
             </table>
           </div>
@@ -1416,99 +1416,85 @@ document.querySelectorAll('[data-clave-c]').forEach(btn => btn.addEventListener(
     renderInventario()
   }
 
-  function renderInventario () {
-    const q = $('#filtro-inv-busqueda').value.trim().toLowerCase()
-    const cId = $('#filtro-inv-categoria').value
-    const pId = $('#filtro-inv-producto').value
+function renderInventario () {
+  const q = $('#filtro-inv-busqueda').value.trim().toLowerCase()
+  const cId = $('#filtro-inv-categoria').value
+  const pId = $('#filtro-inv-producto').value
 
-    const groupedMap = new Map()
-    invCache.forEach(i => {
-      const vId = i.variante_id
-      if (!vId) return
-      if (!groupedMap.has(vId)) {
-        groupedMap.set(vId, { ...i, stock: 0, lotesArray: [] })
-      }
-      const item = groupedMap.get(vId)
-      item.stock += (i.stock || 0)
-      if (i.lotes?.codigo_lote && !item.lotesArray.includes(i.lotes.codigo_lote)) {
-        item.lotesArray.push(i.lotes.codigo_lote)
-      }
-    })
+  // Cada fila de inventario_lotes = una fila de la tabla (variante + lote).
+  // Así "Editar" afecta SOLO a ese lote, sin tocar los demás de la misma fórmula.
+  invGroups = invCache.filter(i => {
+    const p = i.variantes?.productos
+    if (!i.variante_id) return false
+    if (cId && p?.categorias?.id != cId) return false
+    if (pId && p?.id != pId) return false
+    if (q) {
+      const texto = `${p?.sku || ''} ${p?.nombre || ''} ${i.variantes?.nombre || ''} ${i.lotes?.codigo_lote || ''}`.toLowerCase()
+      if (!texto.includes(q)) return false
+    }
+    return true
+  })
 
-    const groupedArray = Array.from(groupedMap.values())
+  $('#tbody-inventario').innerHTML = invGroups.map(i => {
+    const p = i.variantes?.productos
+    return `
+      <tr>
+        <td><strong>${escapeHtml(p?.sku || '—')}</strong></td>
+        <td>${escapeHtml(p?.nombre || '—')}</td>
+        <td>${escapeHtml(p?.categorias?.nombre || '—')}</td>
+        <td>${escapeHtml(i.variantes?.nombre || '—')}</td>
+        <td>
+          <strong style="font-size:0.78rem;">${escapeHtml(i.lotes?.codigo_lote || '—')}</strong><br>
+          <small style="color:#64748b;">Vence: ${escapeHtml(i.lotes?.fecha_vencimiento || '—')}</small>
+        </td>
+        <td><strong style="color:${i.stock > 0 ? '#0b4d8c' : '#991b1b'};">${i.stock} unids</strong></td>
+        <td>$${Number(p?.precio || 0).toFixed(2)}</td>
+        <td>
+          <button class="btn-sm btn-sm--edit" data-edit-inv="${Number(i.id)}">Editar</button>
+          <button class="btn-sm btn-sm--danger" data-del-lote="${Number(i.id)}" data-codigo="${escapeHtml(i.lotes?.codigo_lote || '')}" data-formula="${escapeHtml(i.variantes?.nombre || '')}">Borrar</button>
+        </td>
+      </tr>
+    `
+  }).join('') || '<tr><td colspan="8" style="text-align:center;padding:2rem;">Sin inventario.</td></tr>'
 
-    invGroups = groupedArray.filter(i => {
-      const p = i.variantes?.productos
-      if (cId && p?.categorias?.id != cId) return false
-      if (pId && p?.id != pId) return false
-      const loteStr = i.lotesArray.join(', ')
-      if (q && !`${p?.sku || ''} ${p?.nombre || ''} ${i.variantes?.nombre || ''} ${loteStr}`.toLowerCase().includes(q)) return false
-      return true
-    })
+  // Editar un lote concreto
+  document.querySelectorAll('[data-edit-inv]').forEach(btn => btn.addEventListener('click', () => {
+    const i = invGroups.find(x => String(x.id) === String(btn.dataset.editInv))
+    if (!i) return
+    $('#inv-edit-id').value = i.id
+    $('#manual-producto').value = i.variantes?.productos?.id || ''
+    $('#manual-producto').dispatchEvent(new Event('change'))
+    $('#manual-lote').value = i.lotes?.id || ''
+    $('#manual-lote').dispatchEvent(new Event('change'))
+    $('#manual-formula').value = i.variantes?.nombre || ''
+    $('#manual-stock').value = i.stock
 
-    $('#tbody-inventario').innerHTML = invGroups.map(i => {
-      const p = i.variantes?.productos
-      const loteStr = i.lotesArray.join(', ')
+    $('#inv-form-title').textContent = 'Editar Inventario (solo este lote)'
+    $('#manual-btn').textContent = 'Actualizar Inventario'
+    $('#inv-btn-cancelar').style.display = 'block'
+  }))
 
-      return `
-        <tr>
-          <td><strong>${escapeHtml(p?.sku || '—')}</strong></td>
-          <td>${escapeHtml(p?.nombre || '—')}</td>
-          <td>${escapeHtml(p?.categorias?.nombre || '—')}</td>
-          <td>${escapeHtml(i.variantes?.nombre || '—')}</td>
-          <td><strong style="font-size:0.75rem;">${escapeHtml(loteStr || '—')}</strong></td>
-          <td><strong style="color:${i.stock > 0 ? '#0b4d8c' : '#991b1b'};">${i.stock} unids</strong></td>
-          <td>$${Number(p?.precio || 0).toFixed(2)}</td>
-          <td>
-            <button class="btn-sm btn-sm--edit" data-edit-inv="${Number(i.variante_id)}">Editar</button>
-            <button class="btn-sm btn-sm--danger" data-del-var="${Number(i.variante_id)}" data-formula="${escapeHtml(i.variantes?.nombre || '')}">Borrar</button>
-          </td>
-        </tr>
-      `
-    }).join('') || '<tr><td colspan="8" style="text-align:center;padding:2rem;">Sin inventario.</td></tr>'
+  // Borrar SOLO ese lote (no toca los demás lotes de la misma fórmula)
+  document.querySelectorAll('[data-del-lote]').forEach(btn => btn.addEventListener('click', async () => {
+    const invId = parseInt(btn.dataset.delLote)
+    const codigo = btn.dataset.codigo || 'este lote'
+    const formula = btn.dataset.formula || 'esta fórmula'
 
-    document.querySelectorAll('[data-edit-inv]').forEach(btn => btn.addEventListener('click', () => {
-      const i = invGroups.find(x => String(x.variante_id) === String(btn.dataset.editInv))
-      if (!i) return
-      $('#inv-edit-id').value = i.id
-      $('#manual-producto').value = i.variantes?.productos?.id || ''
-      $('#manual-producto').dispatchEvent(new Event('change'))
-      $('#manual-lote').value = i.lotes?.id || ''
-      $('#manual-lote').dispatchEvent(new Event('change'))
-      $('#manual-formula').value = i.variantes?.nombre || ''
-      $('#manual-stock').value = i.stock
+    if (!invId || isNaN(invId) || invId <= 0) {
+      alert('Error de seguridad: ID de inventario inválido. Operación cancelada.')
+      return
+    }
 
-      $('#inv-form-title').textContent = 'Editar Inventario'
-      $('#manual-btn').textContent = 'Actualizar Inventario'
-      $('#inv-btn-cancelar').style.display = 'block'
-    }))
+    if (!confirm(`¿Eliminar el lote "${codigo}" de la fórmula "${formula}"?\n\nSolo se borra este lote. Los demás lotes de la misma fórmula no se tocan.`)) return
 
-    document.querySelectorAll('[data-del-var]').forEach(btn => btn.addEventListener('click', async () => {
-      const vId = parseInt(btn.dataset.delVar)
-      const formula = btn.dataset.formula || 'esta variante'
-
-      if (!vId || isNaN(vId) || vId <= 0) {
-        alert('Error de seguridad: ID de variante inválido. Operación cancelada.')
-        return
-      }
-
-      if (!confirm(`¿Eliminar la fórmula "${formula}" del inventario? Se eliminarán todos los lotes de esta fórmula.`)) return
-
-      const { error: errInv } = await supabase.from('inventario_lotes').delete().eq('variante_id', vId)
-      if (errInv) {
-        alert('Error al eliminar inventario: ' + mensajeError(errInv))
-        return
-      }
-
-      const { error: errVar } = await supabase.from('variantes').delete().eq('id', vId)
-      if (errVar) {
-        alert('Se eliminó el inventario, pero no la fórmula: ' + mensajeError(errVar))
-        cargarInventarioData()
-        return
-      }
-      cargarInventarioData()
-    }))
-  }
+    const { error } = await supabase.from('inventario_lotes').delete().eq('id', invId)
+    if (error) {
+      alert('Error al eliminar el lote: ' + mensajeError(error))
+      return
+    }
+    cargarInventarioData()
+  }))
+}
 
   $('#filtro-inv-busqueda').addEventListener('input', renderInventario)
   $('#filtro-inv-categoria').addEventListener('change', renderInventario)
@@ -1547,10 +1533,26 @@ document.querySelectorAll('[data-clave-c]').forEach(btn => btn.addEventListener(
         vId = nv.id
       }
 
-      if (editId) {
-        const { error } = await supabase.from('inventario_lotes').update({ variante_id: vId, lote_id: lId, stock }).eq('id', editId)
-        if (error) throw error
-      } else {
+if (editId) {
+  // Si el usuario cambió de lote y ese lote ya existe para la misma variante,
+  // no permitir duplicado: hay que editar la fila existente en lugar de esta.
+  const { data: existente } = await supabase.from('inventario_lotes')
+    .select('id')
+    .eq('variante_id', vId)
+    .eq('lote_id', lId)
+    .neq('id', editId)
+    .maybeSingle()
+
+  if (existente) {
+    alert('Ya existe un registro de esta fórmula con ese lote. Edita esa fila en lugar de mover esta, o elige otro lote.')
+    return
+  }
+
+  const { error } = await supabase.from('inventario_lotes')
+    .update({ variante_id: vId, lote_id: lId, stock })
+    .eq('id', editId)
+  if (error) throw error
+} else {
         const { data: existing } = await supabase.from('inventario_lotes').select('id, stock').eq('variante_id', vId).eq('lote_id', lId).maybeSingle()
         if (existing) {
           const { error } = await supabase.from('inventario_lotes').update({ stock: Number(existing.stock || 0) + stock }).eq('id', existing.id)
@@ -1565,9 +1567,10 @@ document.querySelectorAll('[data-clave-c]').forEach(btn => btn.addEventListener(
       cargarInventarioData()
     } catch (err) {
       alert('Error al guardar inventario: ' + mensajeError(err))
-    } finally {
-      setLoading(btn, false, $('#inv-edit-id').value ? 'Actualizar Inventario' : 'Guardar en Inventario')
-    }
+} finally {
+  const estabaEditando = $('#inv-edit-id').value !== ''
+  setLoading(btn, false, estabaEditando ? 'Actualizar Inventario' : 'Guardar en Inventario')
+}
   })
 
   $('#inv-btn-cancelar').addEventListener('click', () => {
