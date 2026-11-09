@@ -198,7 +198,7 @@
 
     <!-- 1. CLIENTES -->
     <section class="tab-content no-print" id="tab-clientes">
-      <div class="main-header"><h1>1. Gestión y Aprobación de Ópticas</h1><p>Valida solicitudes, aprueba cuentas y audita el estado de inactividad (3 días nuevo / 90 días sin compras).</p></div>
+<div class="main-header"><h1>1. Gestión y Aprobación de Ópticas</h1><p>Valida solicitudes y aprueba cuentas. La activación / desactivación se controla manualmente con los botones de acción.</p></div>
 
       <!-- IMPORTACIÓN DE CLIENTES DESDE WORDPRESS -->
       <div class="excel-zone">
@@ -236,7 +236,7 @@
             <option value="">Todos los Estados</option>
             <option value="pendientes">Pendientes de Aprobación</option>
             <option value="activos">Activos</option>
-            <option value="inactivos">Inactivos (Regla 3 días / 90 días)</option>
+            <option value="inactivos">Inactivos</option>
           </select>
         </div>
         <div class="table-responsive">
@@ -785,33 +785,22 @@
     renderClientes()
   }
 
-  function calcularInactividad (c) {
-    if (!c.estado_verificado) return { estado: 'Pendiente', color: 'badge-status--verificando' }
-    if (c.inactivo) return { estado: 'Inactivo', color: 'badge-status--rechazado' }
-
-    const ahora = new Date()
-    if (c.fecha_aprobacion && !c.ultima_compra) {
-      const diasAprobado = (ahora - new Date(c.fecha_aprobacion)) / (1000 * 60 * 60 * 24)
-      if (diasAprobado >= 3) return { estado: 'Inactivo (3d sin orden)', color: 'badge-status--rechazado', marcarInactivo: true }
-    }
-    if (c.ultima_compra) {
-      const diasSinComprar = (ahora - new Date(c.ultima_compra)) / (1000 * 60 * 60 * 24)
-      if (diasSinComprar >= 90) return { estado: 'Inactivo (90d sin comprar)', color: 'badge-status--rechazado', marcarInactivo: true }
-    }
-    return { estado: 'Activo', color: 'badge-status--aprobado' }
-  }
+function calcularInactividad (c) {
+  if (!c.estado_verificado) return { estado: 'Pendiente', color: 'badge-status--verificando' }
+  if (c.inactivo) return { estado: 'Inactivo', color: 'badge-status--rechazado' }
+  return { estado: 'Activo', color: 'badge-status--aprobado' }
+}
 
   function renderClientes () {
     const q = $('#filtro-clientes').value.trim().toLowerCase()
     const filtroEst = $('#filtro-clientes-estado').value
-    const filtrados = clientesCache.filter(c => {
-      const info = calcularInactividad(c)
-      if (filtroEst === 'pendientes' && c.estado_verificado) return false
-      if (filtroEst === 'activos' && (!c.estado_verificado || c.inactivo || info.marcarInactivo)) return false
-      if (filtroEst === 'inactivos' && (!c.inactivo && !info.marcarInactivo)) return false
-      if (q && !`${c.codigo_usuario || ''} ${c.rif || ''} ${c.empresa || ''} ${c.email || ''} ${c.nombre_completo || ''} ${c.usuario_wp || ''}`.toLowerCase().includes(q)) return false
-      return true
-    })
+const filtrados = clientesCache.filter(c => {
+  if (filtroEst === 'pendientes' && c.estado_verificado) return false
+  if (filtroEst === 'activos' && (!c.estado_verificado || c.inactivo)) return false
+  if (filtroEst === 'inactivos' && !c.inactivo) return false
+  if (q && !`${c.codigo_usuario || ''} ${c.rif || ''} ${c.empresa || ''} ${c.email || ''} ${c.nombre_completo || ''} ${c.usuario_wp || ''}`.toLowerCase().includes(q)) return false
+  return true
+})
 
     const celdaAcceso = (c) => {
       const hash = String(c.password_hash || '').trim()
