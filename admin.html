@@ -1423,7 +1423,11 @@ function renderInventario () {
 
   // Cada fila de inventario_lotes = una fila de la tabla (variante + lote).
   // Así "Editar" afecta SOLO a ese lote, sin tocar los demás de la misma fórmula.
-  invGroups = invCache.filter(i => {
+// Orden: 1) SKU del producto, 2) fórmula (variante), 3) código de lote
+const cmp = (a, b) => String(a ?? '').localeCompare(String(b ?? ''), 'es', { numeric: true, sensitivity: 'base' })
+
+invGroups = invCache
+  .filter(i => {
     const p = i.variantes?.productos
     if (!i.variante_id) return false
     if (cId && p?.categorias?.id != cId) return false
@@ -1433,6 +1437,17 @@ function renderInventario () {
       if (!texto.includes(q)) return false
     }
     return true
+  })
+  .sort((a, b) => {
+    const skuA = a.variantes?.productos?.sku || ''
+    const skuB = b.variantes?.productos?.sku || ''
+    const bySku = cmp(skuA, skuB)
+    if (bySku !== 0) return bySku
+
+    const byFormula = cmp(a.variantes?.nombre || '', b.variantes?.nombre || '')
+    if (byFormula !== 0) return byFormula
+
+    return cmp(a.lotes?.codigo_lote || '', b.lotes?.codigo_lote || '')
   })
 
   $('#tbody-inventario').innerHTML = invGroups.map(i => {
