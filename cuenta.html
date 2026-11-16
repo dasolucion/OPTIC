@@ -49,17 +49,17 @@
   <section class="contenedor" id="vista-login">
     <div class="auth-card">
       <h1 style="font-family:var(--fuente-titulos); font-size:1.35rem; font-weight:800; margin-bottom:0.4rem;">Portal de Ópticas</h1>
-      <p style="font-size:0.85rem; color:#6b7280; margin-bottom:1.5rem;">Ingresa con tu código de usuario o correo electrónico.</p>
+      <p style="font-size:0.85rem; color:#6b7280; margin-bottom:1.5rem;">Ingresa con tu código OPTILINE, tu correo o tu usuario de WordPress.</p>
       <div id="login-error" style="display:none; color:#b91c1c; background:#fee2e2; padding:0.75rem; border-radius:6px; font-size:0.85rem; margin-bottom:1rem;"></div>
 
       <form id="form-login">
         <div class="campo">
-          <label>Usuario o Correo:</label>
-          <input type="text" id="credencial" required style="width:100%; padding:0.75rem; border:1px solid #d1d5db; border-radius:6px;">
+          <label>Código, correo o usuario:</label>
+          <input type="text" id="credencial" required autocomplete="username" placeholder="Ej: OFAL-508" style="width:100%; padding:0.75rem; border:1px solid #d1d5db; border-radius:6px;">
         </div>
         <div class="campo" style="margin-top:0.75rem;">
           <label>Contraseña:</label>
-          <input type="password" id="password" required style="width:100%; padding:0.75rem; border:1px solid #d1d5db; border-radius:6px;">
+          <input type="password" id="password" required autocomplete="current-password" style="width:100%; padding:0.75rem; border:1px solid #d1d5db; border-radius:6px;">
         </div>
         <button type="submit" class="boton boton--primario boton--bloque" id="btn-login" style="margin-top:1.25rem;">Ingresar a mi cuenta</button>
       </form>
