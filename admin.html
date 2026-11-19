@@ -109,10 +109,24 @@
       .admin-main { margin-left: 0; padding: 0; }
       #tab-reportes, #tab-reportes * { visibility: visible; }
       #tab-reportes { position: absolute; left: 0; top: 0; width: 100%; }
-      .no-print, .sidebar-item, .sidebar-footer, .mobile-header-bar, .report-filters { display: none !important; }
+      #guia-imprimir, #guia-imprimir * { visibility: visible; }
+      #guia-imprimir { display: block !important; position: absolute; left: 0; top: 0; width: 100%; background: #fff; }
+      .no-print, .sidebar-item, .sidebar-footer, .mobile-header-bar, .report-filters, .admin-modal { display: none !important; }
       .table-responsive { border: none; overflow: visible; }
       .data-table th, .data-table td { border: 1px solid #ccc !important; padding: 0.5rem; }
     }
+
+    .admin-modal { display: none; position: fixed; inset: 0; z-index: 120; background: rgba(15,23,42,.55); align-items: center; justify-content: center; padding: 1rem; }
+    .admin-modal.activo { display: flex; }
+    .admin-modal__box { background: #fff; border-radius: 10px; padding: 1.5rem; width: min(620px, 100%); max-height: 90vh; overflow: auto; box-shadow: 0 20px 50px rgba(0,0,0,.25); }
+    .admin-modal__box h3 { margin: 0 0 .3rem; }
+    .admin-modal__field { display: flex; flex-direction: column; gap: .3rem; margin-bottom: .7rem; }
+    .admin-modal__field input, .admin-modal__field textarea, .admin-modal__field select { width: 100%; padding: .6rem; border: 1px solid #cbd5e1; border-radius: 6px; font: inherit; }
+    .admin-modal__field textarea { min-height: 80px; resize: vertical; }
+    #guia-imprimir { display: none; }
+    #guia-imprimir h2, #guia-imprimir h3 { margin: .4rem 0; }
+    #guia-imprimir table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: .85rem; }
+    #guia-imprimir th, #guia-imprimir td { border: 1px solid #333; padding: .45rem; text-align: left; }
 
     @media (max-width: 768px) {
       .mobile-header-bar { display: flex; }
@@ -241,7 +255,7 @@
         </div>
         <div class="table-responsive">
           <table class="data-table">
-            <thead><tr><th>Código</th><th>Razón Social</th><th>RIF</th><th>Contacto</th><th>Acceso</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <thead><tr><th>Código</th><th>Razón Social</th><th>RIF</th><th>Contacto</th><th>Dirección fiscal</th><th>Dirección de envío</th><th>Acceso</th><th>Estado</th><th>Acciones</th></tr></thead>
             <tbody id="tbody-clientes"></tbody>
           </table>
         </div>
@@ -322,7 +336,7 @@
 
     <!-- 5. INVENTARIO Y FÓRMULAS -->
     <section class="tab-content no-print" id="tab-inventario">
-      <div class="main-header"><h1>5. Inventario y Graduaciones</h1><p>Las fórmulas repetidas se muestran unificadas sumando su stock total.</p></div>
+      <div class="main-header"><h1>5. Inventario y Graduaciones</h1><p>Las fórmulas repetidas se unifican y muestran el stock de cada lote. El botón Editar ajusta siempre el lote más viejo; el pedido descuenta también por lote más viejo.</p></div>
 
       <!-- ZONA DE IMPORTACIÓN DE EXCEL (4 COLUMNAS SIN FECHA) -->
       <div class="excel-zone">
@@ -359,9 +373,10 @@
           <div class="info-tag" id="tag-prod-info" style="font-size:0.75rem; color:#64748b; margin-bottom:0.5rem;">SKU: — | Cat: — | Precio Base: —</div>
           <label>Lote *</label><select id="manual-lote" required><option value="">Seleccionar lote...</option></select>
           <div class="info-tag" id="tag-lote-info" style="font-size:0.75rem; color:#64748b; margin-bottom:0.5rem;">Lote: — | Vence: —</div>
+          <div class="info-tag" id="inv-edit-hint" style="display:none; font-size:0.75rem; color:#0b4d8c; background:#eff6ff; padding:.5rem; border-radius:6px; margin-bottom:.5rem;"></div>
           <label>Variable / Fórmula *</label>
           <input type="text" id="manual-formula" placeholder="Ej: -2.00 / -0.75 x 90" required>
-          <label>Stock a Sumar / Ajustar *</label>
+          <label id="manual-stock-label">Stock a Sumar / Ajustar *</label>
           <input type="number" id="manual-stock" min="0" value="0" required>
           <div class="btn-group">
             <button type="submit" class="boton boton--primario boton--bloque" id="manual-btn">Guardar en Inventario</button>
@@ -376,7 +391,7 @@
           </div>
           <div class="table-responsive">
             <table class="data-table">
-              <thead><tr><th>SKU</th><th>Producto</th><th>Categoría</th><th>Fórmula</th><th>Lote(s)</th><th>Stock Total</th><th>Precio Base USD</th><th>Acciones</th></tr></thead>
+              <thead><tr><th>SKU</th><th>Producto</th><th>Categoría</th><th>Fórmula</th><th>Lotes (stock por lote)</th><th>Stock Total</th><th>Precio Base USD</th><th>Acciones</th></tr></thead>
               <tbody id="tbody-inventario"></tbody>
             </table>
           </div>
@@ -775,7 +790,7 @@
   async function cargarClientes () {
     const { data, error } = await supabase
       .from('clientes')
-      .select('id, codigo_usuario, rif, empresa, nombre_completo, telefono, email, usuario_wp, password_wp, password_hash, origen, estado_verificado, inactivo, fecha_aprobacion, ultima_compra')
+      .select('id, codigo_usuario, rif, empresa, nombre_completo, telefono, email, direccion_fiscal, direccion_envio, usuario_wp, password_wp, password_hash, origen, estado_verificado, inactivo, fecha_aprobacion, ultima_compra')
       .order('id', { ascending: false })
     if (error) {
       $('#tbody-clientes').innerHTML = `<tr><td colspan="7" style="text-align:center;padding:2rem;color:#991b1b;">Error: ${escapeHtml(mensajeError(error))}</td></tr>`
@@ -836,7 +851,9 @@
           <td><strong>${escapeHtml(c.codigo_usuario || '—')}</strong></td>
           <td>${escapeHtml(c.empresa || '—')}</td>
           <td><code>${escapeHtml(c.rif || '—')}</code></td>
-          <td>${escapeHtml(c.nombre_completo || '—')}<br><small style="color:#64748b;">${escapeHtml(c.telefono || '')}</small></td>
+          <td>${escapeHtml(c.nombre_completo || '—')}<br><small style="color:#64748b;">${escapeHtml(c.telefono || '')}</small><br><small style="color:#64748b;">${escapeHtml(c.email || '')}</small></td>
+          <td style="min-width:170px;"><small style="white-space:pre-wrap; color:#475569;">${escapeHtml(c.direccion_fiscal || '—')}</small></td>
+          <td style="min-width:170px;"><small style="white-space:pre-wrap; color:#475569;">${escapeHtml(c.direccion_envio || '—')}</small></td>
           <td>${celdaAcceso(c)}</td>
           <td><span class="badge-status ${info.color}">${escapeHtml(info.estado)}</span><br><small style="color:#64748b;">${escapeHtml(textoUltimaCompra(c))}</small></td>
           <td>
@@ -844,13 +861,14 @@
               ${!c.estado_verificado
                 ? `<button class="btn-sm btn-sm--success" data-aprobar-c="${c.id}" data-empresa="${escapeHtml(c.empresa || '')}">Aprobar y Asignar Clave</button>`
                 : `<button class="btn-sm ${c.inactivo ? 'btn-sm--success' : 'btn-sm--warning'}" data-toggle-c="${c.id}" data-inactivo="${c.inactivo ? 'true' : 'false'}" data-empresa="${escapeHtml(c.empresa || '')}">${c.inactivo ? 'Activar' : 'Desactivar'}</button>`}
+              <button class="btn-sm btn-sm--edit" data-editar-cli="${c.id}" title="Editar datos y direcciones">✏️ Editar</button>
               <button class="btn-sm btn-sm--edit" data-clave-c="${c.id}" data-empresa="${escapeHtml(c.empresa || '')}" title="Asignar o cambiar la contraseña">🔑 Clave</button>
               <button class="btn-sm" style="background:#e0f2fe; color:#0369a1; border:1px solid #7dd3fc;" data-probar-c="${c.id}" data-empresa="${escapeHtml(c.empresa || '')}" title="Probar una contraseña sin cambiarla">🧪</button>
             </div>
           </td>
         </tr>
       `
-    }).join('') || '<tr><td colspan="7" style="text-align:center;padding:2rem;">Sin clientes.</td></tr>'
+    }).join('') || '<tr><td colspan="9" style="text-align:center;padding:2rem;">Sin clientes.</td></tr>'
 
     document.querySelectorAll('[data-aprobar-c]').forEach(btn => btn.addEventListener('click', async () => {
       const clave = prompt(`Asignar contraseña inicial para ${btn.dataset.empresa}:`, 'Optiline2026!')
@@ -1174,7 +1192,7 @@
   let couriersCache = []
 
   async function cargarPedidosAdmin () {
-    const { data, error } = await supabase.from('pedidos').select('*, clientes(empresa, rif)').order('id', { ascending: false })
+    const { data, error } = await supabase.from('pedidos').select('*, clientes(empresa, rif, telefono, direccion_fiscal, direccion_envio)').order('id', { ascending: false })
     if (error) {
       console.error('Error cargando pedidos:', error)
       $('#tbody-pedidos-admin').innerHTML = `<tr><td colspan="9" style="text-align:center;padding:2rem;color:#991b1b;">Error al cargar pedidos: ${escapeHtml(mensajeError(error))}</td></tr>`
@@ -1229,6 +1247,8 @@
                 </select>
                 <input type="text" id="guia-inp-${p.id}" value="${escapeHtml(p.guia_despacho || '')}" placeholder="Guía" style="padding:0.2rem; border:1px solid #ccc; border-radius:4px; font-size:0.75rem; width:80px;">
                 <button class="btn-sm btn-sm--edit" data-save-ship="${p.id}">Guardar</button>
+                ${p.courier_id || p.direccion_despacho ? `<button class="btn-sm" data-print-guia="${p.id}" title="Imprimir guía de despacho">🖨 Guía</button>` : ''}
+                ${p.direccion_despacho ? `<small style="font-size:.65rem; color:#64748b;" title="${escapeHtml(p.direccion_despacho)}">${escapeHtml(p.direccion_despacho.slice(0, 42))}${p.direccion_despacho.length > 42 ? '…' : ''}</small>` : ''}
               </div>
             ` : '—'}
           </td>
@@ -1255,14 +1275,11 @@
     })
 
     document.querySelectorAll('[data-save-ship]').forEach(btn => {
-      btn.addEventListener('click', async () => {
+      btn.addEventListener('click', () => {
         const pId = btn.dataset.saveShip
         const cId = $(`#courier-sel-${pId}`).value || null
         const guia = $(`#guia-inp-${pId}`).value.trim() || null
-        const { error } = await supabase.from('pedidos').update({ courier_id: cId, guia_despacho: guia }).eq('id', pId)
-        if (error) return alert('Error: ' + mensajeError(error))
-        alert('✓ Datos de envío guardados.')
-        cargarPedidosAdmin()
+        abrirModalDespacho(pId, cId, guia)
       })
     })
 
@@ -1511,14 +1528,22 @@
       const vId = i.variante_id
       if (!vId) return
       if (!groupedMap.has(vId)) {
-        groupedMap.set(vId, { ...i, stock: 0, lotesArray: [] })
+        groupedMap.set(vId, { ...i, stock: 0, lotesArray: [], lotesDetalle: [] })
       }
       const item = groupedMap.get(vId)
       item.stock += (i.stock || 0)
       if (i.lotes?.codigo_lote && !item.lotesArray.includes(i.lotes.codigo_lote)) {
         item.lotesArray.push(i.lotes.codigo_lote)
       }
+      item.lotesDetalle.push({
+        id: i.id,
+        lote_id: i.lote_id,
+        codigo: i.lotes?.codigo_lote || '',
+        vencimiento: i.lotes?.fecha_vencimiento || '',
+        stock: Number(i.stock || 0)
+      })
     })
+    groupedMap.forEach(item => item.lotesDetalle.sort((a, b) => Number(a.id) - Number(b.id)))
 
     const groupedArray = Array.from(groupedMap.values())
 
@@ -1534,15 +1559,19 @@
     $('#tbody-inventario').innerHTML = invGroups.map(i => {
       const p = i.variantes?.productos
       const loteStr = i.lotesArray.join(', ')
+      const detalle = i.lotesDetalle || []
+      const loteHtml = detalle.length
+        ? detalle.map((l, idx) => `<div style="white-space:nowrap;"><code style="font-size:.7rem;">${escapeHtml(l.codigo || 'Sin código')}</code>: <strong>${l.stock} unids</strong>${idx === 0 ? ' <span style="font-size:.65rem; color:#64748b;">(más viejo)</span>' : ''}</div>`).join('')
+        : '—'
 
-      return `
-        <tr>
-          <td><strong>${escapeHtml(p?.sku || '—')}</strong></td>
-          <td>${escapeHtml(p?.nombre || '—')}</td>
-          <td>${escapeHtml(p?.categorias?.nombre || '—')}</td>
-          <td>${escapeHtml(i.variantes?.nombre || '—')}</td>
-          <td><strong style="font-size:0.75rem;">${escapeHtml(loteStr || '—')}</strong></td>
-          <td><strong style="color:${i.stock > 0 ? '#0b4d8c' : '#991b1b'};">${i.stock} unids</strong></td>
+        return `
+          <tr>
+            <td><strong>${escapeHtml(p?.sku || '—')}</strong></td>
+            <td>${escapeHtml(p?.nombre || '—')}</td>
+            <td>${escapeHtml(p?.categorias?.nombre || '—')}</td>
+            <td>${escapeHtml(i.variantes?.nombre || '—')}</td>
+            <td>${loteHtml}</td>
+            <td><strong style="color:${i.stock > 0 ? '#0b4d8c' : '#991b1b'};">${i.stock} unids</strong></td>
           <td>$${Number(p?.precio || 0).toFixed(2)}</td>
           <td>
             <button class="btn-sm btn-sm--edit" data-edit-inv="${Number(i.variante_id)}">Editar</button>
@@ -1555,17 +1584,21 @@
     document.querySelectorAll('[data-edit-inv]').forEach(btn => btn.addEventListener('click', () => {
       const i = invGroups.find(x => String(x.variante_id) === String(btn.dataset.editInv))
       if (!i) return
-      $('#inv-edit-id').value = i.id
+      const oldest = (i.lotesDetalle || [])[0] || i
+      $('#inv-edit-id').value = oldest.id
       $('#manual-producto').value = i.variantes?.productos?.id || ''
       $('#manual-producto').dispatchEvent(new Event('change'))
-      $('#manual-lote').value = i.lotes?.id || ''
+      $('#manual-lote').value = oldest.lote_id || ''
       $('#manual-lote').dispatchEvent(new Event('change'))
       $('#manual-formula').value = i.variantes?.nombre || ''
-      $('#manual-stock').value = i.stock
+      $('#manual-stock').value = oldest.stock
 
       $('#inv-form-title').textContent = 'Editar Inventario'
       $('#manual-btn').textContent = 'Actualizar Inventario'
       $('#inv-btn-cancelar').style.display = 'block'
+      $('#manual-stock-label').textContent = `Stock del lote ${oldest.codigo || '—'} *`
+      $('#inv-edit-hint').innerHTML = `Estás editando el <strong>lote más viejo</strong> (<code>${escapeHtml(oldest.codigo || '—')}</code>, stock actual <strong>${oldest.stock}</strong>). Bajar el número resta y subirlo suma en ese lote; los demás lotes no se tocan.`
+      $('#inv-edit-hint').style.display = 'block'
     }))
 
     document.querySelectorAll('[data-del-var]').forEach(btn => btn.addEventListener('click', async () => {
@@ -1661,6 +1694,9 @@
     $('#inv-form-title').textContent = 'Asignar Fórmula / Inventario'
     $('#manual-btn').textContent = 'Guardar en Inventario'
     $('#inv-btn-cancelar').style.display = 'none'
+    $('#manual-stock-label').textContent = 'Stock a Sumar / Ajustar *'
+    $('#inv-edit-hint').style.display = 'none'
+    $('#inv-edit-hint').innerHTML = ''
     $('#tag-prod-info').textContent = 'SKU: — | Cat: — | Precio Base: —'
     $('#tag-lote-info').textContent = 'Lote: — | Vence: —'
   })
@@ -2290,6 +2326,144 @@
 
   $('#btn-imprimir-reporte').addEventListener('click', () => { window.print() })
 
+  // ================= MODALES: CLIENTE Y DESPACHO =================
+  $('#tbody-clientes').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-editar-cli]')
+    if (!btn) return
+    const c = clientesCache.find(x => String(x.id) === String(btn.dataset.editarCli))
+    if (!c) return
+    $('#ed-cli-id').value = c.id
+    $('#ed-cli-codigo').value = c.codigo_usuario || ''
+    $('#ed-cli-rif').value = c.rif || ''
+    $('#ed-cli-empresa').value = c.empresa || ''
+    $('#ed-cli-nombre').value = c.nombre_completo || ''
+    $('#ed-cli-telefono').value = c.telefono || ''
+    $('#ed-cli-email').value = c.email || ''
+    $('#ed-cli-dir-fiscal').value = c.direccion_fiscal || ''
+    $('#ed-cli-dir-envio').value = c.direccion_envio || ''
+    $('#modal-editar-cliente').classList.add('activo')
+  })
+
+  $('#ed-cli-cancelar').addEventListener('click', () => $('#modal-editar-cliente').classList.remove('activo'))
+  $('#ed-cli-guardar').addEventListener('click', async () => {
+    const id = Number($('#ed-cli-id').value)
+    if (!id) return
+    const { error } = await supabase.rpc('admin_actualizar_cliente', {
+      p_cliente_id: id,
+      p_codigo_usuario: $('#ed-cli-codigo').value.trim() || null,
+      p_rif: $('#ed-cli-rif').value.trim() || null,
+      p_empresa: $('#ed-cli-empresa').value.trim() || null,
+      p_nombre_completo: $('#ed-cli-nombre').value.trim() || null,
+      p_telefono: $('#ed-cli-telefono').value.trim() || null,
+      p_email: $('#ed-cli-email').value.trim() || null,
+      p_direccion_fiscal: $('#ed-cli-dir-fiscal').value.trim() || null,
+      p_direccion_envio: $('#ed-cli-dir-envio').value.trim() || null
+    })
+    if (error) return alert('Error al guardar el cliente: ' + mensajeError(error))
+    $('#modal-editar-cliente').classList.remove('activo')
+    alert('✓ Datos del cliente guardados.')
+    cargarClientes()
+  })
+
+  function abrirModalDespacho (pedidoId, courierId, guia) {
+    const p = pedidosCache.find(x => String(x.id) === String(pedidoId))
+    if (!p) return
+    const cli = p.clientes || {}
+    const courier = couriersCache.find(c => String(c.id) === String(courierId))
+    $('#des-ped-id').value = p.id
+    $('#des-courier-id').value = courierId || ''
+    $('#des-guia').value = guia || ''
+    $('#des-resumen').innerHTML = `Pedido <strong>#${escapeHtml(p.codigo_pedido || '—')}</strong> · ${escapeHtml(cli.empresa || '—')}<br>Courier: <strong>${escapeHtml(courier?.nombre || '—')}</strong> · Guía: <strong>${escapeHtml(guia || '—')}</strong>`
+    $('#des-fiscal').textContent = cli.direccion_fiscal || 'Sin dirección fiscal registrada'
+    $('#des-envio').textContent = cli.direccion_envio || 'Sin dirección de envío registrada'
+
+    const previa = p.direccion_despacho || ''
+    let tipo = 'envio'
+    if (previa && cli.direccion_fiscal && previa === cli.direccion_fiscal) tipo = 'fiscal'
+    else if (previa && cli.direccion_envio && previa === cli.direccion_envio) tipo = 'envio'
+    else if (previa) { tipo = 'otra'; $('#des-otra').value = previa }
+    if (!previa) $('#des-otra').value = ''
+    const radio = document.querySelector(`input[name="des-tipo"][value="${tipo}"]`)
+    if (radio) radio.checked = true
+    $('#des-otra-wrap').style.display = tipo === 'otra' ? 'block' : 'none'
+    $('#modal-despacho').classList.add('activo')
+  }
+
+  document.querySelectorAll('input[name="des-tipo"]').forEach(r => {
+    r.addEventListener('change', () => {
+      $('#des-otra-wrap').style.display = r.value === 'otra' && r.checked ? 'block' : 'none'
+    })
+  })
+
+  $('#des-cancelar').addEventListener('click', () => $('#modal-despacho').classList.remove('activo'))
+
+  $('#des-guardar').addEventListener('click', async () => {
+    const id = Number($('#des-ped-id').value)
+    const p = pedidosCache.find(x => x.id === id)
+    if (!p) return
+    const tipo = document.querySelector('input[name="des-tipo"]:checked')?.value || 'envio'
+    let direccion = ''
+    if (tipo === 'fiscal') direccion = p.clientes?.direccion_fiscal || ''
+    else if (tipo === 'envio') direccion = p.clientes?.direccion_envio || ''
+    else direccion = $('#des-otra').value.trim()
+    if (!direccion) return alert('La dirección elegida está vacía. Selecciona otra e indícala.')
+    const cId = Number($('#des-courier-id').value) || null
+    const guia = $('#des-guia').value.trim() || null
+    const { error } = await supabase.from('pedidos').update({
+      courier_id: cId,
+      guia_despacho: guia,
+      direccion_despacho: direccion
+    }).eq('id', id)
+    if (error) return alert('Error al guardar el envío: ' + mensajeError(error))
+    p.courier_id = cId
+    p.guia_despacho = guia
+    p.direccion_despacho = direccion
+    $('#modal-despacho').classList.remove('activo')
+    alert('✓ Envío confirmado. Ya puedes imprimir la guía de despacho.')
+    cargarPedidosAdmin()
+  })
+
+  function construirGuia (p) {
+    const cli = p.clientes || {}
+    const courier = couriersCache.find(c => String(c.id) === String(p.courier_id))
+    const items = Array.isArray(p.detalles) ? p.detalles : []
+    const filas = items.map(d => `
+      <tr>
+        <td>${escapeHtml(d.nombre || '—')}</td>
+        <td>${escapeHtml(d.variante || d.nombre_variante || '—')}</td>
+        <td style="text-align:center;">${Number(d.cantidad || 0)}</td>
+        <td>${escapeHtml(d.lote || '—')}</td>
+      </tr>`).join('')
+    const mon = p.moneda_pago === 'USD' ? 'USD' : 'Bs.'
+    return `
+      <div style="font-family:Arial, sans-serif; color:#111; padding:1rem;">
+        <h2 style="text-align:center; margin-bottom:.2rem;">OPTILINE · GUÍA DE DESPACHO</h2>
+        <p style="text-align:center; margin-top:0;">Orden #${escapeHtml(p.codigo_pedido || '—')} · ${new Date(p.fecha).toLocaleDateString()}</p>
+        <table>
+          <tr><th>Cliente</th><td colspan="3">${escapeHtml(cli.empresa || '—')}</td></tr>
+          <tr><th>RIF / Código</th><td>${escapeHtml(cli.rif || '—')}</td><th>Teléfono</th><td>${escapeHtml(cli.telefono || '—')}</td></tr>
+          <tr><th>Courier</th><td>${escapeHtml(courier?.nombre || '—')}</td><th>Guía</th><td>${escapeHtml(p.guia_despacho || '—')}</td></tr>
+          <tr><th>Dirección de envío</th><td colspan="3" style="white-space:pre-wrap;">${escapeHtml(p.direccion_despacho || cli.direccion_envio || cli.direccion_fiscal || '—')}</td></tr>
+          <tr><th>Total</th><td colspan="3">${mon} ${Number(p.total || 0).toFixed(2)}</td></tr>
+        </table>
+        <h3>Ítems a despachar</h3>
+        <table>
+          <thead><tr><th>Producto</th><th>Fórmula</th><th>Cant.</th><th>Lote</th></tr></thead>
+          <tbody>${filas || '<tr><td colspan="4">Sin detalle</td></tr>'}</tbody>
+        </table>
+        <p style="margin-top:3rem;">Recibido por: _______________________________ &nbsp;&nbsp; Fecha: ____________</p>
+      </div>`
+  }
+
+  $('#tbody-pedidos-admin').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-print-guia]')
+    if (!btn) return
+    const p = pedidosCache.find(x => String(x.id) === String(btn.dataset.printGuia))
+    if (!p) return
+    $('#guia-imprimir').innerHTML = construirGuia(p)
+    window.print()
+  })
+
   async function cargarTodo () {
     await cargarCatalogos()
     await cargarClientes()
@@ -2303,5 +2477,57 @@
     await cargarDashboard()
   }
 </script>
+
+<div class="admin-modal" id="modal-editar-cliente">
+  <div class="admin-modal__box">
+    <h3>Editar óptica</h3>
+    <p style="font-size:.8rem; color:#64748b; margin-top:0;">Código, RIF, contacto y direcciones fiscal y de envío.</p>
+    <input type="hidden" id="ed-cli-id">
+    <div class="admin-modal__field"><label>Código</label><input id="ed-cli-codigo"></div>
+    <div class="admin-modal__field"><label>RIF</label><input id="ed-cli-rif"></div>
+    <div class="admin-modal__field"><label>Razón social</label><input id="ed-cli-empresa"></div>
+    <div class="admin-modal__field"><label>Nombre de contacto</label><input id="ed-cli-nombre"></div>
+    <div class="admin-modal__field"><label>Teléfono</label><input id="ed-cli-telefono"></div>
+    <div class="admin-modal__field"><label>Correo</label><input id="ed-cli-email" type="email"></div>
+    <div class="admin-modal__field"><label>Dirección fiscal</label><textarea id="ed-cli-dir-fiscal"></textarea></div>
+    <div class="admin-modal__field"><label>Dirección de envío</label><textarea id="ed-cli-dir-envio"></textarea></div>
+    <div class="btn-group">
+      <button type="button" class="boton boton--primario boton--bloque" id="ed-cli-guardar">Guardar cambios</button>
+      <button type="button" class="boton btn-cancelar" id="ed-cli-cancelar">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<div class="admin-modal" id="modal-despacho">
+  <div class="admin-modal__box">
+    <h3>Confirmar envío</h3>
+    <p id="des-resumen" style="font-size:.85rem; color:#475569; background:#f8fafc; padding:.7rem; border-radius:6px;"></p>
+    <input type="hidden" id="des-ped-id">
+    <input type="hidden" id="des-courier-id">
+    <input type="hidden" id="des-guia">
+    <label style="display:flex; gap:.5rem; align-items:flex-start; margin:.5rem 0;">
+      <input type="radio" name="des-tipo" value="fiscal" style="margin-top:.2rem;">
+      <span><strong>Dirección fiscal</strong><br><small id="des-fiscal" style="color:#64748b; white-space:pre-wrap;"></small></span>
+    </label>
+    <label style="display:flex; gap:.5rem; align-items:flex-start; margin:.5rem 0;">
+      <input type="radio" name="des-tipo" value="envio" style="margin-top:.2rem;">
+      <span><strong>Dirección de envío</strong><br><small id="des-envio" style="color:#64748b; white-space:pre-wrap;"></small></span>
+    </label>
+    <label style="display:flex; gap:.5rem; align-items:flex-start; margin:.5rem 0;">
+      <input type="radio" name="des-tipo" value="otra" style="margin-top:.2rem;">
+      <span><strong>Otra dirección</strong></span>
+    </label>
+    <div class="admin-modal__field" id="des-otra-wrap" style="display:none; padding-left:1.6rem;">
+      <label>Escriba la dirección de entrega</label>
+      <textarea id="des-otra" placeholder="Calle, número, ciudad, referencias..."></textarea>
+    </div>
+    <div class="btn-group">
+      <button type="button" class="boton boton--primario boton--bloque" id="des-guardar">Confirmar y guardar</button>
+      <button type="button" class="boton btn-cancelar" id="des-cancelar">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<div id="guia-imprimir"></div>
 </body>
 </html>

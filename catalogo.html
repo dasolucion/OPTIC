@@ -308,8 +308,7 @@
 
       $('#modal-select-variante').innerHTML = '<option value="">Selecciona graduación...</option>' +
         currentGroupedVariants.map((v, idx) => {
-          const lotes = (v.lotes || []).join(', ')
-          return `<option value="${idx}" data-stock="${Number(v.stock || 0)}">${escapeHtml(v.nombre)} (Lotes: ${escapeHtml(lotes)} | Disp: ${Number(v.stock || 0)} unids)</option>`
+          return `<option value="${idx}" data-stock="${Number(v.stock || 0)}">${escapeHtml(v.nombre)} (Disp: ${Number(v.stock || 0)} unids)</option>`
         }).join('')
 
       $('#modal-cantidad').value = '1'
@@ -345,7 +344,6 @@
         productoId: Number(productoActualModal.id),
         nombre: productoActualModal.nombre,
         variante: grupo.nombre,
-        lote: (grupo.lotes || []).join(', '),
         cantidad: cant,
         precioUSD: Number(productoActualModal.precio || 0)
       })
@@ -396,7 +394,6 @@
             <div>
               <h4 style="font-family:var(--fuente-titulos);">${escapeHtml(item.nombre)}</h4>
               <p>Fórmula: <strong>${escapeHtml(item.variante)}</strong></p>
-              <p style="font-size:0.8rem; color:#64748b;">Lotes: ${escapeHtml(item.lote)}</p>
               <p>${Number(item.cantidad)} unids x ${formatoBs(Number(item.precioUSD || 0) * tasaCatalogo)}</p>
             </div>
             <div style="text-align:right;">
